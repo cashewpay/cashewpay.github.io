@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Генератор билета</title>
+  
+  <link rel="icon" type="image/x-icon" href="/assets/generator.ico">
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  background: #f5f5f5;
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: background 0.3s;
+}
+
+.dark body {
+  background: #1c1c1e;
+}
+
+.box {
+  background: white;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+  max-width: 480px;
+  margin: auto;
+  transition: 0.3s;
+}
+
+.dark .box {
+  background: #2c2c2e;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+h2 {
+  margin: 0;
+  transition: 0.3s;
+}
+
+.dark h2 {
+  color: white;
+}
+
+/* 🌗 SWITCH */
+.theme-switch {
+  position: relative;
+  width: 52px;
+  height: 30px;
+}
+
+.theme-switch input {
+  opacity: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: #e5e5ea;
+  border-radius: 20px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.slider::before {
+  content: "🌙";
+  position: absolute;
+  height: 24px;
+  width: 24px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: 0.3s;
+}
+
+input:checked + .slider {
+  background: #34c759;
+}
+
+.dark input:checked + .slider {
+  background: #3a8f5a;
+}
+
+input:checked + .slider::before {
+  transform: translateX(22px);
+  content: "☀️";
+}
+
+/* ---------------- */
+
+input, select {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 16px;
+  border-radius: 14px;
+  border: 1px solid #e5e5e5;
+  font-size: 15px;
+  background: #f9f9f9;
+  outline: none;
+  transition: 0.2s;
+}
+
+input::placeholder {
+  color: #999;
+}
+
+.dark input::placeholder {
+  color: #aaa;
+}
+
+.dark input,
+.dark select {
+  background: #3a3a3c;
+  border-color: #444;
+  color: white;
+}
+
+.error {
+  border-color: #ffb3b0 !important;
+  background: #fffafa;
+}
+
+.dark .error {
+  border-color: #5a2a2a !important;
+  background: #2a1a1a;
+}
+
+input:focus, select:focus {
+  border-color: #007aff;
+  background: #fff;
+}
+
+.dark input:focus,
+.dark select:focus {
+  border-color: #4da3ff;
+  background: #2c2c2e;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  border-radius: 14px;
+  border: none;
+  background: #007aff;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:disabled {
+  background: #555;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+.share-btn {
+  margin-top: 12px;
+  background: linear-gradient(135deg, #34c759, #30b350);
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <div class="header">
+    <h2>Генератор билета</h2>
+
+    <label class="theme-switch">
+      <input type="checkbox" id="themeToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <select id="type">
+    <option value="">Выбери транспорт</option>
+    <option value="bus">Автобус</option>
+    <option value="trolley">Троллейбус</option>
+  </select>
+
+  <select id="ap">
+    <option value="">Выбери АП</option>
+    <option value="1">АП №1</option>
+    <option value="2">АП №2</option>
+    <option value="3">АП №3</option>
+    <option value="4">АП №4</option>
+    <option value="5">АП №5</option>
+    <option value="6">АП №6</option>
+  </select>
+
+  <input id="num" placeholder="Гар. номер (например 26012)" inputmode="numeric" pattern="[0-9]*">
+
+  <select id="price">
+    <option value="">Выбери цену</option>
+    <option value="0.9">0.9</option>
+    <option value="1.05">1.05</option>
+  </select>
+
+  <button id="openBtn" onclick="openTicket()" disabled>
+    Открыть билет
+  </button>
+
+  <button id="shareBtn" class="share-btn" onclick="shareLink()" disabled>
+    📤 Поделиться
+  </button>
+
+</div>
+
+<script>
+// 🌗 ТЕМА
+const toggle = document.getElementById("themeToggle");
+
+function setTheme(mode) {
+  document.documentElement.classList.toggle("dark", mode === "dark");
+  toggle.checked = mode === "dark";
+  localStorage.setItem("theme", mode);
+}
+
+function initTheme() {
+  const saved = localStorage.getItem("theme");
+  if (saved) return setTheme(saved);
+
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  setTheme(prefersDark ? "dark" : "light");
+}
+
+toggle.addEventListener("change", () => {
+  setTheme(toggle.checked ? "dark" : "light");
+});
+
+initTheme();
+
+// --------------------
+// ОСНОВНОЙ JS
+// --------------------
+
+const typeEl = document.getElementById("type");
+const apEl = document.getElementById("ap");
+const numEl = document.getElementById("num");
+const priceEl = document.getElementById("price");
+const openBtn = document.getElementById("openBtn");
+const shareBtn = document.getElementById("shareBtn");
+
+apEl.style.display = "none";
+
+// 🧠 АВТОПЕРЕХОД
+typeEl.addEventListener("change", () => {
+  if (typeEl.value === "bus") {
+    apEl.style.display = "block";
+    apEl.focus();
+  } else {
+    apEl.style.display = "none";
+    apEl.value = "";
+    numEl.focus();
+  }
+  updateButtons();
+});
+
+apEl.addEventListener("change", () => {
+  if (apEl.value) numEl.focus();
+});
+
+numEl.addEventListener("input", () => {
+  numEl.value = numEl.value.replace(/\D/g, '');
+
+  if (numEl.value.length >= 5) {
+    priceEl.focus();
+  }
+});
+
+priceEl.addEventListener("change", () => {
+  if (isFormValid()) openBtn.focus();
+});
+
+// --------------------
+
+function validateField(el, condition) {
+  el.classList.toggle("error", !condition);
+}
+
+function isFormValid() {
+  const type = typeEl.value;
+  const ap = apEl.value;
+  const num = numEl.value.trim();
+  const price = priceEl.value;
+
+  validateField(typeEl, !!type);
+  validateField(numEl, !!num);
+  validateField(priceEl, !!price);
+
+  if (type === "bus") {
+    validateField(apEl, !!ap);
+    if (!ap) return false;
+  } else {
+    apEl.classList.remove("error");
+  }
+
+  return !!(type && num && price);
+}
+
+function updateButtons() {
+  const valid = isFormValid();
+  openBtn.disabled = !valid;
+  shareBtn.disabled = !valid;
+}
+
+[typeEl, apEl, numEl, priceEl].forEach(el => {
+  el.addEventListener("change", updateButtons);
+  el.addEventListener("input", updateButtons);
+});
+
+// --------------------
+// ЛОГИКА БИЛЕТА (твоя)
+// --------------------
+
+function formatDate(date) {
+  const d = String(date.getDate()).padStart(2, '0');
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const y = date.getFullYear();
+  const h = date.getHours();
+  const min = String(date.getMinutes()).padStart(2, '0');
+  return `${d}.${m}.${y} ${h}:${min}`;
+}
+
+function getDateRange() {
+  const now = new Date();
+  const plus = new Date(now.getTime() + 3600000);
+  return { from: formatDate(now), to: formatDate(plus) };
+}
+
+function generateHash(data) {
+  let hash = 0;
+  for (let i = 0; i < data.length; i++) {
+    hash = (hash * 31 + data.charCodeAt(i)) >>> 0;
+  }
+  return "#" + (hash.toString(16) + Math.random().toString(16)).slice(0, 16) + "#";
+}
+
+function buildRecipientParts() {
+  const type = typeEl.value;
+  const ap = apEl.value;
+  const num = numEl.value;
+  const price = priceEl.value || "0.9";
+
+  if (!type || !num) return null;
+
+  if (type === "bus" && ap) {
+    return [
+      `Оплата проезда в автобусе, гар. номер ${num} (в городском транспорте: ${price} руб)`,
+      `г. Гомель`,
+      `Гомельоблавтотранс ф-л "АП №${ap}"`
+    ];
+  }
+
+  if (type === "trolley") {
+    return [
+      `Оплата проезда в троллейбусе, гар. номер ${num} (в городском транспорте: ${price} руб)`,
+      `г. Гомель`,
+      `ОАО "Гомельоблавтотранс" филиал "Горэлектротранспорт"`
+    ];
+  }
+
+  return null;
+}
+
+function buildUrl() {
+  const parts = buildRecipientParts();
+  const { from, to } = getDateRange();
+  const price = priceEl.value;
+
+  let params = [];
+
+  if (parts) {
+    params.push("r1=" + encodeURIComponent(parts[0]));
+    params.push("r2=" + encodeURIComponent(parts[1]));
+    params.push("r3=" + encodeURIComponent(parts[2]));
+  }
+
+  params.push("from=" + encodeURIComponent(from));
+  params.push("to=" + encodeURIComponent(to));
+
+  if (price) params.push("price=" + encodeURIComponent(price));
+
+  const raw = (parts ? parts.join("|") : "") + "|" + from + "|" + to + "|" + price;
+  params.push("desc=" + encodeURIComponent(generateHash(raw)));
+
+  return window.location.origin + "/index.html?" + params.join("&");
+}
+
+function openTicket() {
+  if (!isFormValid()) return;
+  window.open(buildUrl(), "_blank");
+}
+
+async function shareLink() {
+  if (!isFormValid()) return;
+  const url = buildUrl();
+
+  if (navigator.share && location.protocol === "https:") {
+    try {
+      await navigator.share({ title: "Билет", text: "Ссылка на билет", url });
+      return;
+    } catch (e) {}
+  }
+
+  if (navigator.clipboard && location.protocol === "https:") {
+    try {
+      await navigator.clipboard.writeText(url);
+      alert("Ссылка скопирована!");
+      return;
+    } catch (e) {}
+  }
+
+  const input = document.createElement("input");
+  input.value = url;
+  document.body.appendChild(input);
+  input.select();
+
+  try {
+    document.execCommand("copy");
+    alert("Ссылка скопирована!");
+  } catch (err) {
+    prompt("Скопируй ссылку:", url);
+  }
+
+  document.body.removeChild(input);
+}
+</script>
+
+</body>
+</html>
