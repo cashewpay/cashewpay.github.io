@@ -16,7 +16,11 @@ document.addEventListener("DOMContentLoaded", function () {
         await waitForFirebase();
 
         const params = new URLSearchParams(window.location.search);
-        const id = params.get("id");
+        let id = params.get("id");
+
+        if (!id) {
+            id = window.location.pathname.slice(1);
+        }
 
         if (!id) {
             showNoData();
