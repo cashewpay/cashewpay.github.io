@@ -88,32 +88,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
     
-    const anim = lottie.loadAnimation({
-        container: document.getElementById('checkAnimation'),
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        path: 'check.json'
-    });
-
-    anim.addEventListener('DOMLoaded', () => {
-        const el = document.querySelector('#checkAnimation svg');
-
-        function loop() {
-            el.animate([
-                { transform: 'rotate(0deg) scale(1)' },
-                { transform: 'rotate(180deg) scale(0.5)' },
-                { transform: 'rotate(270deg) scale(0.45)' },
-                { transform: 'rotate(360deg) scale(1.05)' },
-                { transform: 'rotate(360deg) scale(1)' }
-            ], {
-                duration: 900,
-                easing: 'cubic-bezier(0.22, 1.4, 0.36, 1)'
-            }).onfinish = loop;
-        }
-
-        loop();
-    });
+	  lottie.loadAnimation({
+	    container: document.getElementById('anim'),
+	    renderer: 'svg',
+	    loop: true,
+	    autoplay: true,
+	    path: 'check.json' // ← ВОТ ЧТО ТЕБЕ НУЖНО
+	  });
 
     // ====== QR-КОД ======
     function generateQR() {
