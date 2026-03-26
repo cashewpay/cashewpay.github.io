@@ -87,6 +87,14 @@ document.addEventListener("DOMContentLoaded", function () {
             modal.style.display = "flex";
         }
     }
+    
+    lottie.loadAnimation({
+        container: document.getElementById('checkAnimation'),
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: 'check.json' // сюда файл анимации
+    });
 
     // ====== QR-КОД ======
     function generateQR() {
