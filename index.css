@@ -10440,46 +10440,15 @@ textarea.ant-pagination-options-quick-jumper input {
     width: 18%;
     height: 19%;
     padding: 0;
-    animation: checkSpin 0.9s cubic-bezier(0.22, 1.4, 0.36, 1) infinite;
-}
-
-@keyframes checkLoop {
-    0% {
-        transform: translate(-50%, -50%) translate(3%, 7%)
-                   scale(0.6) rotate(0deg);
-    }
-
-    /* быстрый разгон + основной прокрут */
-    35% {
-        transform: translate(-50%, -50%) translate(3%, 7%)
-                   scale(1.1) rotate(260deg);
-    }
-
-    /* доворот до полного круга */
-    55% {
-        transform: translate(-50%, -50%) translate(3%, 7%)
-                   scale(1) rotate(360deg);
-    }
-
-    /* фиксация */
-    75% {
-        transform: translate(-50%, -50%) translate(3%, 7%)
-                   scale(1) rotate(360deg);
-    }
-
-    /* резкий сброс (визуально как в видео) */
-    100% {
-        transform: translate(-50%, -50%) translate(3%, 7%)
-                   scale(0.6) rotate(0deg);
-    }
+    animation: rotate360 0.95s linear infinite;
 }
 
 .confirm___CQ9pa svg {
     width: 100%;
     height: 100%;
-    transform: scale(0.90);
     display: block;
     object-fit: contain;
+    animation: scalePulse 0.95s cubic-bezier(0.22, 1.4, 0.36, 1) infinite;
 }
 
 .check-path {
@@ -10489,51 +10458,32 @@ textarea.ant-pagination-options-quick-jumper input {
     animation: drawLoop 1.5s ease-out infinite;
 }
 
-@keyframes checkSpin {
-    0% {
-        transform: translate(-50%, -50%) translate(3%, 7%)
-                   rotate(0deg) scale(1);
+@keyframes rotate360 {
+    from {
+        transform: translate(-50%, -50%) translate(3%, 7%) rotate(0deg);
     }
-
-    /* быстрый разгон */
-    30% {
-        transform: translate(-50%, -50%) translate(3%, 7%)
-                   rotate(140deg) scale(0.7);
-    }
-
-    /* сильное сжатие (ключевой момент) */
-    65% {
-        transform: translate(-50%, -50%) translate(3%, 7%)
-                   rotate(270deg) scale(0.48);
-    }
-
-    /* резкий выход с микро-оверскейлом */
-    85% {
-        transform: translate(-50%, -50%) translate(3%, 7%)
-                   rotate(340deg) scale(1.06);
-    }
-
-    100% {
-        transform: translate(-50%, -50%) translate(3%, 7%)
-                   rotate(360deg) scale(1);
+    to {
+        transform: translate(-50%, -50%) translate(3%, 7%) rotate(360deg);
     }
 }
 
-@keyframes drawLoop {
+@keyframes scalePulse {
     0% {
-        stroke-dashoffset: 120;
+        transform: scale(1);
     }
 
-    20% {
-        stroke-dashoffset: 120;
-    }
-
+    /* плавное уменьшение */
     50% {
-        stroke-dashoffset: 0;
+        transform: scale(0.45);
+    }
+
+    /* возврат с лёгким подпружиниванием */
+    75% {
+        transform: scale(1.06);
     }
 
     100% {
-        stroke-dashoffset: 120;
+        transform: scale(1);
     }
 }
 
