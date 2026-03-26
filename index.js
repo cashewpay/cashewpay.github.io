@@ -71,6 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // 👉 QR генерируем только после загрузки данных
         generateQR();
+        showSuccess();
     }
 
     // ====== УТИЛИТЫ ======
@@ -103,6 +104,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }, function (error) {
             if (error) console.error(error);
         });
+    }
+
+    function showSuccess() {
+        const el = document.querySelector(".successAnim");
+        if (!el) return;
+    
+        el.classList.remove("active");
+        void el.offsetWidth;
+        el.classList.add("active");
     }
 
     // ====== СТАРТ ======
