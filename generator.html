@@ -354,12 +354,22 @@ function getDateRange() {
   return { from: formatDate(now), to: formatDate(plus) };
 }
 
-function generateHash(data) {
-  let hash = 0;
-  for (let i = 0; i < data.length; i++) {
-    hash = (hash * 31 + data.charCodeAt(i)) >>> 0;
+function generateDesc() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  let result = "";
+
+  for (let i = 0; i < 16; i++) {
+    let randomChar;
+
+    do {
+      randomChar = chars[Math.floor(Math.random() * chars.length)];
+    } while (result.slice(-2) === randomChar.repeat(2));
+
+    result += randomChar;
   }
-  return "#" + (hash.toString(16) + Math.random().toString(16)).slice(0, 16) + "#";
+
+  return "#" + result + "#";
 }
 
 // 🔥 НОВОЕ — стабильный ID
@@ -407,22 +417,28 @@ async function buildUrl() {
   const { from, to } = getDateRange();
   const price = priceEl.value;
 
-  const data = {
+  // 🔒 ТОЛЬКО стабильные данные для ID
+  const stableData = {
     r1: parts?.[0],
     r2: parts?.[1],
     r3: parts?.[2],
-    from,
-    to,
-    price,
-    desc: generateHash((parts || []).join("|") + "|" + from + "|" + to + "|" + price)
+    price
   };
 
-  const id = generateIdFromData(data);
+  const id = generateIdFromData(stableData);
 
   const ref = doc(db, "links", id);
   const snap = await getDoc(ref);
 
+  // 📦 если записи нет — создаём
   if (!snap.exists()) {
+    const data = {
+      ...stableData,
+      from,
+      to,
+      desc: generateDesc()
+    };
+
     await setDoc(ref, data);
   }
 
