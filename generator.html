@@ -47,6 +47,13 @@ h2 {
   transition: 0.3s;
 }
 
+.update {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
 .dark h2 {
   color: white;
 }
@@ -184,7 +191,7 @@ button:active {
 
   <div class="header">
     <h2>Генератор билета</h2>
-    <h2>Обновление от 26.03 ♥</h2>
+    <p class="update">Обновление от 26.03 ♥</p>
 
     <label class="theme-switch">
       <input type="checkbox" id="themeToggle">
@@ -432,7 +439,7 @@ const stableData = {
     await setDoc(ref, data);
   }
 
-  return window.location.origin + "/index.html?id=" + id;
+  return window.location.origin + "/" + id;
 }
 
 // --------------------
