@@ -10432,6 +10432,71 @@ textarea.ant-pagination-options-quick-jumper input {
     height: 170px
 }
 
+.successAnim {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.6);
+  width: 90px;
+  height: 90px;
+  pointer-events: none;
+}
+
+/* КРУГ */
+.circleImg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform: scale(0);
+}
+
+/* ГАЛОЧКА */
+.checkImg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform: scale(0);
+  opacity: 0;
+}
+
+/* АКТИВАЦИЯ */
+.successAnim.active .circleImg {
+  animation: circlePop 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.successAnim.active .checkImg {
+  animation: checkAppear 0.3s ease-out 0.2s forwards,
+             checkBounce 0.2s ease-out 0.5s;
+}
+
+/* 🎯 АНИМАЦИИ */
+
+/* КРУГ — как в видео */
+@keyframes circlePop {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* ГАЛОЧКА — появляется */
+@keyframes checkAppear {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ФИНАЛЬНЫЙ БОНС */
+@keyframes checkBounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
 .bankLogosBlock___23K86,.bankLogosBlockWithBorder___keqt7 {
     display: -ms-flexbox;
     display: flex;
