@@ -10434,15 +10434,13 @@ textarea.ant-pagination-options-quick-jumper input {
 
 .confirm___CQ9pa {
     position: absolute;
-    padding: 40px;
-    z-index: 5;
-    top: 0;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    margin: auto;
-    width: 40%;
-    height: 45%
+    z-index: 6;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 65%;
+    height: 65%;
+    padding: 0;
 }
 
 .successAnim {
