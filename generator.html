@@ -438,8 +438,19 @@ const stableData = {
 
 async function openTicket() {
   if (!isFormValid()) return;
-  const url = await buildUrl();
-  window.open(url, "_blank");
+
+  // 👇 открыть сразу (ВАЖНО)
+  const newWindow = window.open("", "_blank");
+
+  try {
+    const url = await buildUrl();
+
+    // 👇 потом перенаправить
+    newWindow.location.href = url;
+  } catch (e) {
+    newWindow.close();
+    alert("Ошибка при создании билета");
+  }
 }
 
 async function shareLink() {
