@@ -209,12 +209,6 @@ button:active {
 
   <input id="num" placeholder="Гар. номер (например 26012)" inputmode="numeric" pattern="[0-9]*">
 
-  <select id="price">
-    <option value="">Выбери цену</option>
-    <option value="0.9">0.9</option>
-    <option value="1.05">1.05</option>
-  </select>
-
   <button id="openBtn" onclick="openTicket()" disabled>
     Открыть билет
   </button>
@@ -267,7 +261,7 @@ initTheme();
 const typeEl = document.getElementById("type");
 const apEl = document.getElementById("ap");
 const numEl = document.getElementById("num");
-const priceEl = document.getElementById("price");
+const FIXED_PRICE = "1.05";;
 const openBtn = document.getElementById("openBtn");
 const shareBtn = document.getElementById("shareBtn");
 
@@ -291,11 +285,7 @@ apEl.addEventListener("change", () => {
 
 numEl.addEventListener("input", () => {
   numEl.value = numEl.value.replace(/\D/g, '');
-  if (numEl.value.length >= 5) priceEl.focus();
-});
-
-priceEl.addEventListener("change", () => {
-  if (isFormValid()) openBtn.focus();
+  if (numEl.value.length >= 5) openBtn.focus();
 });
 
 // --------------------
@@ -308,11 +298,10 @@ function isFormValid() {
   const type = typeEl.value;
   const ap = apEl.value;
   const num = numEl.value.trim();
-  const price = priceEl.value;
+  const price = FIXED_PRICE;;
 
   validateField(typeEl, !!type);
   validateField(numEl, !!num);
-  validateField(priceEl, !!price);
 
   if (type === "bus") {
     validateField(apEl, !!ap);
@@ -330,7 +319,7 @@ function updateButtons() {
   shareBtn.disabled = !valid;
 }
 
-[typeEl, apEl, numEl, priceEl].forEach(el => {
+[typeEl, apEl, numEl].forEach(el => {
   el.addEventListener("change", updateButtons);
   el.addEventListener("input", updateButtons);
 });
@@ -388,7 +377,7 @@ function buildRecipientParts() {
   const type = typeEl.value;
   const ap = apEl.value;
   const num = numEl.value;
-  const price = priceEl.value || "0.9";
+  const price = FIXED_PRICE;
 
   if (!type || !num) return null;
 
@@ -415,7 +404,7 @@ function buildRecipientParts() {
 async function buildUrl() {
   const parts = buildRecipientParts();
   const { from, to } = getDateRange();
-  const price = priceEl.value;
+  const price = FIXED_PRICE;
 
   // 🔒 ТОЛЬКО стабильные данные для ID
   const stableData = {
