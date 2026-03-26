@@ -10432,6 +10432,19 @@ textarea.ant-pagination-options-quick-jumper input {
     height: 170px
 }
 
+.confirm___CQ9pa {
+    position: absolute;
+    padding: 40px;
+    z-index: 5;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    margin: auto;
+    width: 120px;
+    height: 120px
+}
+
 .successAnim {
   position: absolute;
   top: 50%;
