@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <script>
+    (function() {
+      const path = window.location.pathname;
+      const id = path.slice(1);
+
+      if (id) {
+        window.location.replace("/?id=" + id);
+      } else {
+        window.location.replace("/");
+      }
+    })();
+  </script>
+</head>
+<body></body>
+</html>
