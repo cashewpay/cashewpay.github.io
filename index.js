@@ -1,4 +1,4 @@
-console.log("JS START UPD 27.03");
+console.log("JS START UPD 1.2");
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -36,6 +36,34 @@ document.addEventListener("DOMContentLoaded", function () {
         return new Date() > endDate;
     }
 
+    function applyExpiredUI() {
+        const qrBlock = document.querySelector(".qrBlock___ngXsb");
+        if (!qrBlock) return;
+
+        if (qrBlock.querySelector(".cancel___1ZlPJ")) return;
+
+        const confirmImg = qrBlock.querySelector(".confirm___2Q9pa");
+        const confirmAnim = qrBlock.querySelector(".confirm___CQ9pa");
+
+        if (confirmImg) confirmImg.remove();
+        if (confirmAnim) confirmAnim.remove();
+
+        const cancelImg = document.createElement("img");
+        cancelImg.className = "cancel___1ZlPJ";
+        cancelImg.src = "/assets/cancel.svg";
+        cancelImg.alt = "cancel";
+
+        qrBlock.appendChild(cancelImg);
+    }
+
+    function startRealtimeCheck(activeTo) {
+        setInterval(() => {
+            if (isExpired(activeTo)) {
+                applyExpiredUI();
+            }
+        }, 1000);
+    }
+
     async function loadData() {
 
         await waitForFirebase();
@@ -64,6 +92,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const data = snap.data();
+
+            startRealtimeCheck(data.to);
 
             if (isExpired(data.to)) {
                 const qrBlock = document.querySelector(".qrBlock___ngXsb");
