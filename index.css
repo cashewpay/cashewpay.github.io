@@ -10437,9 +10437,9 @@ textarea.ant-pagination-options-quick-jumper input {
     z-index: 6;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) translate(3%, 7%);
-    width: 18%;
-    height: 19%;
+    transform: translate(-50%, -50%) translate(0%, 0%);
+    width: 30%;
+    height: 31%;
     padding: 0;
 }
 #checkAnimation {
