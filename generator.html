@@ -58,7 +58,6 @@ h2 {
   color: white;
 }
 
-/* 🌗 SWITCH */
 .theme-switch {
   position: relative;
   width: 52px;
@@ -228,7 +227,6 @@ button:active {
 </div>
 
 <script type="module">
-// 🔥 Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -240,8 +238,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
-// 🌗 ТЕМА (без изменений)
 const toggle = document.getElementById("themeToggle");
 
 function setTheme(mode) {
@@ -263,8 +259,6 @@ toggle.addEventListener("change", () => {
 });
 
 initTheme();
-
-// --------------------
 
 const typeEl = document.getElementById("type");
 const apEl = document.getElementById("ap");
@@ -295,8 +289,6 @@ numEl.addEventListener("input", () => {
   numEl.value = numEl.value.replace(/\D/g, '');
   if (numEl.value.length >= 5) openBtn.focus();
 });
-
-// --------------------
 
 function validateField(el, condition) {
   el.classList.toggle("error", !condition);
@@ -332,10 +324,6 @@ function updateButtons() {
   el.addEventListener("input", updateButtons);
 });
 
-// --------------------
-// 🔥 НОВАЯ ЛОГИКА
-// --------------------
-
 function formatDate(date) {
   const d = String(date.getDate()).padStart(2, '0');
   const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -369,7 +357,6 @@ function generateDesc() {
   return "#" + result + "#";
 }
 
-// 🔥 НОВОЕ — стабильный ID
 function generateIdFromData(data) {
   const str = JSON.stringify(data);
 
@@ -408,13 +395,11 @@ function buildRecipientParts() {
   return null;
 }
 
-// 🔥 ОБНОВЛЁННАЯ buildUrl
 async function buildUrl() {
   const parts = buildRecipientParts();
   const { from, to } = getDateRange();
   const price = FIXED_PRICE;
 
-  // 🔒 ТОЛЬКО стабильные данные для ID
 const stableData = {
   r1: parts ? parts[0] : null,
   r2: parts ? parts[1] : null,
@@ -427,7 +412,6 @@ const stableData = {
   const ref = doc(db, "links", id);
   const snap = await getDoc(ref);
 
-  // 📦 если записи нет — создаём
   if (!snap.exists()) {
     const data = {
       ...stableData,
@@ -441,22 +425,13 @@ const stableData = {
 
   return window.location.origin + "/" + id;
 }
-
-// --------------------
-
+  
 async function openTicket() {
   if (!isFormValid()) return;
-
-  // 👇 открыть сразу (ВАЖНО)
-  const newWindow = window.open("", "_blank");
-
   try {
     const url = await buildUrl();
-
-    // 👇 потом перенаправить
-    newWindow.location.href = url;
+    window.location.href = url;
   } catch (e) {
-    newWindow.close();
     alert("Ошибка при создании билета");
   }
 }
@@ -483,7 +458,6 @@ async function shareLink() {
   prompt("Скопируй ссылку:", url);
 }
 
-// 🔥 фикс для кнопок
 window.openTicket = openTicket;
 window.shareLink = shareLink;
 
