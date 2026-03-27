@@ -377,8 +377,13 @@ function formatDate(date) {
 
 function getDateRange() {
   const now = new Date();
-  const plus = new Date(now.getTime() + 2400000);
-  return { from: formatDate(now), to: formatDate(plus) };
+  const type = typeEl.value;
+  const offset = type === "trolley" ? 3600000 : 2400000;
+  const plus = new Date(now.getTime() + offset);
+  return {
+    from: formatDate(now),
+    to: formatDate(plus)
+  };
 }
 
 function generateDesc() {
