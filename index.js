@@ -88,13 +88,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
     
-	  lottie.loadAnimation({
-	    container: document.getElementById('anim'),
-	    renderer: 'svg',
-	    loop: true,
-	    autoplay: true,
-	    path: 'check.json' // ← ВОТ ЧТО ТЕБЕ НУЖНО
-	  });
+		lottie.loadAnimation({
+		  container: document.getElementById('anim'),
+		  renderer: 'svg',
+		  loop: true,
+		  autoplay: true,
+		  path: '/check.json'
+		});
 
     // ====== QR-КОД ======
     function generateQR() {
