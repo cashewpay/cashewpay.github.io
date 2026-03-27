@@ -15,28 +15,40 @@
 * { box-sizing: border-box; }
 
 body {
-  background: #f5f5f5;
+  background: linear-gradient(180deg, #e9f1ff, #f5f5f7);
   padding: 24px;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   transition: background 0.3s;
+  min-height: 100vh;
 }
 
 .dark body {
-  background: #1c1c1e;
+  background: linear-gradient(180deg, #0f0f10, #1c1c1e);
 }
 
+/* 🔮 Glass container */
 .box {
-  background: white;
-  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+
+  border-radius: 24px;
   padding: 24px;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.08),
+    inset 0 1px rgba(255,255,255,0.6);
+
   max-width: 480px;
   margin: auto;
   transition: 0.3s;
 }
 
 .dark .box {
-  background: #2c2c2e;
+  background: rgba(44,44,46,0.6);
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.5),
+    inset 0 1px rgba(255,255,255,0.05);
 }
 
 .header {
@@ -62,6 +74,7 @@ h2 {
   color: white;
 }
 
+/* 🌗 Switch */
 .theme-switch {
   position: relative;
   width: 52px;
@@ -75,7 +88,10 @@ h2 {
 .slider {
   position: absolute;
   inset: 0;
-  background: #e5e5ea;
+
+  background: rgba(120,120,128,0.25);
+  backdrop-filter: blur(10px);
+
   border-radius: 20px;
   transition: 0.3s;
   cursor: pointer;
@@ -88,21 +104,24 @@ h2 {
   width: 24px;
   left: 3px;
   top: 3px;
-  background: white;
+
+  background: rgba(255,255,255,0.9);
   border-radius: 50%;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-size: 12px;
   transition: 0.3s;
 }
 
 input:checked + .slider {
-  background: #34c759;
+  background: rgba(52,199,89,0.5);
 }
 
 .dark input:checked + .slider {
-  background: #3a8f5a;
+  background: rgba(52,199,89,0.35);
 }
 
 input:checked + .slider::before {
@@ -112,14 +131,20 @@ input:checked + .slider::before {
 
 /* ---------------- */
 
+/* ✍️ Inputs */
 input, select {
   width: 100%;
   padding: 14px;
   margin-bottom: 16px;
-  border-radius: 14px;
-  border: 1px solid #e5e5e5;
+
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.05);
+
   font-size: 15px;
-  background: #f9f9f9;
+
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(10px);
+
   outline: none;
   transition: 0.2s;
 }
@@ -134,56 +159,70 @@ input::placeholder {
 
 .dark input,
 .dark select {
-  background: #3a3a3c;
-  border-color: #444;
+  background: rgba(58,58,60,0.6);
+  border-color: rgba(255,255,255,0.05);
   color: white;
 }
 
+/* ❌ Error */
 .error {
-  border-color: #ffb3b0 !important;
-  background: #fffafa;
+  border-color: rgba(255, 59, 48, 0.6) !important;
+  background: rgba(255, 240, 240, 0.6);
 }
 
 .dark .error {
-  border-color: #5a2a2a !important;
-  background: #2a1a1a;
+  border-color: rgba(255, 80, 80, 0.5) !important;
+  background: rgba(60, 20, 20, 0.5);
 }
 
+/* Focus */
 input:focus, select:focus {
-  border-color: #007aff;
-  background: #fff;
+  border-color: #0a84ff;
+  background: rgba(255,255,255,0.85);
 }
 
 .dark input:focus,
 .dark select:focus {
   border-color: #4da3ff;
-  background: #2c2c2e;
+  background: rgba(72,72,74,0.85);
 }
 
+/* 🔵 Button */
 button {
   width: 100%;
   padding: 15px;
-  border-radius: 14px;
+
+  border-radius: 16px;
   border: none;
-  background: #007aff;
+
+  background: linear-gradient(135deg, #0a84ff, #0066ff);
   color: white;
+
   font-size: 16px;
   font-weight: 600;
+
   cursor: pointer;
   transition: 0.2s;
+
+  box-shadow: 0 6px 20px rgba(10,132,255,0.35);
 }
 
+/* Disabled */
 button:disabled {
-  background: #555;
+  background: rgba(120,120,128,0.3);
+  box-shadow: none;
 }
 
+/* Tap */
 button:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
+/* 🟢 Share button */
 .share-btn {
   margin-top: 12px;
   background: linear-gradient(135deg, #34c759, #30b350);
+  box-shadow: 0 6px 20px rgba(52,199,89,0.35);
 }
 </style>
 </head>
