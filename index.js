@@ -1,18 +1,43 @@
-console.log("JS START");
+console.log("JS START UPD 27.03");
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    // ====== ОЖИДАНИЕ FIREBASE ======
     async function waitForFirebase() {
         while (!window.db || !window.firebaseFns) {
             await new Promise(resolve => setTimeout(resolve, 50));
         }
     }
 
-    // ====== ЗАГРУЗКА ДАННЫХ ИЗ FIREBASE ======
+    function parseCustomDate(str) {
+        if (!str) return null;
+
+        try {
+            const [datePart, timePart] = str.split(" ");
+            const [day, month, year] = datePart.split(".");
+            const [hours, minutes] = timePart.split(":");
+
+            return new Date(
+                Number(year),
+                Number(month) - 1,
+                Number(day),
+                Number(hours),
+                Number(minutes)
+            );
+        } catch (e) {
+            console.error("Ошибка парсинга даты:", str);
+            return null;
+        }
+    }
+
+    function isExpired(activeTo) {
+        const endDate = parseCustomDate(activeTo);
+        if (!endDate) return false;
+
+        return new Date() > endDate;
+    }
+
     async function loadData() {
 
-        // 🔥 ВАЖНО — ждём Firebase
         await waitForFirebase();
 
         const params = new URLSearchParams(window.location.search);
@@ -40,7 +65,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const data = snap.data();
 
-            // ====== ПОЛУЧАТЕЛЬ ======
+            if (isExpired(data.to)) {
+                const qrBlock = document.querySelector(".qrBlock___ngXsb");
+
+                if (qrBlock) {
+                    const confirmImg = qrBlock.querySelector(".confirm___2Q9pa");
+                    const confirmAnim = qrBlock.querySelector(".confirm___CQ9pa");
+
+                    if (confirmImg) confirmImg.remove();
+                    if (confirmAnim) confirmAnim.remove();
+
+                    const cancelImg = document.createElement("img");
+                    cancelImg.className = "cancel___1ZlPJ";
+                    cancelImg.src = "/assets/cancel.svg";
+                    cancelImg.alt = "cancel";
+
+                    qrBlock.appendChild(cancelImg);
+                }
+            }
+
             const recipientEl = document.getElementById("recipient");
             if (recipientEl) {
                 recipientEl.innerHTML =
@@ -49,12 +92,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     .join("<br>");
             }
 
-            // ====== ОБЫЧНЫЕ ПОЛЯ ======
             setText("activeFrom", data.from);
             setText("activeTo", data.to);
             setText("description", data.desc);
 
-            // ====== ЦЕНА ======
             if (data.price) {
                 const priceEl = document.getElementById("price");
                 if (priceEl) {
@@ -69,12 +110,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // 👉 QR генерируем только после загрузки данных
         generateQR();
         showSuccess();
     }
 
-    // ====== УТИЛИТЫ ======
     function setText(id, value) {
         if (!value) return;
         const el = document.getElementById(id);
@@ -87,16 +126,15 @@ document.addEventListener("DOMContentLoaded", function () {
             modal.style.display = "flex";
         }
     }
-    
-	lottie.loadAnimation({
-	  container: document.getElementById('checkAnimation'),
-	  renderer: 'svg',
-	  loop: true,
-	  autoplay: true,
-	  path: '/check.json'
-	});
 
-    // ====== QR-КОД ======
+    lottie.loadAnimation({
+        container: document.getElementById('checkAnimation'),
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: '/check.json'
+    });
+
     function generateQR() {
         const descriptionEl = document.querySelector(".description___HgXmR");
         const canvas = document.querySelector(".qrBlock___ngXsb canvas");
@@ -117,13 +155,12 @@ document.addEventListener("DOMContentLoaded", function () {
     function showSuccess() {
         const el = document.querySelector(".successAnim");
         if (!el) return;
-    
+
         el.classList.remove("active");
         void el.offsetWidth;
         el.classList.add("active");
     }
 
-    // ====== СТАРТ ======
     loadData();
 
 });
