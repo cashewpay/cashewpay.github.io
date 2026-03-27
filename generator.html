@@ -269,8 +269,11 @@ button:active {
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDi74NNL-0DlKOx4b-8P5kGYiCJQetliZY",
@@ -280,6 +283,15 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+let currentUser = null;
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUser = user;
+    console.log("UID:", user.uid);
+  }
+});
+signInAnonymously(auth).catch(console.error);
 const toggle = document.getElementById("themeToggle");
 
 function setTheme(mode) {
@@ -438,6 +450,10 @@ function buildRecipientParts() {
 }
 
 async function buildUrl() {
+  if (!currentUser) {
+  alert("Подожди секунду...");
+  return;
+  }
   const parts = buildRecipientParts();
   const { from, to } = getDateRange();
   const price = FIXED_PRICE;
@@ -461,8 +477,31 @@ const stableData = {
       ...stableData,
       from,
       to,
-      desc: generateDesc()
+      desc: generateDesc(),
+    
+      owner: currentUser.uid,
+      createdAt: new Date().toISOString()
     };
+        // 🔥 антиспам
+    const userRef = doc(db, "users", currentUser.uid);
+    const userSnap = await getDoc(userRef);
+    
+    if (userSnap.exists()) {
+      alert("Слишком часто! Подожди 5 секунд ⏳");
+      return;
+    }
+    
+    // ставим блок
+    await setDoc(userRef, {
+      lastCreate: new Date().toISOString()
+    });
+    
+    // снимаем через 5 сек
+    setTimeout(async () => {
+      try {
+        await deleteDoc(userRef);
+      } catch (e) {}
+    }, 5000);
 
     await setDoc(ref, data);
   }
