@@ -288,20 +288,37 @@ async function startScan() {
   try {
     const devices = await Html5Qrcode.getCameras();
 
-    if (!devices.length) {
+    if (!devices || devices.length === 0) {
       alert("Камера не найдена");
       return;
+    }
+
+    // 🔥 ИЩЕМ ЗАДНЮЮ КАМЕРУ
+    let backCamera = devices.find(d => {
+      const label = d.label.toLowerCase();
+      return label.includes("back") ||
+             label.includes("rear") ||
+             label.includes("environment");
+    });
+
+    // fallback — берём последнюю (обычно задняя)
+    if (!backCamera) {
+      backCamera = devices[devices.length - 1];
     }
 
     html5Qr = new Html5Qrcode("reader");
 
     await html5Qr.start(
-      devices[0].id,
-      { fps: 10, qrbox: 250 },
+      backCamera.id,
+      {
+        fps: 10,
+        qrbox: 250
+      },
       (decodedText) => {
         stopScan();
         handleQR(decodedText);
-      }
+      },
+      () => {}
     );
 
   } catch (err) {
@@ -311,7 +328,9 @@ async function startScan() {
 
 function stopScan() {
   document.getElementById("scannerModal").style.display = "none";
-  if (html5Qr) html5Qr.stop().catch(()=>{});
+  if (html5Qr) {
+    html5Qr.stop().catch(()=>{});
+  }
 }
 
 function handleQR(data) {
