@@ -6,13 +6,16 @@
   <title>Cashew</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
-  <script src="./index.js?v=1.8" defer></script>
+  <script src="./index.js?v=1.7" defer></script>
 
   <meta name="renderer" content="webkit|ie-comp|ie-stand">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- favicon вынесен в файл (оригинал был base64 ICO) -->
   <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+
   <link href="/index.css" rel="stylesheet">
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js?token=a718b0fefa8049ee840ab7084ab816a4"></script>
 </head>
 
 <body>
@@ -25,6 +28,7 @@
             <div class="logoOffset___C7naQ"></div>
             <div class="logoCont___a6vUu">
               <div>
+                <!-- логотип вынесен из base64 -->
                 <img src="/assets/logo.svg" class="logo___3lfGx" alt="logo">
               </div>
             </div>
@@ -41,14 +45,13 @@
                   <div class="qrCont___3gWPa">
                     <div class="qrBlock___ngXsb">
                       <div>
-                        <canvas height="300" width="300"></canvas>
+                        <canvas height="300" width="300" style="height: 300px; width: 300px;"></canvas>
                       </div>
-
+                      <!-- кнопка отмены вынесена из base64 -->
                       <img class="confirm___2Q9pa" src="/assets/circle.png" alt="confirm">
-
-                      <div class="confirm___CQ9pa">
-                        <div id="checkAnimation"></div>
-                      </div>
+					  	<div class="confirm___CQ9pa">
+   						 	<div id="checkAnimation"></div>
+						</div>
                     </div>
                   </div>
                 </div>
@@ -57,20 +60,19 @@
                   <div class="infoCont___2XI7s">
                     <div class="infoBlock___1uMAp">
 
-                      <div><h2>Получатель:</h2></div>
-                      <h2 id="recipient">Неработает</h2>
+                      <div><h2 class="amountLabel___2dQrA">Получатель: </h2></div>
+                      <h2 class="additionalInf___3nXOK" id="recipient">Неработает</h2>
+                      <div><h2 class="amountLabel___2dQrA">Активен с:</h2></div>
+                      <h2 class="amount___ZlVZj" id="activeFrom">Не работает</h2>
 
-                      <div><h2>Активен с:</h2></div>
-                      <h2 id="activeFrom">Не работает</h2>
+                      <div><h2 class="amountLabel___2dQrA">Активен до:</h2></div>
+                      <h2 class="amount___ZlVZj" id="activeTo">Не работает</h2>
 
-                      <div><h2>Активен до:</h2></div>
-                      <h2 id="activeTo">Не работает</h2>
+                      <div><h2 class="descriptionLabel___2OmpC">Описание:</h2></div>
+                      <h2 class="description___HgXmR" id="description">Не работает</h2>
 
-                      <div><h2>Описание:</h2></div>
-                      <h2 id="description">Не работает</h2>
-
-                      <div><h2>Цена:</h2></div>
-                      <h2 id="price">Не работает</h2>
+                      <div><h2 class="amountLabel___2dQrA">Цена: </h2></div>
+                      <h2 class="amount___ZlVZj" id="price">Не работает</h2>
 
                     </div>
                   </div>
@@ -82,31 +84,40 @@
         </div>
 
         <div class="footer___3-nlc ant-layout-footer">
-          Cashew
+          <div class="container">
+            <div class="content___1Nmke">
+              <div class="ant-row">
+                <div class="infoBlock___Q4Fmd ant-col-xs-24 ant-col-md-24 ant-col-lg-24">
+                  Cashew<br>
+                  <a href="mailto:info@cashew.me" class="email___1juwC">info@cashew.me</a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>
     </div>
   </div>
 
-  <!-- Firebase -->
+  <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDi74NNL-0DlKOx4b-8P5kGYiCJQetliZY",
-      authDomain: "cashewpay-df8ba.firebaseapp.com",
-      projectId: "cashewpay-df8ba",
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyDi74NNL-0DlKOx4b-8P5kGYiCJQetliZY",
+    authDomain: "cashewpay-df8ba.firebaseapp.com",
+    projectId: "cashewpay-df8ba",
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    window.db = db;
-    window.firebaseFns = { doc, getDoc };
+  window.db = db;
+  window.firebaseFns = { doc, getDoc };
   </script>
-<div id="noDataModal" style="
+  <div id="noDataModal" style="
   position: fixed;
   top: 0;
   left: 0;
