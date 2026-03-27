@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
@@ -11,6 +12,7 @@
   <meta name="theme-color" content="#007aff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Билет">
+
 <style>
 * { box-sizing: border-box; }
 
@@ -185,7 +187,39 @@ button:active {
   margin-top: 12px;
   background: linear-gradient(135deg, #34c759, #30b350);
 }
+
+/* === ДОБАВЛЕНО (ИЗОЛИРОВАНО) === */
+.scan-btn {
+  margin-bottom: 12px;
+  background: #ff9500;
+}
+
+#scannerModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+#scannerBox {
+  background: white;
+  padding: 16px;
+  border-radius: 16px;
+  width: 320px;
+}
+
+.dark #scannerBox {
+  background: #2c2c2e;
+}
+
+#reader {
+  width: 100%;
+}
 </style>
+
 </head>
 
 <body>
@@ -195,10 +229,11 @@ button:active {
   <div class="header">
     <h2>Генератор билета</h2>
 
-    <label class="theme-switch">
-      <input type="checkbox" id="themeToggle">
-      <span class="slider"></span>
-    </label>
+<label class="theme-switch">
+  <input type="checkbox" id="themeToggle">
+  <span class="slider"></span>
+</label>
+
   </div>
 
   <select id="type">
@@ -219,6 +254,10 @@ button:active {
 
   <input id="num" placeholder="Гар. номер (например 26012)" inputmode="numeric" pattern="[0-9]*">
 
+  <!-- 🔥 КНОПКА СКАНЕРА -->
+
+<button class="scan-btn" onclick="startScan()">📷 Сканировать QR</button>
+
   <button id="openBtn" onclick="openTicket()" disabled>
     Открыть билет
   </button>
@@ -229,7 +268,76 @@ button:active {
 
 </div>
 
+<!-- СКАНЕР -->
+
+<div id="scannerModal">
+  <div id="scannerBox">
+    <div id="reader"></div>
+    <button onclick="stopScan()">Закрыть</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<script>
+let html5Qr;
+
+async function startScan() {
+  document.getElementById("scannerModal").style.display = "flex";
+
+  try {
+    const devices = await Html5Qrcode.getCameras();
+
+    if (!devices.length) {
+      alert("Камера не найдена");
+      return;
+    }
+
+    html5Qr = new Html5Qrcode("reader");
+
+    await html5Qr.start(
+      devices[0].id,
+      { fps: 10, qrbox: 250 },
+      (decodedText) => {
+        stopScan();
+        handleQR(decodedText);
+      }
+    );
+
+  } catch (err) {
+    alert("Ошибка камеры: " + err);
+  }
+}
+
+function stopScan() {
+  document.getElementById("scannerModal").style.display = "none";
+  if (html5Qr) html5Qr.stop().catch(()=>{});
+}
+
+function handleQR(data) {
+  console.log("QR:", data);
+
+  const numMatch = data.match(/номер\s*(\d+)/i);
+  if (numMatch) document.getElementById("num").value = numMatch[1];
+
+  if (data.toLowerCase().includes("автобус")) {
+    document.getElementById("type").value = "bus";
+  } else if (data.toLowerCase().includes("троллейбус")) {
+    document.getElementById("type").value = "trolley";
+  }
+
+  const apMatch = data.match(/АП\s*№?(\d)/i);
+  if (apMatch) document.getElementById("ap").value = apMatch[1];
+
+  document.querySelectorAll("input, select").forEach(el => {
+    el.dispatchEvent(new Event("input"));
+    el.dispatchEvent(new Event("change"));
+  });
+}
+</script>
+
 <script type="module">
+/* === ТВОЙ ОРИГИНАЛЬНЫЙ JS БЕЗ ИЗМЕНЕНИЙ === */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
