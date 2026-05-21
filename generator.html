@@ -8,7 +8,6 @@
   <link rel="icon" href="/assets/icon-192.png">
   <link rel="apple-touch-icon" href="/assets/icon-180.png">
   <link rel="manifest" href="/manifest.json">
-  <link rel="stylesheet" href="/assets/css/auth.css">
   <meta name="theme-color" content="#007aff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Билет">
@@ -270,13 +269,18 @@ button:active {
 </div>
 
 <script type="module">
-import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { db } from "/firebase/firebase-config.js";
-import { initAuthSystem, notifyTicketSaved, requireAuth } from "/assets/js/auth.js";
-import { buildTicketTitle, saveTicket } from "/assets/js/tickets.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyDi74NNL-0DlKOx4b-8P5kGYiCJQetliZY",
+  authDomain: "cashewpay-df8ba.firebaseapp.com",
+  projectId: "cashewpay-df8ba",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 const toggle = document.getElementById("themeToggle");
-initAuthSystem();
 
 function setTheme(mode) {
   document.documentElement.classList.toggle("dark", mode === "dark");
@@ -361,9 +365,6 @@ function updateButtons() {
   el.addEventListener("change", updateButtons);
   el.addEventListener("input", updateButtons);
 });
-
-window.addEventListener("cashewpay:auth-ready", updateButtons);
-window.addEventListener("cashewpay:new-ticket", updateButtons);
 
 function formatDate(date) {
   const d = String(date.getDate()).padStart(2, '0');
@@ -473,38 +474,11 @@ const stableData = {
 
   return window.location.origin + "/" + id;
 }
-
-const savedTicketUrls = new Set();
-
-async function saveCurrentTicket(url) {
-  const user = requireAuth();
-  if (!user || savedTicketUrls.has(url)) return;
-
-  const jsonData = {
-    type: typeEl.value,
-    ap: apEl.value,
-    num: numEl.value.trim(),
-    price: FIXED_PRICE,
-    url
-  };
-
-  await saveTicket({
-    ownerId: user.uid,
-    title: buildTicketTitle(jsonData),
-    jsonData,
-    category: jsonData.type || "general"
-  });
-
-  savedTicketUrls.add(url);
-  notifyTicketSaved();
-}
   
 async function openTicket() {
-  if (!requireAuth()) return;
   if (!isFormValid()) return;
   try {
     const url = await buildUrl();
-    await saveCurrentTicket(url);
     window.location.href = url;
   } catch (e) {
     alert("Ошибка при создании билета");
@@ -512,10 +486,8 @@ async function openTicket() {
 }
 
 async function shareLink() {
-  if (!requireAuth()) return;
   if (!isFormValid()) return;
   const url = await buildUrl();
-  await saveCurrentTicket(url);
 
   if (navigator.share && location.protocol === "https:") {
     try {
