@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const priceEl = document.getElementById("price");
                 if (priceEl) {
                     const formatted = parseFloat(data.price).toFixed(2);
-                    priceEl.textContent = formatted + " BYN";
+                    priceEl.textContent = formatted + " бел. руб.";
                 }
             }
 
