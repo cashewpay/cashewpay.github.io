@@ -30,14 +30,11 @@ body {
   background: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-
   border-radius: 24px;
   padding: 24px;
-
   box-shadow:
     0 10px 40px rgba(0,0,0,0.08),
     inset 0 1px rgba(255,255,255,0.6);
-
   max-width: 480px;
   margin: auto;
   transition: 0.3s;
@@ -86,10 +83,8 @@ h2 {
 .slider {
   position: absolute;
   inset: 0;
-
   background: rgba(120,120,128,0.25);
   backdrop-filter: blur(10px);
-
   border-radius: 20px;
   transition: 0.3s;
   cursor: pointer;
@@ -102,14 +97,11 @@ h2 {
   width: 24px;
   left: 3px;
   top: 3px;
-
   background: rgba(255,255,255,0.9);
   border-radius: 50%;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   font-size: 12px;
   transition: 0.3s;
 }
@@ -131,15 +123,11 @@ input, select {
   width: 100%;
   padding: 14px;
   margin-bottom: 16px;
-
   border-radius: 16px;
   border: 1px solid rgba(0,0,0,0.05);
-
   font-size: 15px;
-
   background: rgba(255,255,255,0.6);
   backdrop-filter: blur(10px);
-
   outline: none;
   transition: 0.2s;
 }
@@ -183,19 +171,14 @@ input:focus, select:focus {
 button {
   width: 100%;
   padding: 15px;
-
   border-radius: 16px;
   border: none;
-
   background: linear-gradient(135deg, #0a84ff, #0066ff);
   color: white;
-
   font-size: 16px;
   font-weight: 600;
-
   cursor: pointer;
   transition: 0.2s;
-
   box-shadow: 0 6px 20px rgba(10,132,255,0.35);
 }
 
@@ -291,6 +274,14 @@ button:active {
   <div class="header" style="justify-content: center; margin-bottom: 24px;">
     <h2>Активация доступа</h2>
   </div>
+
+  <div id="telegramWarning" style="display: none; background: rgba(255, 149, 0, 0.12); border: 1px solid rgba(255, 149, 0, 0.4); border-radius: 16px; padding: 14px; margin-bottom: 20px; text-align: left;">
+    <p style="margin: 0; color: #d97300; font-size: 13px; line-height: 1.45; font-weight: 500;">
+      ⚠️ <strong>Вы внутри браузера Telegram!</strong><br>
+      Код активации одноразовый. Настоятельно рекомендуется нажать на <strong>три точки в углу экрана</strong> и выбрать <strong>«Открыть в Сафари / Браузере»</strong>, чтобы активировать его непосредственно на самом устройстве.
+    </p>
+  </div>
+
   <p style="text-align: center; color: #666; font-size: 14px; margin-bottom: 20px; line-height: 1.4;">
     Введите код активации, чтобы получить доступ к генератору билетов.
   </p>
@@ -305,7 +296,6 @@ button:active {
 
     <div class="header">
       <h2>Генератор билета</h2>
-
       <label class="theme-switch">
         <input type="checkbox" id="themeToggle">
         <span class="slider"></span>
@@ -342,6 +332,12 @@ button:active {
       📤 Поделиться
     </button>
 
+    <div id="syncSection" style="margin-top: 20px; border-top: 1px solid rgba(120,120,128,0.15); padding-top: 16px; text-align: center;">
+      <button id="syncBtn" onclick="generateSyncLink()" style="background: linear-gradient(135deg, #5ac8fa, #5856d6); box-shadow: 0 6px 20px rgba(88,86,214,0.25); font-size: 14px; padding: 12px; border-radius: 12px;">
+        🔗 Привязать Safari / Другой браузер
+      </button>
+    </div>
+
   </div>
 </div>
 
@@ -350,7 +346,7 @@ button:active {
     <h3 id="modalTitle" class="modal-title"></h3>
     <p id="modalMessage" class="modal-message"></p>
     <div id="modalInputWrapper" style="display: none; margin-bottom: 16px;">
-      <input id="modalCopyInput" readonly style="margin-bottom: 0; text-align: center; background: rgba(120,120,128,0.1); border: 1px solid rgba(0,0,0,0.1);">
+      <input id="modalCopyInput" readonly style="margin-bottom: 0; text-align: center; background: rgba(120,120,128,0.1); border: 1px solid rgba(0,0,0,0.1); font-size: 13px;">
     </div>
     <button class="modal-btn" onclick="closeModal()">OK</button>
   </div>
@@ -587,7 +583,52 @@ function showModal(title, message, copyText = null) {
   document.getElementById('appModal').classList.add('active');
 }
 
+// Процесс авторизации по одноразовому мосту миграции сессий
+async function processSync(token) {
+  const loader = document.getElementById('loadingContainer');
+  try {
+    const tokenRef = doc(db, "syncTokens", token);
+    const tokenSnap = await getDoc(tokenRef);
+    
+    if (!tokenSnap.exists() || tokenSnap.data().used) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      showModal("Ошибка моста", "Этот токен синхронизации недействителен, устарел или уже был использован.");
+      checkAccess();
+      return;
+    }
+
+    // Выполнение транзакции: уничтожение токена моста и авторизация устройства
+    const batch = writeBatch(db);
+    batch.update(tokenRef, { used: true, usedAt: serverTimestamp(), toDevice: currentDeviceId });
+    
+    const deviceRef = doc(db, "authorizedDevices", currentDeviceId);
+    batch.set(deviceRef, { deviceId: currentDeviceId, activatedAt: serverTimestamp(), syncToken: token });
+    await batch.commit();
+    
+    isAuthorized = true;
+    window.history.replaceState({}, document.title, window.location.pathname);
+    showModal("Успех", "Этот браузер успешно привязан к вашей лицензии!");
+    if (loader) loader.classList.remove('active');
+    document.getElementById('generatorContainer').classList.add('active');
+  } catch (e) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+    showModal("Ошибка", "Не удалось выполнить трансляцию и привязку сессии.");
+    checkAccess();
+  }
+}
+
 async function checkAccess() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const syncToken = urlParams.get('sync');
+  
+  // Если осуществлен вход по одноразовой ссылке моста
+  if (syncToken) {
+    const loadingText = document.querySelector('#loadingContainer h2');
+    if (loadingText) loadingText.innerText = "Синхронизация устройств...";
+    await processSync(syncToken);
+    return;
+  }
+
   const loader = document.getElementById('loadingContainer');
   const activator = document.getElementById('activationContainer');
   const generator = document.getElementById('generatorContainer');
@@ -602,7 +643,12 @@ async function checkAccess() {
       isAuthorized = true;
       if (generator) generator.classList.add('active');
     } else {
-      if (activator) activator.classList.add('active');
+      if (activator) {
+        activator.classList.add('active');
+        if (/Telegram/i.test(navigator.userAgent)) {
+          document.getElementById('telegramWarning').style.display = 'block';
+        }
+      }
     }
   } catch (error) {
     console.error("Auth rule mismatch or error:", error);
@@ -628,7 +674,7 @@ async function processActivation() {
     const codeSnap = await getDoc(codeRef);
 
     if (!codeSnap.exists()) {
-      showModal("Ошибка", "Code not found");
+      showModal("Ошибка", "Код активации не найден в системе.");
       btn.disabled = false;
       btn.innerText = "Активировать";
       return;
@@ -636,9 +682,9 @@ async function processActivation() {
 
     const codeData = codeSnap.data();
     if (codeData.used) {
-      showModal("Ошибка", "Code already used");
+      showModal("Ошибка", "Этот код уже был использован на другом устройстве!");
       btn.disabled = false;
-      btn.innerText = "Activate";
+      btn.innerText = "Активировать";
       return;
     }
 
@@ -665,10 +711,40 @@ async function processActivation() {
     document.getElementById('generatorContainer').classList.add('active');
 
   } catch (error) {
-    showModal("Ошибка базы данных", "Firebase connection error or security rules violation.");
+    showModal("Ошибка базы данных", "Нарушение правил доступа к Firebase или ошибка транзакции.");
   } finally {
     btn.disabled = false;
-    btn.innerText = "Activate";
+    btn.innerText = "Активировать";
+  }
+}
+
+// Генерация одноразового моста внутри авторизованного личного кабинета
+async function generateSyncLink() {
+  const btn = document.getElementById('syncBtn');
+  btn.disabled = true; 
+  btn.innerText = "Генерация моста...";
+  try {
+    const token = crypto.randomUUID();
+    const tokenRef = doc(db, "syncTokens", token);
+    
+    await setDoc(tokenRef, {
+      token: token,
+      fromDevice: currentDeviceId,
+      used: false,
+      createdAt: serverTimestamp()
+    });
+    
+    const syncUrl = window.location.origin + window.location.pathname + "?sync=" + token;
+    showModal(
+      "Мост авторизации", 
+      "Скопируйте ссылку ниже, отправьте её себе и ОТКРОЙТЕ В SAFARI / CHROME. Ссылка сгорит сразу после первого перехода, привязав браузер к вашей лицензии навсегда!", 
+      syncUrl
+    );
+  } catch (e) {
+    showModal("Ошибка", "Не удалось создать защищенный сессионный мост.");
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "🔗 Привязать Safari / Другой браузер";
   }
 }
 
@@ -703,7 +779,7 @@ checkAccess();
 
 async function buildUrl() {
   if (!isAuthorized) { 
-    showModal("Device is not authorized", "Доступ заблокирован."); 
+    showModal("Доступ заблокирован", "Устройство не авторизовано."); 
     throw new Error("Device is not authorized"); 
   }
 
@@ -738,7 +814,7 @@ async function buildUrl() {
 }
   
 async function openTicket() {
-  if (!isAuthorized) { showModal("Device is not authorized", "Доступ заблокирован."); return; }
+  if (!isAuthorized) { showModal("Доступ заблокирован", "Устройство не авторизовано."); return; }
   if (!isFormValid()) return;
   try {
     const url = await buildUrl();
@@ -749,7 +825,7 @@ async function openTicket() {
 }
 
 async function shareLink() {
-  if (!isAuthorized) { showModal("Device is not authorized", "Доступ заблокирован."); return; }
+  if (!isAuthorized) { showModal("Доступ заблокирован", "Устройство не авторизовано."); return; }
   if (!isFormValid()) return;
   const url = await buildUrl();
 
@@ -777,6 +853,7 @@ window.shareLink = shareLink;
 window.processActivation = processActivation;
 window.closeModal = closeModal;
 window.generateActivationCode = generateActivationCode;
+window.generateSyncLink = generateSyncLink;
 
 </script>
 
