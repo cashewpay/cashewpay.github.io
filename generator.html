@@ -601,8 +601,10 @@ async function processSync(token) {
       isAuthorized = true;
       if (loader) loader.classList.remove('active');
       document.getElementById('generatorContainer').classList.add('active');
+      
+      // ИСПРАВЛЕНО: Убран дубль .style
       if (deviceSnap.data().syncUsed === true && document.getElementById('syncSection')) {
-        document.getElementById('syncSection').style.style.display = 'none';
+        document.getElementById('syncSection').style.display = 'none';
       }
       return;
     }
@@ -769,14 +771,17 @@ async function generateSyncLink() {
       syncUrl
     );
 
-    // ПОДКЛЮЧАЕМ ЖИВОЙ СЛУШАТЕЛЬ (onSnapshot)
-    // Как только второе устройство перейдет по ссылке и токен обновится на used: true,
-    // кнопка моста на данном устройстве исчезнет намертво в реальном времени.
+    // Восстанавливаем кнопку на случай, если пользователь закроет модалку, не дождавшись перехода
+    btn.disabled = false;
+    btn.innerText = "🔗 Привязать другой браузер";
+
     if (syncUnsubscribe) syncUnsubscribe();
     syncUnsubscribe = onSnapshot(tokenRef, async (snapshot) => {
       if (snapshot.exists() && snapshot.data().used === true) {
         // Ссылка успешно исчерпана! Прячем блок интерфейса моста
         const syncSection = document.getElementById('syncSection');
+        
+        // ИСПРАВЛЕНО: Исправлен ошибочный вызов .style.style.display
         if (syncSection) syncSection.style.display = 'none';
         
         // Закрепляем вечный флаг в профиле текущего девайса в Firebase
@@ -799,7 +804,7 @@ async function generateSyncLink() {
     btn.innerText = "🔗 Привязать Safari / Другой браузер";
   }
 }
-
+  
 async function generateActivationCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "";
