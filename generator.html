@@ -278,7 +278,7 @@ button:active {
   <div id="telegramWarning" style="display: none; background: rgba(255, 149, 0, 0.12); border: 1px solid rgba(255, 149, 0, 0.4); border-radius: 16px; padding: 14px; margin-bottom: 20px; text-align: left;">
     <p style="margin: 0; color: #d97300; font-size: 13px; line-height: 1.45; font-weight: 500;">
       ⚠️ <strong>Вы внутри браузера Telegram!</strong><br>
-      Код активации одноразовый. Настоятельно рекомендуется нажать на <strong>три точки в углу экрана</strong> и выбрать <strong>«Открыть в Сафари / Браузере»</strong>, чтобы активировать его непосредственно на самом устройстве.
+      Код активации одноразовый. Настоятельно рекомендуется нажать на <strong>три точки в углу экрана</strong> и выбрать <strong>«Открыть в Браузере»</strong>, чтобы активировать его непосредственно на самом устройстве.
     </p>
   </div>
 
@@ -334,7 +334,7 @@ button:active {
 
     <div id="syncSection" style="margin-top: 20px; border-top: 1px solid rgba(120,120,128,0.15); padding-top: 16px; text-align: center;">
       <button id="syncBtn" onclick="generateSyncLink()" style="background: linear-gradient(135deg, #5ac8fa, #5856d6); box-shadow: 0 6px 20px rgba(88,86,214,0.25); font-size: 14px; padding: 12px; border-radius: 12px;">
-        🔗 Привязать другой браузер (1 раз)
+        🔗 Привязать другой браузер
       </button>
     </div>
 
@@ -354,7 +354,7 @@ button:active {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, serverTimestamp, writeBatch, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDi74NNL-0DlKOx4b-8P5kGYiCJQetliZY",
@@ -548,12 +548,7 @@ function buildRecipientParts() {
   return null;
 }
 
-// ==================================================
-// ИНТЕГРИРОВАННАЯ СИСТЕМА БЕЗОПАСНОСТИ И АКТИВАЦИИ
-// ==================================================
-
 let isAuthorized = false;
-let syncUnsubscribe = null;
 
 if (!localStorage.getItem("deviceId")) {
   localStorage.setItem("deviceId", crypto.randomUUID());
@@ -584,49 +579,24 @@ function showModal(title, message, copyText = null) {
   document.getElementById('appModal').classList.add('active');
 }
 
-// Обработка перехода по мосту синхронизации (на принимающем устройстве)
 async function processSync(token) {
   const loader = document.getElementById('loadingContainer');
   try {
     const tokenRef = doc(db, "syncTokens", token);
     const tokenSnap = await getDoc(tokenRef);
     
-    // ПРОВЕРКА: Если этот браузер УЖЕ авторизован сам по себе
-    const deviceRef = doc(db, "authorizedDevices", currentDeviceId);
-    const deviceSnap = await getDoc(deviceRef);
-    
-    if (deviceSnap.exists()) {
-      window.history.replaceState({}, document.title, window.location.pathname);
-      showModal("Уведомление", "Этот браузер уже был успешно привязан ранее.");
-      isAuthorized = true;
-      if (loader) loader.classList.remove('active');
-      document.getElementById('generatorContainer').classList.add('active');
-      
-      // ИСПРАВЛЕНО: Убран дубль .style
-      if (deviceSnap.data().syncUsed === true && document.getElementById('syncSection')) {
-        document.getElementById('syncSection').style.display = 'none';
-      }
-      return;
-    }
-
-    // Если токен не существует или уже использован другим устройством
     if (!tokenSnap.exists() || tokenSnap.data().used) {
       window.history.replaceState({}, document.title, window.location.pathname);
-      showModal("Ошибка моста", "Ссылка синхронизации недействительна или уже была использована.");
-      if (loader) loader.classList.remove('active');
-      document.getElementById('activationContainer').classList.add('active');
+      showModal("Ошибка моста", "Этот токен синхронизации недействителен, устарел или уже был использован.");
+      checkAccess();
       return;
     }
-
-    // Выполнение транзакции: гасим токен моста, авторизуем текущее устройство, и блокируем кнопку на доноре
+    
     const batch = writeBatch(db);
     batch.update(tokenRef, { used: true, usedAt: serverTimestamp(), toDevice: currentDeviceId });
-    batch.set(deviceRef, { deviceId: currentDeviceId, activatedAt: serverTimestamp(), syncToken: token });
     
-    // Прописываем родителю флаг исчерпания ссылки, чтобы у него кнопка пропала навсегда
-    const fromDeviceRef = doc(db, "authorizedDevices", tokenSnap.data().fromDevice);
-    batch.update(fromDeviceRef, { syncUsed: true });
-
+    const deviceRef = doc(db, "authorizedDevices", currentDeviceId);
+    batch.set(deviceRef, { deviceId: currentDeviceId, activatedAt: serverTimestamp(), syncToken: token });
     await batch.commit();
     
     isAuthorized = true;
@@ -636,9 +606,8 @@ async function processSync(token) {
     document.getElementById('generatorContainer').classList.add('active');
   } catch (e) {
     window.history.replaceState({}, document.title, window.location.pathname);
-    showModal("Ошибка", "Не удалось выполнить привязку сессии.");
-    if (loader) loader.classList.remove('active');
-    document.getElementById('activationContainer').classList.add('active');
+    showModal("Ошибка", "Не удалось выполнить трансляцию и привязку сессии.");
+    checkAccess();
   }
 }
 
@@ -656,7 +625,6 @@ async function checkAccess() {
   const loader = document.getElementById('loadingContainer');
   const activator = document.getElementById('activationContainer');
   const generator = document.getElementById('generatorContainer');
-  const syncSection = document.getElementById('syncSection');
 
   try {
     const deviceRef = doc(db, "authorizedDevices", currentDeviceId);
@@ -667,11 +635,6 @@ async function checkAccess() {
     if (snap.exists()) {
       isAuthorized = true;
       if (generator) generator.classList.add('active');
-      
-      // НАМЕРТВО убираем кнопку, если лимит ссылок исчерпан на этом устройстве
-      if (snap.data().syncUsed === true && syncSection) {
-        syncSection.style.display = 'none';
-      }
     } else {
       if (activator) {
         activator.classList.add('active');
@@ -684,7 +647,7 @@ async function checkAccess() {
     console.error("Auth rule mismatch or error:", error);
     if (loader) loader.classList.remove('active');
     if (activator) activator.classList.add('active');
-    showModal("Ошибка конфигурации", "Firebase connection error. Проверьте консоль.");
+    showModal("Ошибка конфигурации", "Firebase connection error. Убедитесь, что вы опубликовали новые правила Rules в консоли Firebase.");
   }
 }
 
@@ -748,7 +711,6 @@ async function processActivation() {
   }
 }
 
-// Генерация одноразовой ссылки привязки (на основном устройстве)
 async function generateSyncLink() {
   const btn = document.getElementById('syncBtn');
   btn.disabled = true; 
@@ -770,41 +732,14 @@ async function generateSyncLink() {
       "Скопируйте ссылку ниже, отправьте её себе и ОТКРОЙТЕ В SAFARI / CHROME. Ссылка сгорит сразу после первого перехода, привязав браузер к вашей лицензии навсегда!", 
       syncUrl
     );
-
-    // Восстанавливаем кнопку на случай, если пользователь закроет модалку, не дождавшись перехода
-    btn.disabled = false;
-    btn.innerText = "🔗 Привязать другой браузер";
-
-    if (syncUnsubscribe) syncUnsubscribe();
-    syncUnsubscribe = onSnapshot(tokenRef, async (snapshot) => {
-      if (snapshot.exists() && snapshot.data().used === true) {
-        // Ссылка успешно исчерпана! Прячем блок интерфейса моста
-        const syncSection = document.getElementById('syncSection');
-        
-        // ИСПРАВЛЕНО: Исправлен ошибочный вызов .style.style.display
-        if (syncSection) syncSection.style.display = 'none';
-        
-        // Закрепляем вечный флаг в профиле текущего девайса в Firebase
-        try {
-          const deviceRef = doc(db, "authorizedDevices", currentDeviceId);
-          await updateDoc(deviceRef, { syncUsed: true });
-        } catch (err) { console.error(err); }
-        
-        // Отписываемся от прослушивания за ненадобностью
-        if (syncUnsubscribe) {
-          syncUnsubscribe();
-          syncUnsubscribe = null;
-        }
-      }
-    });
-
   } catch (e) {
     showModal("Ошибка", "Не удалось создать защищенный сессионный мост.");
+  } finally {
     btn.disabled = false;
     btn.innerText = "🔗 Привязать другой браузер";
   }
 }
-  
+
 async function generateActivationCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "";
@@ -827,12 +762,7 @@ async function generateActivationCode() {
   }
 }
 
-// Запуск фоновой проверки доступа при загрузке
 checkAccess();
-
-// ==================================================
-// ЗАЩИЩЕННАЯ БИЗНЕС-ЛОГИКА И СТАРЫЙ ФУНКЦИОНАЛ
-// ==================================================
 
 async function buildUrl() {
   if (!isAuthorized) { 
@@ -904,7 +834,6 @@ async function shareLink() {
   showModal("Ссылка готова", "Скопируй ссылку ниже:", url);
 }
 
-// ЭКСПОРТ ВСЕХ НЕОБХОДИМЫХ ФУНКЦИЙ В WINDOW ДЛЯ ПОЛНОЙ ИНЛАЙН СОВМЕСТИМОСТИ
 window.openTicket = openTicket;
 window.shareLink = shareLink;
 window.processActivation = processActivation;
