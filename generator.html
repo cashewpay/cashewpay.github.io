@@ -715,25 +715,56 @@ async function generateSyncLink() {
   const btn = document.getElementById('syncBtn');
   btn.disabled = true; 
   btn.innerText = "Генерация моста...";
+  
   try {
+    // 1. Получаем данные текущего устройства из базы
+    const deviceRef = doc(db, "authorizedDevices", currentDeviceId);
+    const deviceSnap = await getDoc(deviceRef);
+    
+    if (!deviceSnap.exists()) {
+       showModal("Ошибка", "Устройство не авторизовано.");
+       return;
+    }
+    
+    const deviceData = deviceSnap.data();
+
+    if (deviceData.syncToken) {
+        showModal("В доступе отказано", "Этот браузер является привязанным. Передавать лицензию дальше невозможно.");
+        return;
+    }
+
+    if (deviceData.syncLinkGenerated) {
+        showModal("Лимит исчерпан", "Вы уже использовали свою единственную возможность привязать второй браузер.");
+        return;
+    }
+
     const token = crypto.randomUUID();
     const tokenRef = doc(db, "syncTokens", token);
+    const batch = writeBatch(db);
     
-    await setDoc(tokenRef, {
+    // Записываем токен
+    batch.set(tokenRef, {
       token: token,
       fromDevice: currentDeviceId,
       used: false,
       createdAt: serverTimestamp()
     });
     
+    batch.update(deviceRef, {
+      syncLinkGenerated: true
+    });
+
+    await batch.commit();
+    
     const syncUrl = window.location.origin + window.location.pathname + "?sync=" + token;
     showModal(
       "Мост авторизации", 
-      "Скопируйте ссылку ниже, отправьте её себе и ОТКРОЙТЕ В SAFARI / CHROME. Ссылка сгорит сразу после первого перехода, привязав браузер к вашей лицензии навсегда!", 
+      "Скопируйте ссылку ниже. ВАЖНО: это ваша ЕДИНСТВЕННАЯ возможность привязать второй браузер. Ссылка сгорит сразу после первого перехода!", 
       syncUrl
     );
   } catch (e) {
     showModal("Ошибка", "Не удалось создать защищенный сессионный мост.");
+    console.error(e);
   } finally {
     btn.disabled = false;
     btn.innerText = "🔗 Привязать другой браузер";
