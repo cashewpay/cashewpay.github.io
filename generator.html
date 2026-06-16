@@ -223,57 +223,137 @@ button:active {
   opacity: 0.65;
 }
 
+#loadingContainer, #activationContainer, #generatorContainer {
+  display: none;
+}
+#loadingContainer.active, #activationContainer.active, #generatorContainer.active {
+  display: block;
+}
+
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999; opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.modal-overlay.active {
+  opacity: 1; pointer-events: auto;
+}
+.modal-box {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-radius: 20px; padding: 24px;
+  width: 90%; max-width: 320px; text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2), inset 0 1px rgba(255,255,255,0.6);
+  transform: scale(0.95); transition: transform 0.3s ease;
+}
+.modal-overlay.active .modal-box { transform: scale(1); }
+.dark .modal-box {
+  background: rgba(44, 44, 46, 0.85); color: white;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.05);
+}
+.modal-title { font-size: 18px; font-weight: 600; margin: 0 0 8px 0; }
+.modal-message { font-size: 14px; color: #666; margin: 0 0 20px 0; line-height: 1.4; word-break: break-word;}
+.dark .modal-message { color: #aaa; }
+.modal-btn {
+  background: linear-gradient(135deg, #0a84ff, #0066ff);
+  color: white; border: none; padding: 14px; width: 100%;
+  border-radius: 14px; font-weight: 600; font-size: 16px;
+  cursor: pointer; transition: 0.2s; box-shadow: 0 6px 20px rgba(10,132,255,0.35);
+}
+.modal-btn:active { transform: scale(0.96); }
+
+.loader {
+  border: 3px solid rgba(0,0,0,0.1); border-top-color: #0a84ff;
+  border-radius: 50%; width: 36px; height: 36px; animation: spin 1s linear infinite; margin: 0 auto 16px;
+}
+.dark .loader { border-color: rgba(255,255,255,0.1); border-top-color: #0a84ff; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
 </style>
 </head>
 
 <body>
 
-<div class="box">
+<div id="loadingContainer" class="box active" style="text-align: center; padding: 40px 24px;">
+  <div class="loader"></div>
+  <h2 style="font-size: 18px; margin-bottom: 8px;">Проверка доступа</h2>
+  <p style="color: #666; font-size: 14px; margin: 0;" class="dark:text-[#aaa]">Пожалуйста, подождите...</p>
+</div>
 
-  <div class="header">
-    <h2>Генератор билета</h2>
-
-    <label class="theme-switch">
-      <input type="checkbox" id="themeToggle">
-      <span class="slider"></span>
-    </label>
+<div id="activationContainer" class="box">
+  <div class="header" style="justify-content: center; margin-bottom: 24px;">
+    <h2>Активация доступа</h2>
   </div>
+  <p style="text-align: center; color: #666; font-size: 14px; margin-bottom: 20px; line-height: 1.4;" class="dark:text-[#aaa]">
+    Введите код активации, чтобы получить доступ к генератору билетов.
+  </p>
+  <input id="activationCodeInput" placeholder="XXXX-XXXX-XXXX" style="text-align: center; font-family: monospace; font-size: 18px; letter-spacing: 2px; text-transform: uppercase;">
+  <button id="activateBtn" onclick="processActivation()">
+    Activate
+  </button>
+</div>
 
-  <select id="type">
-    <option value="">Выбери транспорт</option>
-    <option value="bus">Автобус</option>
-    <option value="trolley">Троллейбус</option>
-  </select>
+<div id="generatorContainer">
+  <div class="box">
+    <div class="header">
+      <h2>Генератор билета</h2>
+      <label class="theme-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
 
-  <select id="ap">
-    <option value="">Выбери АП</option>
-    <option value="1">АП №1</option>
-    <option value="6">АП №6</option>
-  </select>
-
-  <input id="num" placeholder="Гар. номер (например 26012)" inputmode="numeric" pattern="[0-9]*">
-
-  <div class="optional-row">
-    <select id="customTime" class="optional-select">
-      <option value="">Выбери время (необязательно)</option>
-      <option value="40">40 минут</option>
-      <option value="60">1 час</option>
+    <select id="type">
+      <option value="">Выбери транспорт</option>
+      <option value="bus">Автобус</option>
+      <option value="trolley">Троллейбус</option>
     </select>
+
+    <select id="ap">
+      <option value="">Выбери АП</option>
+      <option value="1">АП №1</option>
+      <option value="6">АП №6</option>
+    </select>
+
+    <input id="num" placeholder="Гар. номер (например 26012)" inputmode="numeric" pattern="[0-9]*">
+
+    <div class="optional-row">
+      <select id="customTime" class="optional-select">
+        <option value="">Выбери время (необязательно)</option>
+        <option value="40">40 минут</option>
+        <option value="60">1 час</option>
+      </select>
+    </div>
+
+    <button id="openBtn" onclick="openTicket()" disabled>
+      Открыть билет
+    </button>
+
+    <button id="shareBtn" class="share-btn" onclick="shareLink()" disabled>
+      📤 Поделиться
+    </button>
   </div>
+</div>
 
-  <button id="openBtn" onclick="openTicket()" disabled>
-    Открыть билет
-  </button>
-
-  <button id="shareBtn" class="share-btn" onclick="shareLink()" disabled>
-    📤 Поделиться
-  </button>
-
+<div id="appModal" class="modal-overlay">
+  <div class="modal-box">
+    <h3 id="modalTitle" class="modal-title"></h3>
+    <p id="modalMessage" class="modal-message"></p>
+    <div id="modalInputWrapper" style="display: none; margin-bottom: 16px;">
+      <input id="modalCopyInput" readonly style="margin-bottom: 0; text-align: center;">
+    </div>
+    <button class="modal-btn" onclick="closeModal()">OK</button>
+  </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDi74NNL-0DlKOx4b-8P5kGYiCJQetliZY",
@@ -284,6 +364,135 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const toggle = document.getElementById("themeToggle");
+
+window.closeModal = () => {
+  document.getElementById('appModal').classList.remove('active');
+};
+
+function showModal(title, message, copyText = null) {
+  document.getElementById('modalTitle').innerText = title;
+  document.getElementById('modalMessage').innerText = message;
+  const inputWrapper = document.getElementById('modalInputWrapper');
+  const copyInput = document.getElementById('modalCopyInput');
+  
+  if (copyText) {
+    inputWrapper.style.display = 'block';
+    copyInput.value = copyText;
+    copyInput.onclick = () => { copyInput.select(); document.execCommand('copy'); };
+  } else {
+    inputWrapper.style.display = 'none';
+  }
+  document.getElementById('appModal').classList.add('active');
+}
+
+if (!localStorage.getItem("deviceId")) {
+  localStorage.setItem("deviceId", crypto.randomUUID());
+}
+const currentDeviceId = localStorage.getItem("deviceId");
+let isAuthorized = false;
+
+async function checkAccess() {
+  try {
+    const deviceRef = doc(db, "authorizedDevices", currentDeviceId);
+    const snap = await getDoc(deviceRef);
+    
+    document.getElementById('loadingContainer').classList.remove('active');
+    
+    if (snap.exists()) {
+      isAuthorized = true;
+      document.getElementById('generatorContainer').classList.add('active');
+    } else {
+      document.getElementById('activationContainer').classList.add('active');
+    }
+  } catch (error) {
+    document.getElementById('loadingContainer').classList.remove('active');
+    document.getElementById('activationContainer').classList.add('active');
+    showModal("Ошибка", "Ошибка подключения к БД");
+  }
+}
+checkAccess();
+
+window.processActivation = async () => {
+  let codeInput = document.getElementById('activationCodeInput').value.trim().toUpperCase();
+  if (!codeInput) {
+    showModal("Ошибка", "Введите код активации");
+    return;
+  }
+  
+  const btn = document.getElementById('activateBtn');
+  btn.disabled = true;
+  btn.innerText = "Активация...";
+
+  try {
+    const codeRef = doc(db, "activationCodes", codeInput);
+    const codeSnap = await getDoc(codeRef);
+
+    if (!codeSnap.exists()) {
+      showModal("Ошибка", "Код не найден");
+      btn.disabled = false;
+      btn.innerText = "Активировать";
+      return;
+    }
+
+    const codeData = codeSnap.data();
+    if (codeData.used) {
+      showModal("Ошибка", "Code already used");
+      btn.disabled = false;
+      btn.innerText = "Активировать";
+      return;
+    }
+
+    const batch = writeBatch(db);
+    batch.update(codeRef, {
+      used: true,
+      usedAt: serverTimestamp(),
+      deviceId: currentDeviceId
+    });
+    
+    const deviceRef = doc(db, "authorizedDevices", currentDeviceId);
+    batch.set(deviceRef, {
+      deviceId: currentDeviceId,
+      activatedAt: serverTimestamp(),
+      activationCode: codeInput
+    });
+
+    await batch.commit();
+
+    isAuthorized = true;
+    showModal("Успех", "Активация успешна!");
+    
+    document.getElementById('activationContainer').classList.remove('active');
+    document.getElementById('generatorContainer').classList.add('active');
+
+  } catch (error) {
+    showModal("Ошибка", "Доступен воспрещен");
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Activate";
+  }
+};
+
+window.generateActivationCode = async () => {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 12; i++) {
+    if (i > 0 && i % 4 === 0) code += "-";
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  try {
+    await setDoc(doc(db, "activationCodes", code), {
+      code: code,
+      used: false,
+      createdAt: serverTimestamp(),
+      usedAt: null,
+      deviceId: null
+    });
+    console.log(`%c[УСПЕШНО] Новый код активации: ${code}`, 'color: #34c759; font-size: 16px; font-weight: bold;');
+    return code;
+  } catch (e) {
+    console.error("Error generating code. Check Firestore Rules.", e);
+  }
+};
 
 function setTheme(mode) {
   document.documentElement.classList.toggle("dark", mode === "dark");
@@ -477,6 +686,7 @@ function buildRecipientParts() {
 }
 
 async function buildUrl() {
+  if (!isAuthorized) { showModal("Доступен воспрещен!", "Устройство не авторизовано."); throw new Error("Нет авторизации."); }
   const parts = buildRecipientParts();
   const { from, to } = getDateRange();
   const price = FIXED_PRICE;
@@ -510,16 +720,18 @@ const stableData = {
 }
   
 async function openTicket() {
+  if (!isAuthorized) { showModal("Доступ воспрещен", "Устройство не авторизовано"); return; }
   if (!isFormValid()) return;
   try {
     const url = await buildUrl();
     window.location.href = url;
   } catch (e) {
-    alert("Ошибка при создании билета");
+    showModal("Ошибка", "Ошибка при создании билета");
   }
 }
 
 async function shareLink() {
+  if (!isAuthorized) { showModal("Доступ воспрещен", "Устройство не авторизовано"); return; }
   if (!isFormValid()) return;
   const url = await buildUrl();
 
@@ -533,13 +745,12 @@ async function shareLink() {
   if (navigator.clipboard && location.protocol === "https:") {
     try {
       await navigator.clipboard.writeText(url);
-      alert("Ссылка скопирована!");
+      showModal("Успех", "Ссылка скопирована!");
       return;
     } catch (e) {}
   }
 
-  prompt("Скопируй ссылку:", url);
-}
+  showModal("Ссылка готова", "Скопируй ссылку ниже:", url);
 
 window.openTicket = openTicket;
 window.shareLink = shareLink;
