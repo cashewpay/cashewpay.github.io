@@ -289,14 +289,14 @@ button:active {
 
 <div id="activationContainer" class="box">
   <div class="header" style="justify-content: center; margin-bottom: 24px;">
-    <h2>Access Activation</h2>
+    <h2>Активация доступа</h2>
   </div>
   <p style="text-align: center; color: #666; font-size: 14px; margin-bottom: 20px; line-height: 1.4;">
-    Enter your activation code to access the ticket generator.
+    Введите код активации, чтобы получить доступ к генератору билетов.
   </p>
   <input id="activationCodeInput" placeholder="XXXX-XXXX-XXXX" style="text-align: center; font-family: monospace; font-size: 18px; letter-spacing: 2px; text-transform: uppercase;">
   <button id="activateBtn" onclick="processActivation()">
-    Activate
+    Активировать
   </button>
 </div>
 
@@ -615,13 +615,13 @@ async function checkAccess() {
 async function processActivation() {
   let codeInput = document.getElementById('activationCodeInput').value.trim().toUpperCase();
   if (!codeInput) {
-    showModal("Ошибка", "Please enter an activation code");
+    showModal("Ошибка", "Пожалуйста, введите код активации.");
     return;
   }
   
   const btn = document.getElementById('activateBtn');
   btn.disabled = true;
-  btn.innerText = "Activating...";
+  btn.innerText = "Активация...";
 
   try {
     const codeRef = doc(db, "activationCodes", codeInput);
@@ -630,7 +630,7 @@ async function processActivation() {
     if (!codeSnap.exists()) {
       showModal("Ошибка", "Code not found");
       btn.disabled = false;
-      btn.innerText = "Activate";
+      btn.innerText = "Активировать";
       return;
     }
 
@@ -659,7 +659,7 @@ async function processActivation() {
     await batch.commit();
 
     isAuthorized = true;
-    showModal("Успех", "Activation successful!");
+    showModal("Успех", "Активация прошла успешно!");
     
     document.getElementById('activationContainer').classList.remove('active');
     document.getElementById('generatorContainer').classList.add('active');
