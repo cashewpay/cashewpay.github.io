@@ -583,31 +583,30 @@ async function processSync(token) {
   const loader = document.getElementById('loadingContainer');
   try {
     const tokenRef = doc(db, "syncTokens", token);
-    const tokenSnap = await getDoc(tokenRef);
-    
-    if (!tokenSnap.exists() || tokenSnap.data().used) {
-      window.history.replaceState({}, document.title, window.location.pathname);
-      showModal("Ошибка моста", "Этот токен синхронизации недействителен, устарел или уже был использован.");
-      checkAccess();
-      return;
-    }
-    
-    const batch = writeBatch(db);
-    batch.update(tokenRef, { used: true, usedAt: serverTimestamp(), toDevice: currentDeviceId });
-    
     const deviceRef = doc(db, "authorizedDevices", currentDeviceId);
-    batch.set(deviceRef, { deviceId: currentDeviceId, activatedAt: serverTimestamp(), syncToken: token });
+    const batch = writeBatch(db);
+    
+    batch.set(deviceRef, { 
+        deviceId: currentDeviceId, 
+        activatedAt: serverTimestamp(), 
+        syncToken: token 
+    });
+    batch.update(tokenRef, { 
+        used: true, 
+        usedAt: serverTimestamp(), 
+        toDevice: currentDeviceId 
+    });
+    
     await batch.commit();
     
     isAuthorized = true;
     window.history.replaceState({}, document.title, window.location.pathname);
-    showModal("Успех", "Этот браузер успешно привязан к вашей лицензии!");
+    showModal("Успех", "Этот браузер успешно привязан!");
     if (loader) loader.classList.remove('active');
     document.getElementById('generatorContainer').classList.add('active');
   } catch (e) {
-    window.history.replaceState({}, document.title, window.location.pathname);
-    showModal("Ошибка", "Не удалось выполнить трансляцию и привязку сессии.");
-    checkAccess();
+    console.error(e);
+    showModal("Ошибка", "Не удалось выполнить привязку. Возможно, ссылка уже была использована.");
   }
 }
 
