@@ -223,33 +223,6 @@ button:active {
   opacity: 0.65;
 }
 
-.help-btn {
-  position: absolute;
-
-  right: 45px;
-  top: 50%;
-
-  transform: translateY(-50%);
-
-  width: 24px;
-  height: 24px;
-
-  border-radius: 50%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: rgba(255,255,255,.12);
-
-  color: #aaa;
-  font-size: 13px;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  z-index: 100;
-}
 </style>
 </head>
 
@@ -281,17 +254,11 @@ button:active {
   <input id="num" placeholder="Гар. номер (например 26012)" inputmode="numeric" pattern="[0-9]*">
 
   <div class="optional-row">
-  
     <select id="customTime" class="optional-select">
       <option value="">Выбери время (необязательно)</option>
       <option value="40">40 минут</option>
       <option value="60">1 час</option>
     </select>
-  
-    <div class="help-btn" onclick="showTimeHelp()">
-      ?
-    </div>
-  
   </div>
 
   <button id="openBtn" onclick="openTicket()" disabled>
@@ -574,71 +541,10 @@ async function shareLink() {
   prompt("Скопируй ссылку:", url);
 }
 
-function showTimeHelp() {
-  document
-    .getElementById("timeModal")
-    .classList.add("show");
-}
-
-function closeTimeHelp() {
-  document
-    .getElementById("timeModal")
-    .classList.remove("show");
-}
-
-window.showTimeHelp = showTimeHelp;
-window.closeTimeHelp = closeTimeHelp;
-
-document
-  .getElementById("timeModal")
-  .addEventListener("click", (e) => {
-
-    if (e.target.id === "timeModal") {
-      closeTimeHelp();
-    }
-
-  });
-
 window.openTicket = openTicket;
 window.shareLink = shareLink;
 
 </script>
-
-<div id="timeModal" class="modal">
-  <div class="modal-content">
-
-    <div class="modal-header">
-      <h3>Выбор времени</h3>
-
-      <button class="modal-close" onclick="closeTimeHelp()">
-        ✕
-      </button>
-    </div>
-
-    <div class="modal-body">
-      <p>Выбор времени является необязательным.</p>
-
-      <p>
-        При поездке с кем-то, если вы видите, что время в билетах отличается - вы можете поставить новое.
-      </p>
-
-      <p>
-        Если время не выбрано, срок действия билета определяется автоматически:
-      </p>
-
-      <ul>
-        <li>Автобус АП №1 — 40 минут</li>
-        <li>Автобус АП №6 — 1 час</li>
-        <li>Троллейбус — 1 час</li>
-      </ul>
-
-      <p>
-        Если выбрать время вручную, автоматический расчет будет отключен и использовано выбранное значение.
-      </p>
-    </div>
-
-  </div>
-</div>
 
 </body>
 </html>
