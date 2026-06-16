@@ -129,9 +129,6 @@ input:checked + .slider::before {
   content: "☀️";
 }
 
-/* ---------------- */
-
-/* ✍️ Inputs */
 input, select {
   width: 100%;
   padding: 14px;
@@ -164,7 +161,6 @@ input::placeholder {
   color: white;
 }
 
-/* ❌ Error */
 .error {
   border-color: rgba(255, 59, 48, 0.6) !important;
   background: rgba(255, 240, 240, 0.6);
@@ -175,7 +171,6 @@ input::placeholder {
   background: rgba(60, 20, 20, 0.5);
 }
 
-/* Focus */
 input:focus, select:focus {
   border-color: #0a84ff;
   background: rgba(255,255,255,0.85);
@@ -187,7 +182,6 @@ input:focus, select:focus {
   background: rgba(72,72,74,0.85);
 }
 
-/* 🔵 Button */
 button {
   width: 100%;
   padding: 15px;
@@ -249,11 +243,13 @@ button:active {
   <select id="ap">
     <option value="">Выбери АП</option>
     <option value="1">АП №1</option>
-    <option value="2">АП №2</option>
-    <option value="3">АП №3</option>
-    <option value="4">АП №4</option>
-    <option value="5">АП №5</option>
     <option value="6">АП №6</option>
+  </select>
+
+  <select id="customTime">
+    <option value="">Выбери время (необязательно)</option>
+    <option value="40">40 минут</option>
+    <option value="60">1 час</option>
   </select>
 
   <input id="num" placeholder="Гар. номер (например 26012)" inputmode="numeric" pattern="[0-9]*">
@@ -305,6 +301,7 @@ initTheme();
 const typeEl = document.getElementById("type");
 const apEl = document.getElementById("ap");
 const numEl = document.getElementById("num");
+const customTimeEl = document.getElementById("customTime");
 const FIXED_PRICE = "1.05";;
 const openBtn = document.getElementById("openBtn");
 const shareBtn = document.getElementById("shareBtn");
@@ -378,7 +375,26 @@ function formatDate(date) {
 function getDateRange() {
   const now = new Date();
   const type = typeEl.value;
-  const offset = type === "trolley" ? 3600000 : 2400000;
+  const ap = apEl.value;
+  const customTime = customTimeEl.value;
+  let offset;
+    if (customTime) {
+      offset = Number(customTime) * 60 * 1000;
+    }
+    else if (type === "trolley") {
+      offset = 3600000; 
+    }
+    else if (type === "bus") {
+      if (ap === "1") {
+        offset = 2400000; 
+      }
+      else if (ap === "6") {
+        offset = 3600000; 
+      }
+      else {
+        offset = 2400000;
+      }
+    }
   const plus = new Date(now.getTime() + offset);
   return {
     from: formatDate(now),
@@ -424,16 +440,27 @@ function buildRecipientParts() {
   if (!type || !num) return null;
 
   if (type === "bus" && ap) {
-    return [
-      `Оплата проезда в автобусе, гар. номер ${num} (в городском транспорте: ${price} руб)`,
-      `г. Гомель`,
-      `Гомельоблавтотранс ф-л "АП №${ap}"`
-    ];
+
+    if (ap === "1") {
+      return [
+        `Оплата проезда в автобусе, гар. номер ${num}`,
+        `г. Гомель`,
+        `Филиал "Автобусный парк №1"`
+      ];
+    }
+
+    if (ap === "6") {
+      return [
+        `Оплата проезда в автобусе, гар. номер ${num} (в городском транспорте: ${price} руб)`,
+        `г. Гомель`,
+        `Гомельоблавтотранс ф-л "АП №6"`
+      ];
+    }
   }
 
   if (type === "trolley") {
     return [
-      `Оплата проезда в троллейбусе, гар. номер ${num} (в городском транспорте: ${price} руб)`,
+      `Оплата проезда в троллейбусе, гар. номер ${num}`,
       `г. Гомель`,
       `ОАО "Гомельоблавтотранс" филиал "Горэлектротранспорт"`
     ];
