@@ -334,7 +334,7 @@ button:active {
 
     <div id="syncSection" style="margin-top: 20px; border-top: 1px solid rgba(120,120,128,0.15); padding-top: 16px; text-align: center;">
       <button id="syncBtn" onclick="generateSyncLink()" style="background: linear-gradient(135deg, #5ac8fa, #5856d6); box-shadow: 0 6px 20px rgba(88,86,214,0.25); font-size: 14px; padding: 12px; border-radius: 12px;">
-        🔗 Привязать Safari / Другой браузер
+        🔗 Привязать другой браузер (1 раз)
       </button>
     </div>
 
@@ -801,7 +801,7 @@ async function generateSyncLink() {
   } catch (e) {
     showModal("Ошибка", "Не удалось создать защищенный сессионный мост.");
     btn.disabled = false;
-    btn.innerText = "🔗 Привязать Safari / Другой браузер";
+    btn.innerText = "🔗 Привязать другой браузер";
   }
 }
   
