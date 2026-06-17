@@ -207,7 +207,6 @@ button:active {
   opacity: 0.65;
 }
 
-/* --- АКТИВАЦИОННЫЕ КОНТЕЙНЕРЫ КОНФИГУРАЦИИ --- */
 #loadingContainer, #activationContainer, #generatorContainer {
   display: none;
 }
@@ -215,7 +214,6 @@ button:active {
   display: block;
 }
 
-/* --- МОДЕРНИЗИРОВАННАЯ СИСТЕМА МОДАЛЬНЫХ ОКОН --- */
 .modal-overlay {
   position: fixed; inset: 0;
   background: rgba(0, 0, 0, 0.4);
@@ -253,7 +251,6 @@ button:active {
 }
 .modal-btn:active { transform: scale(0.96); }
 
-/* --- ИНДИКАТОР ЗАГРУЗКИ КАТЕГОРИИ АКТИВАЦИИ --- */
 .loader {
   border: 3px solid rgba(0,0,0,0.1); border-top-color: #0a84ff;
   border-radius: 50%; width: 36px; height: 36px; animation: spin 1s linear infinite; margin: 0 auto 16px;
@@ -743,7 +740,6 @@ async function generateSyncLink() {
   btn.innerText = "Генерация моста...";
   
   try {
-    // 1. Получаем данные текущего устройства из базы
     const deviceRef = doc(db, "authorizedDevices", currentDeviceId);
     const deviceSnap = await getDoc(deviceRef);
     
@@ -767,8 +763,7 @@ async function generateSyncLink() {
     const token = crypto.randomUUID();
     const tokenRef = doc(db, "syncTokens", token);
     const batch = writeBatch(db);
-    
-    // Записываем токен
+
     batch.set(tokenRef, {
       token: token,
       fromDevice: currentDeviceId,
@@ -898,8 +893,6 @@ window.closeModal = closeModal;
 window.generateActivationCode = generateActivationCode;
 window.generateSyncLink = generateSyncLink;
 
-// === УЛУЧШЕННАЯ ЛОГИКА СКАНЕРА OCR С ФИКСАЦИЕЙ КАДРА ===
-
 let videoStream = null;
 
 async function startScanner() {
@@ -909,8 +902,7 @@ async function startScanner() {
   const target = document.getElementById('scannerTarget');
   const status = document.getElementById('scannerStatus');
   const captureBtn = document.getElementById('captureBtn');
-  
-  // Сбрасываем видимость элементов к исходному состоянию камеры
+
   video.style.display = 'block';
   canvas.style.display = 'none';
   target.style.display = 'block';
@@ -946,32 +938,27 @@ async function captureAndRecognize() {
   const target = document.getElementById('scannerTarget');
   const status = document.getElementById('scannerStatus');
   const captureBtn = document.getElementById('captureBtn');
-  
-  // 1. МОМЕНТАЛЬНО ДЕЛАЕМ СНИМОК
+
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  
-  // 2. ПОДМЕНЯЕМ ИНТЕРФЕЙС: прячем видео и рамку, показываем замершее фото
+
   video.style.display = 'none';
   canvas.style.display = 'block';
   target.style.display = 'none';
-  
-  // 3. СРАЗУ ВЫКЛЮЧАЕМ КАМЕРУ (физически останавливаем стрим и гасим индикатор на телефоне)
+
   if (videoStream) {
     videoStream.getTracks().forEach(track => track.stop());
     videoStream = null;
   }
   video.srcObject = null;
 
-  // Обновляем статус кнопки и лоадера
   captureBtn.disabled = true;
   status.style.display = 'block';
   status.innerText = "⏳ Камера отключена. Распознаем текст с фото...";
   
   try {
-    // Запускаем анализ уже сделанной статичной фотографии
     const result = await Tesseract.recognize(
       canvas,
       'rus+eng',
@@ -988,65 +975,61 @@ async function captureAndRecognize() {
     let foundNumber = false;
     let foundType = false;
 
-    // Ищем гаражный номер
     const numMatch = text.match(/(?:номер|гар|ном)?[^\d]*(\d{4,5})/i) || text.match(/(\d{4,5})/);
     if (numMatch) {
       numEl.value = numMatch[1];
       foundNumber = true;
     }
 
-    // Умное определение типа транспорта (с очисткой от мусора)
     const cleanText = text.replace(/[^а-яa-z0-9]/g, '');
     const hasTrolleyKeywords = cleanText.includes('электр') || cleanText.includes('трол') || cleanText.includes('гэт') || cleanText.includes('горэл');
-    const hasBusKeywords = cleanText.includes('автобус') || cleanText.includes('ап1') || cleanText.includes('ап6') || cleanText.includes('парк1') || cleanText.includes('парк6');
+    const hasBusKeywords = cleanText.includes('автобус') || cleanText.includes('ап1') || cleanText.includes('ап6') || cleanText.includes('парк1') || cleanText.includes('парк6') || cleanText.includes('облавтотранс');
 
-    if (hasTrolleyKeywords) {
+    if (hasTrolleyKeywords || (foundNumber && numEl.value.length === 4 && !hasBusKeywords)) {
       typeEl.value = 'trolley';
       apEl.style.display = 'none';
       apEl.value = '';
       foundType = true;
-    } else if (hasBusKeywords) {
+    } else if (hasBusKeywords || (foundNumber && numEl.value.length === 5)) {
       typeEl.value = 'bus';
       apEl.style.display = 'block';
       foundType = true;
-      const apMatch = text.match(/(?:ап|парк)[\s\S]{0,10}?([16il|!бb])/i) 
-                         || text.match(/автобус[\s\S]{0,20}?([16il|!бb])/i);
-      
-            if (apMatch) {
-              const val = apMatch[1].toLowerCase();
-              if (['1', 'i', 'l', '|', '!'].includes(val)) {
-                apEl.value = '1';
-              } else if (['6', 'б', 'b'].includes(val)) {
-                apEl.value = '6';
-              } else {
-                apEl.value = '';
-              }
-            } else {
-              apEl.value = ''; // Не удалось определить
-        }
-    } else if (foundNumber) {
-      // Подстраховка по длине номера Гомеля
-      if (numEl.value.length === 4) {
-        typeEl.value = 'trolley';
-        apEl.style.display = 'none';
-        apEl.value = '';
-        foundType = true;
-      } else if (numEl.value.length === 5) {
-        typeEl.value = 'bus';
-        apEl.style.display = 'block';
-        apEl.value = '';
-        foundType = true;
-      }
     }
 
-    // Закрываем модальное окно, так как анализ завершен
-    document.getElementById('scannerModal').classList.remove('active');
-    
-    // Обновляем форму
-    typeEl.dispatchEvent(new Event('change')); 
-    numEl.dispatchEvent(new Event('input'));
-    if (typeEl.value === 'bus' && apEl.value) {
-      apEl.dispatchEvent(new Event('change'));
+    if (typeEl.value === 'bus') {
+      const apMatch = text.match(/(?:парк|ап)[^\dа-яa-z]{0,10}([16il|!бb])/i);
+      
+      if (apMatch) {
+        const apChar = apMatch[1].toLowerCase();
+        if (['1', 'i', 'l', '|', '!'].includes(apChar)) {
+          apEl.value = '1';
+        } else if (['6', 'б', 'b'].includes(apChar)) {
+          apEl.value = '6';
+        }
+      } else {
+        let textForApCheck = text;
+        if (foundNumber) {
+          textForApCheck = text.replace(numEl.value, '');
+        }
+
+        if (textForApCheck.includes('парк') || textForApCheck.includes('ап')) {
+          if (/[6бb]/.test(textForApCheck)) {
+            apEl.value = '6';
+          } else if (/[1il|!]/.test(textForApCheck)) {
+            apEl.value = '1';
+          } else {
+            apEl.value = '';
+          }
+        } else {
+          if (cleanText.includes('парк1') || cleanText.includes('ап1')) {
+            apEl.value = '1';
+          } else if (cleanText.includes('парк6') || cleanText.includes('ап6')) {
+            apEl.value = '6';
+          } else {
+            apEl.value = '';
+          }
+        }
+      }
     }
     
     if (foundNumber || foundType) {
@@ -1064,12 +1047,6 @@ async function captureAndRecognize() {
   }
 }
 
-// Экспортируем функции в глобальную область видимости window
-window.startScanner = startScanner;
-window.stopScanner = stopScanner;
-window.captureAndRecognize = captureAndRecognize;
-
-// Экспортируем функции в window
 window.startScanner = startScanner;
 window.stopScanner = stopScanner;
 window.captureAndRecognize = captureAndRecognize;
