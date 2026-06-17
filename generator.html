@@ -11,6 +11,7 @@
   <meta name="theme-color" content="#007aff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Билет">
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 * { box-sizing: border-box; }
 
@@ -314,7 +315,12 @@ button:active {
       <option value="6">АП №6</option>
     </select>
 
-    <input id="num" placeholder="Гар. номер (например 26012)" inputmode="numeric" pattern="[0-9]*">
+    <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+      <input id="num" placeholder="Гар. номер (26012)" inputmode="numeric" pattern="[0-9]*" style="margin-bottom: 0;">
+      <button type="button" id="scanBtn" onclick="startScanner()" style="width: 60px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;" title="Сканировать текст">
+        📷
+      </button>
+    </div>
 
     <div class="optional-row">
       <select id="customTime" class="optional-select">
@@ -351,6 +357,25 @@ button:active {
     <button class="modal-btn" onclick="closeModal()">OK</button>
   </div>
 </div>
+<div id="scannerModal" class="modal-overlay">
+  <div class="modal-box" style="max-width: 400px; width: 95%;">
+    <h3 class="modal-title">Сканирование афиши</h3>
+    <p class="modal-message">Наведите камеру ровно на текст под QR-кодом (Гаражный номер и филиал)</p>
+    
+    <div style="position: relative; width: 100%; border-radius: 12px; overflow: hidden; margin-bottom: 16px; background: #000; min-height: 200px;">
+      <video id="cameraStream" autoplay playsinline style="width: 100%; display: block; object-fit: cover;"></video>
+      <div style="position: absolute; top: 30%; left: 10%; right: 10%; bottom: 30%; border: 2px solid #34c759; border-radius: 8px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.4); pointer-events: none;"></div>
+    </div>
+    
+    <p id="scannerStatus" style="font-size: 14px; font-weight: bold; color: #0a84ff; margin-bottom: 16px; display: none;">⏳ Распознавание текста...</p>
+    
+    <div style="display: flex; gap: 10px;">
+      <button class="modal-btn" id="captureBtn" style="background: linear-gradient(135deg, #34c759, #30b350);" onclick="captureAndRecognize()">Распознать</button>
+      <button class="modal-btn" style="background: linear-gradient(135deg, #ff3b30, #d70015);" onclick="stopScanner()">Отмена</button>
+    </div>
+  </div>
+</div>
+<canvas id="captureCanvas" style="display: none;"></canvas>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -870,6 +895,122 @@ window.processActivation = processActivation;
 window.closeModal = closeModal;
 window.generateActivationCode = generateActivationCode;
 window.generateSyncLink = generateSyncLink;
+
+  // === ЛОГИКА СКАНЕРА OCR ===
+
+let videoStream = null;
+
+async function startScanner() {
+  const scannerModal = document.getElementById('scannerModal');
+  const video = document.getElementById('cameraStream');
+  const status = document.getElementById('scannerStatus');
+  const captureBtn = document.getElementById('captureBtn');
+  
+  status.style.display = 'none';
+  captureBtn.disabled = false;
+  captureBtn.innerText = "Распознать";
+  scannerModal.classList.add('active');
+
+  try {
+    // Запрашиваем доступ к задней камере телефона
+    videoStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" }
+    });
+    video.srcObject = videoStream;
+  } catch (err) {
+    stopScanner();
+    showModal("Ошибка", "Не удалось получить доступ к камере. Проверьте разрешения браузера.");
+  }
+}
+
+function stopScanner() {
+  document.getElementById('scannerModal').classList.remove('active');
+  if (videoStream) {
+    videoStream.getTracks().forEach(track => track.stop());
+    videoStream = null;
+  }
+}
+
+async function captureAndRecognize() {
+  const video = document.getElementById('cameraStream');
+  const canvas = document.getElementById('captureCanvas');
+  const status = document.getElementById('scannerStatus');
+  const captureBtn = document.getElementById('captureBtn');
+  
+  // Меняем UI на процесс загрузки
+  captureBtn.disabled = true;
+  status.style.display = 'block';
+  status.innerText = "⏳ Делаем снимок и читаем текст...";
+
+  // Настраиваем холст под размер видео
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  
+  // Рисуем текущий кадр с видео на холст
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  try {
+    // Запускаем Tesseract (используем русский и английский язык)
+    const result = await Tesseract.recognize(
+      canvas,
+      'rus+eng',
+      { logger: m => console.log(m) } // Опционально: прогресс в консоли
+    );
+    
+    const text = result.data.text.toLowerCase();
+    console.log("Распознанный текст:", text);
+    
+    // ПАРСИНГ ДАННЫХ
+    let foundNumber = false;
+    let foundType = false;
+
+    // 1. Ищем гаражный номер (цифры после слов "номер" или просто 4-5 подряд идущих цифр)
+    const numMatch = text.match(/номер[^\d]*(\d{4,5})/i) || text.match(/(\d{4,5})/);
+    if (numMatch) {
+      document.getElementById('num').value = numMatch[1];
+      foundNumber = true;
+    }
+
+    // 2. Ищем тип транспорта и автопарк
+    const typeEl = document.getElementById('type');
+    const apEl = document.getElementById('ap');
+    
+    if (text.includes('горэлектротранспорт') || text.includes('троллейбус')) {
+      typeEl.value = 'trolley';
+      apEl.style.display = 'none';
+      foundType = true;
+    } else if (text.includes('автобус') || text.includes('ап №1') || text.includes('ап №6') || text.includes('автобусный парк')) {
+      typeEl.value = 'bus';
+      apEl.style.display = 'block';
+      if (text.includes('№1') || text.includes('1"')) apEl.value = '1';
+      if (text.includes('№6') || text.includes('6"')) apEl.value = '6';
+      foundType = true;
+    }
+
+    stopScanner();
+    
+    // Обновляем состояние кнопок (вызываем твою функцию)
+    typeEl.dispatchEvent(new Event('change')); 
+    document.getElementById('num').dispatchEvent(new Event('input'));
+    
+    if (foundNumber || foundType) {
+      showModal("Успех", `Данные распознаны!\n\nТип: ${typeEl.options[typeEl.selectedIndex].text}\nНомер: ${document.getElementById('num').value}`);
+    } else {
+      showModal("Внимание", "Текст распознан, но не удалось точно определить номер или тип транспорта. Проверьте фото и введите вручную.");
+    }
+
+  } catch (err) {
+    console.error(err);
+    stopScanner();
+    showModal("Ошибка", "Произошла ошибка при распознавании текста.");
+  }
+}
+
+// Экспортируем функции в window
+window.startScanner = startScanner;
+window.stopScanner = stopScanner;
+window.captureAndRecognize = captureAndRecognize;
 
 </script>
 
