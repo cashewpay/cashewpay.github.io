@@ -937,73 +937,93 @@ async function captureAndRecognize() {
   const status = document.getElementById('scannerStatus');
   const captureBtn = document.getElementById('captureBtn');
   
-  // Меняем UI на процесс загрузки
   captureBtn.disabled = true;
   status.style.display = 'block';
   status.innerText = "⏳ Делаем снимок и читаем текст...";
 
-  // Настраиваем холст под размер видео
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   const ctx = canvas.getContext('2d');
-  
-  // Рисуем текущий кадр с видео на холст
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   
   try {
-    // Запускаем Tesseract (используем русский и английский язык)
     const result = await Tesseract.recognize(
       canvas,
       'rus+eng',
-      { logger: m => console.log(m) } // Опционально: прогресс в консоли
+      { logger: m => console.log(m) }
     );
     
+    // Переводим весь текст в нижний регистр для безошибочного поиска ключевых слов
     const text = result.data.text.toLowerCase();
     console.log("Распознанный текст:", text);
     
-    // ПАРСИНГ ДАННЫХ
+    const typeEl = document.getElementById('type');
+    const apEl = document.getElementById('ap');
+    const numEl = document.getElementById('num');
+
     let foundNumber = false;
     let foundType = false;
 
-    // 1. Ищем гаражный номер (цифры после слов "номер" или просто 4-5 подряд идущих цифр)
+    // === ЛОГИКА ОПРЕДЕЛЕНИЯ ТИПА ТРАНСПОРТА ===
+    
+    // Проверяем наличие филиала Горэлектротранспорт или слова троллейбус
+    if (text.includes('горэлектротранспорт') || text.includes('троллейбус')) {
+      typeEl.value = 'trolley';
+      apEl.style.display = 'none'; // Скрываем выбор АП
+      apEl.value = '';             // Очищаем значение АП
+      foundType = true;
+    } else {
+      // "Если другое - выбирается автобус"
+      typeEl.value = 'bus';
+      apEl.style.display = 'block'; // Показываем выбор АП
+      foundType = true;
+
+      // Пытаемся определить конкретный автобусный парк из текста
+      if (text.includes('ап №1') || text.includes('автобусный парк №1') || text.includes('ап1') || text.includes('парк 1')) {
+        apEl.value = '1';
+      } else if (text.includes('ап №6') || text.includes('автобусный парк №6') || text.includes('ап6') || text.includes('парк 6') || text.includes('гомельоблавтотранс ф-л')) {
+        apEl.value = '6';
+      } else {
+        // Если это автобус, но парк в тексте не распознался, оставляем поле пустым для ручного выбора
+        apEl.value = '';
+      }
+    }
+
+    // === ЛОГИКА ПОИСКА ГАРАЖНОГО НОМЕРА ===
+    
+    // Ищем цифры после слова "номер" или просто любую комбинацию из 4-5 цифр подряд
     const numMatch = text.match(/номер[^\d]*(\d{4,5})/i) || text.match(/(\d{4,5})/);
     if (numMatch) {
-      document.getElementById('num').value = numMatch[1];
+      numEl.value = numMatch[1];
       foundNumber = true;
     }
 
-    // 2. Ищем тип транспорта и автопарк
-    const typeEl = document.getElementById('type');
-    const apEl = document.getElementById('ap');
-    
-    if (text.includes('горэлектротранспорт') || text.includes('троллейбус')) {
-      typeEl.value = 'trolley';
-      apEl.style.display = 'none';
-      foundType = true;
-    } else if (text.includes('автобус') || text.includes('ап №1') || text.includes('ап №6') || text.includes('автобусный парк')) {
-      typeEl.value = 'bus';
-      apEl.style.display = 'block';
-      if (text.includes('№1') || text.includes('1"')) apEl.value = '1';
-      if (text.includes('№6') || text.includes('6"')) apEl.value = '6';
-      foundType = true;
-    }
-
+    // Закрываем сканер
     stopScanner();
     
-    // Обновляем состояние кнопок (вызываем твою функцию)
+    // Триггерим события изменения полей, чтобы сработали твои функции валидации и обновления кнопок
     typeEl.dispatchEvent(new Event('change')); 
-    document.getElementById('num').dispatchEvent(new Event('input'));
+    numEl.dispatchEvent(new Event('input'));
+    if (typeEl.value === 'bus') {
+      apEl.dispatchEvent(new Event('change'));
+    }
     
+    // Выводим красивое уведомление о результатах
     if (foundNumber || foundType) {
-      showModal("Успех", `Данные распознаны!\n\nТип: ${typeEl.options[typeEl.selectedIndex].text}\nНомер: ${document.getElementById('num').value}`);
+      let transportName = typeEl.value === 'trolley' ? 'Троллейбус' : 'Автобус';
+      let apName = apEl.value ? ` (АП №${apEl.value})` : '';
+      showModal(
+        "Успех", 
+        `Данные автоматически заполнены!\n\nТранспорт: ${transportName}${apName}\nНомер: ${numEl.value}`
+      );
     } else {
-      showModal("Внимание", "Текст распознан, но не удалось точно определить номер или тип транспорта. Проверьте фото и введите вручную.");
+      showModal("Внимание", "Не удалось считать данные с картинки. Попробуйте сфотографировать четче или введите номер вручную.");
     }
 
   } catch (err) {
     console.error(err);
     stopScanner();
-    showModal("Ошибка", "Произошла ошибка при распознавании текста.");
+    showModal("Ошибка", "Произошла ошибка при обработке изображения.");
   }
 }
 
