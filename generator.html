@@ -1009,13 +1009,21 @@ async function captureAndRecognize() {
       typeEl.value = 'bus';
       apEl.style.display = 'block';
       foundType = true;
-      if (cleanText.includes('ап1') || cleanText.includes('парк1') || cleanText.includes('1')) {
-        apEl.value = '1';
-      } else if (cleanText.includes('ап6') || cleanText.includes('парк6') || cleanText.includes('6')) {
-        apEl.value = '6';
-      } else {
-        apEl.value = '';
-      }
+      const apMatch = text.match(/(?:ап|парк)[\s\S]{0,10}?([16il|!бb])/i) 
+                         || text.match(/автобус[\s\S]{0,20}?([16il|!бb])/i);
+      
+            if (apMatch) {
+              const val = apMatch[1].toLowerCase();
+              if (['1', 'i', 'l', '|', '!'].includes(val)) {
+                apEl.value = '1';
+              } else if (['6', 'б', 'b'].includes(val)) {
+                apEl.value = '6';
+              } else {
+                apEl.value = '';
+              }
+            } else {
+              apEl.value = ''; // Не удалось определить
+        }
     } else if (foundNumber) {
       // Подстраховка по длине номера Гомеля
       if (numEl.value.length === 4) {
