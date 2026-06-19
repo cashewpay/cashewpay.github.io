@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>для тебя ❤️</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0a0a0a;
+            color: #fff;
+            font-family: 'Comfortaa', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            height: 100vh;
+            justify-content: center;
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        #start-btn {
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            background: transparent;
+            color: #ff3333;
+            border: 2px solid #ff3333;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Comfortaa', cursive;
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        #start-btn:hover {
+            background-color: #ff3333;
+            color: #fff;
+            box-shadow: 0 0 25px rgba(255, 51, 51, 0.7);
+            transform: scale(1.05);
+        }
+
+        #heart-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+        }
+
+        .heart-word {
+            position: absolute;
+            color: #ff2a2a;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.5);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.8);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="overlay">
+        <button id="start-btn">нажми сюда ❤️</button>
+    </div>
+
+    <audio id="bg-music" src="korzh.mp3" loop></audio>
+
+    <div id="heart-container"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const container = document.getElementById('heart-container');
+            const overlay = document.getElementById('overlay');
+            const startBtn = document.getElementById('start-btn');
+            const music = document.getElementById('bg-music');
+
+            const totalPoints = 120;
+            const scale = 18;
+
+            function startSurprise() {
+                for (let i = 0; i < totalPoints; i++) {
+                    let t = (i / totalPoints) * Math.PI * 2;
+                    
+                    let x = 16 * Math.pow(Math.sin(t), 3);
+                    let y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+
+                    let word = document.createElement('div');
+                    word.className = 'heart-word';
+                    word.innerText = "i love you.";
+
+                    word.style.left = `calc(50% + ${x * scale}px)`;
+                    word.style.top = `calc(50% - ${y * scale}px)`;
+
+                    container.appendChild(word);
+
+                    setTimeout(() => {
+                        word.style.opacity = '1';
+                        word.style.transform = 'translate(-50%, -50%) scale(1)';
+                    }, i * 120); 
+                }
+            }
+
+            startBtn.addEventListener('click', () => {
+                overlay.style.opacity = '0';
+                overlay.style.visibility = 'hidden';
+                music.play().catch(error => {
+                    console.log("автовоспроизведение заблокировано :(", error);
+                });
+                startSurprise();
+            });
+        });
+    </script>
+</body>
+</html>
