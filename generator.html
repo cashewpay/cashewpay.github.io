@@ -311,6 +311,7 @@ button:active {
       <option value="1">АП №1</option>
       <option value="6">АП №6</option>
       <option value="zhlobin">Жлобин</option>
+      <option value="bobr_auto">Бобруйск</option>
     </select>
 
     <div style="display: flex; gap: 10px; margin-bottom: 16px;">
@@ -568,6 +569,13 @@ function buildRecipientParts() {
         `Оплата проезда в автобусе, гар. номер ${num}`,
         `г. Жлобин`,
         `Филиал "Жлобинавтотранс" ОАО "Гомельоблавтотранс"`
+      ];
+    }
+    if (ap === "bobr2") {
+      return [
+        `Оплата проезда в автобусе, гар. номер ${num}`,
+        `г. Бобруйск`,
+        `Бобруйский ф-л Автобусный парк №2 ОАО "Могилевоблавтотранс"`
       ];
     }
   }
