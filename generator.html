@@ -304,6 +304,7 @@ button:active {
       <option value="gomel" selected>Гомель</option>
       <option value="zhlobin">Жлобин</option>
       <option value="bobr">Бобруйск</option>
+      <option value="rechitsa">Речица</option>
     </select>
 
     <select id="type">
@@ -455,8 +456,8 @@ function updateCityFields() {
 
     apEl.value = "";
     apEl.style.display = "none";
-  } else {
-    // В Жлобине используется только автобус, без выбора АП.
+  } else if (city === "zhlobin" || city === "rechitsa") {
+    // В Жлобине и Речице используется только автобус, без выбора АП.
     typeEl.value = "bus";
     typeEl.style.display = "none";
     typeEl.disabled = true;
@@ -484,7 +485,7 @@ cityEl.addEventListener("change", () => {
 });
 
 typeEl.addEventListener("change", () => {
-  if (cityEl.value === "zhlobin") {
+  if (cityEl.value === "zhlobin" || cityEl.value === "rechitsa") {
     typeEl.value = "bus";
     typeEl.style.display = "none";
     typeEl.disabled = true;
@@ -556,8 +557,8 @@ function isFormValid() {
     return !!type;
   }
 
-  if (city === "zhlobin") {
-    // В Жлобине транспорт фиксирован как автобус.
+  if (city === "zhlobin" || city === "rechitsa") {
+    // В Жлобине и Речице транспорт фиксирован как автобус.
     typeEl.classList.remove("error");
     apEl.classList.remove("error");
     return true;
@@ -608,10 +609,10 @@ function getDateRange() {
   else if (city === "zhlobin") {
     offset = 3600000;
   }
-  else if (city === "bobr" && type === "trolley") {
-    offset = 3600000;
+  else if (city === "rechitsa") {
+    offset = 2700000;
   }
-  else if (city === "bobr" && type === "bus") {
+  else if (city === "bobr" && (type === "trolley" || type === "bus")) {
     offset = 3600000;
   }
   else if (type === "trolley") {
@@ -674,6 +675,14 @@ function buildRecipientParts() {
     ];
   }
 
+  if (city === "rechitsa") {
+    return [
+      `Оплата проезда в автобусе, гар. номер ${num}`,
+      `г. Речица`,
+      `Филиал "Автобусный парк №3"`
+    ];
+  }
+
   if (city === "bobr") {
     if (type === "bus") {
       return [
@@ -687,7 +696,7 @@ function buildRecipientParts() {
       return [
         `Оплата проезда в троллейбусе, гар. номер ${num}`,
         `г. Бобруйск`,
-        `Бобруйский ф-л Троллейбусный парк №2 ОАО "Могилевоблавтотранс"`
+        `Троллейбусный парк №2 ОАО "Могилевоблавтотранс"`
       ];
     }
   }
@@ -1133,8 +1142,8 @@ async function captureAndRecognize() {
     const hasTrolleyKeywords = cleanText.includes('электр') || cleanText.includes('трол') || cleanText.includes('гэт') || cleanText.includes('горэл');
     const hasBusKeywords = cleanText.includes('автобус') || cleanText.includes('ап1') || cleanText.includes('ап6') || cleanText.includes('парк1') || cleanText.includes('парк6');
 
-    if (cityEl.value === 'zhlobin') {
-      // Для Жлобина тип транспорта фиксирован: автобус.
+    if (cityEl.value === 'zhlobin' || cityEl.value === 'rechitsa') {
+      // Для Жлобина и Речицы тип транспорта фиксирован: автобус.
       typeEl.value = 'bus';
       typeEl.style.display = 'none';
       typeEl.disabled = true;
