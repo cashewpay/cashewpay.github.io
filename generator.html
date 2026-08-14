@@ -444,8 +444,19 @@ function updateCityFields() {
       apEl.style.display = "none";
       apEl.value = "";
     }
+  } else if (city === "bobr") {
+    // В Бобруйске доступны автобус и троллейбус, без выбора АП.
+    typeEl.style.display = "block";
+    typeEl.disabled = false;
+
+    if (typeEl.value !== "bus" && typeEl.value !== "trolley") {
+      typeEl.value = "";
+    }
+
+    apEl.value = "";
+    apEl.style.display = "none";
   } else {
-    // Жлобин и Бобруйск работают только с автобусами.
+    // В Жлобине используется только автобус, без выбора АП.
     typeEl.value = "bus";
     typeEl.style.display = "none";
     typeEl.disabled = true;
@@ -458,16 +469,22 @@ function updateCityFields() {
 }
 
 cityEl.addEventListener("change", () => {
-  // При смене города очищаем только транспортную часть,
-  // гаражный номер сохраняем, чтобы не мешать пользователю.
-  typeEl.value = cityEl.value === "gomel" ? "" : "bus";
+  // При смене города очищаем транспортную часть, гаражный номер сохраняем.
+  if (cityEl.value === "gomel") {
+    typeEl.value = "";
+  } else if (cityEl.value === "bobr") {
+    typeEl.value = "";
+  } else {
+    typeEl.value = "bus";
+  }
+
   apEl.value = "";
   updateCityFields();
   numEl.focus();
 });
 
 typeEl.addEventListener("change", () => {
-  if (cityEl.value !== "gomel") {
+  if (cityEl.value === "zhlobin") {
     typeEl.value = "bus";
     typeEl.style.display = "none";
     typeEl.disabled = true;
@@ -478,6 +495,15 @@ typeEl.addEventListener("change", () => {
   }
 
   typeEl.disabled = false;
+
+  if (cityEl.value === "bobr") {
+    // В Бобруйске АП не выбирается ни для автобуса, ни для троллейбуса.
+    apEl.style.display = "none";
+    apEl.value = "";
+    numEl.focus();
+    updateButtons();
+    return;
+  }
 
   if (typeEl.value === "bus") {
     apEl.style.display = "block";
@@ -530,12 +556,21 @@ function isFormValid() {
     return !!type;
   }
 
-  // В Жлобине и Бобруйске транспорт всегда автобус,
-  // поэтому выбор типа транспорта пользователю не показывается.
-  typeEl.classList.remove("error");
-  apEl.classList.remove("error");
+  if (city === "zhlobin") {
+    // В Жлобине транспорт фиксирован как автобус.
+    typeEl.classList.remove("error");
+    apEl.classList.remove("error");
+    return true;
+  }
 
-  return true;
+  if (city === "bobr") {
+    // В Бобруйске пользователь выбирает автобус или троллейбус.
+    validateField(typeEl, type === "bus" || type === "trolley");
+    apEl.classList.remove("error");
+    return !!(type === "bus" || type === "trolley");
+  }
+
+  return false;
 }
 
 function updateButtons() {
@@ -573,7 +608,10 @@ function getDateRange() {
   else if (city === "zhlobin") {
     offset = 3600000;
   }
-  else if (city === "bobr") {
+  else if (city === "bobr" && type === "trolley") {
+    offset = 3600000;
+  }
+  else if (city === "bobr" && type === "bus") {
     offset = 3600000;
   }
   else if (type === "trolley") {
@@ -637,11 +675,21 @@ function buildRecipientParts() {
   }
 
   if (city === "bobr") {
-    return [
-      `Оплата проезда в автобусе, гар. номер ${num}`,
-      `г. Бобруйск`,
-      `Бобруйский ф-л Автобусный парк №2 ОАО "Могилевоблавтотранс"`
-    ];
+    if (type === "bus") {
+      return [
+        `Оплата проезда в автобусе, гар. номер ${num}`,
+        `г. Бобруйск`,
+        `Бобруйский ф-л Автобусный парк №2 ОАО "Могилевоблавтотранс"`
+      ];
+    }
+
+    if (type === "trolley") {
+      return [
+        `Оплата проезда в троллейбусе, гар. номер ${num}`,
+        `г. Бобруйск`,
+        `Троллейбусный парк №2 ОАО "Могилевоблавтотранс"`
+      ];
+    }
   }
 
   if (city === "gomel" && type === "bus" && ap) {
@@ -1085,13 +1133,28 @@ async function captureAndRecognize() {
     const hasTrolleyKeywords = cleanText.includes('электр') || cleanText.includes('трол') || cleanText.includes('гэт') || cleanText.includes('горэл');
     const hasBusKeywords = cleanText.includes('автобус') || cleanText.includes('ап1') || cleanText.includes('ап6') || cleanText.includes('парк1') || cleanText.includes('парк6');
 
-    if (cityEl.value === 'zhlobin' || cityEl.value === 'bobr') {
-      // Для Жлобина и Бобруйска тип транспорта всегда автобус.
+    if (cityEl.value === 'zhlobin') {
+      // Для Жлобина тип транспорта фиксирован: автобус.
       typeEl.value = 'bus';
       typeEl.style.display = 'none';
+      typeEl.disabled = true;
       apEl.value = '';
       apEl.style.display = 'none';
       foundType = true;
+    } else if (cityEl.value === 'bobr') {
+      // Для Бобруйска распознаём и автобус, и троллейбус.
+      typeEl.style.display = 'block';
+      typeEl.disabled = false;
+      apEl.value = '';
+      apEl.style.display = 'none';
+
+      if (hasTrolleyKeywords) {
+        typeEl.value = 'trolley';
+        foundType = true;
+      } else if (hasBusKeywords) {
+        typeEl.value = 'bus';
+        foundType = true;
+      }
     } else if (hasTrolleyKeywords) {
       typeEl.value = 'trolley';
       apEl.style.display = 'none';
@@ -1109,7 +1172,19 @@ async function captureAndRecognize() {
         apEl.value = '';
       }
     } else if (foundNumber) {
-      if (numEl.value.length === 4) {
+      if (cityEl.value === 'bobr') {
+        // В Бобруйске сохраняем отсутствие АП и определяем тип по длине номера,
+        // если OCR не смог прочитать название транспорта.
+        apEl.style.display = 'none';
+        apEl.value = '';
+        if (numEl.value.length === 4) {
+          typeEl.value = 'trolley';
+          foundType = true;
+        } else if (numEl.value.length === 5) {
+          typeEl.value = 'bus';
+          foundType = true;
+        }
+      } else if (numEl.value.length === 4) {
         typeEl.value = 'trolley';
         apEl.style.display = 'none';
         apEl.value = '';
