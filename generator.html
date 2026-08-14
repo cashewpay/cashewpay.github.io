@@ -300,6 +300,12 @@ button:active {
       </label>
     </div>
 
+    <select id="city">
+      <option value="gomel" selected>Гомель</option>
+      <option value="zhlobin">Жлобин</option>
+      <option value="bobr">Бобруйск</option>
+    </select>
+
     <select id="type">
       <option value="">Выбери транспорт</option>
       <option value="bus">Автобус</option>
@@ -310,8 +316,6 @@ button:active {
       <option value="">Выбери АП</option>
       <option value="1">АП №1</option>
       <option value="6">АП №6</option>
-      <option value="zhlobin">Жлобин</option>
-      <option value="bobr_auto">Бобруйск</option>
     </select>
 
     <div style="display: flex; gap: 10px; margin-bottom: 16px;">
@@ -412,6 +416,7 @@ toggle.addEventListener("change", () => {
 
 initTheme();
 
+const cityEl = document.getElementById("city");
 const typeEl = document.getElementById("type");
 const apEl = document.getElementById("ap");
 const numEl = document.getElementById("num");
@@ -422,7 +427,58 @@ const shareBtn = document.getElementById("shareBtn");
 
 apEl.style.display = "none";
 
+function updateCityFields() {
+  const city = cityEl.value;
+
+  if (city === "gomel") {
+    typeEl.style.display = "block";
+    typeEl.disabled = false;
+
+    if (typeEl.value !== "bus" && typeEl.value !== "trolley") {
+      typeEl.value = "";
+    }
+
+    if (typeEl.value === "bus") {
+      apEl.style.display = "block";
+    } else {
+      apEl.style.display = "none";
+      apEl.value = "";
+    }
+  } else {
+    // Жлобин и Бобруйск работают только с автобусами.
+    typeEl.value = "bus";
+    typeEl.style.display = "none";
+    typeEl.disabled = true;
+
+    apEl.value = "";
+    apEl.style.display = "none";
+  }
+
+  updateButtons();
+}
+
+cityEl.addEventListener("change", () => {
+  // При смене города очищаем только транспортную часть,
+  // гаражный номер сохраняем, чтобы не мешать пользователю.
+  typeEl.value = cityEl.value === "gomel" ? "" : "bus";
+  apEl.value = "";
+  updateCityFields();
+  numEl.focus();
+});
+
 typeEl.addEventListener("change", () => {
+  if (cityEl.value !== "gomel") {
+    typeEl.value = "bus";
+    typeEl.style.display = "none";
+    typeEl.disabled = true;
+    apEl.style.display = "none";
+    apEl.value = "";
+    updateButtons();
+    return;
+  }
+
+  typeEl.disabled = false;
+
   if (typeEl.value === "bus") {
     apEl.style.display = "block";
     apEl.focus();
@@ -448,22 +504,38 @@ function validateField(el, condition) {
 }
 
 function isFormValid() {
+  const city = cityEl.value;
   const type = typeEl.value;
   const ap = apEl.value;
   const num = numEl.value.trim();
   const price = FIXED_PRICE;
 
-  validateField(typeEl, !!type);
+  validateField(cityEl, !!city);
   validateField(numEl, !!num);
 
-  if (type === "bus") {
-    validateField(apEl, !!ap);
-    if (!ap) return false;
-  } else {
-    apEl.classList.remove("error");
+  if (!city || !num || !price) {
+    return false;
   }
 
-  return !!(type && num && price);
+  if (city === "gomel") {
+    validateField(typeEl, !!type);
+
+    if (type === "bus") {
+      validateField(apEl, !!ap);
+      if (!ap) return false;
+    } else {
+      apEl.classList.remove("error");
+    }
+
+    return !!type;
+  }
+
+  // В Жлобине и Бобруйске транспорт всегда автобус,
+  // поэтому выбор типа транспорта пользователю не показывается.
+  typeEl.classList.remove("error");
+  apEl.classList.remove("error");
+
+  return true;
 }
 
 function updateButtons() {
@@ -472,10 +544,12 @@ function updateButtons() {
   shareBtn.disabled = !valid;
 }
 
-[typeEl, apEl, numEl].forEach(el => {
+[cityEl, typeEl, apEl, numEl].forEach(el => {
   el.addEventListener("change", updateButtons);
   el.addEventListener("input", updateButtons);
 });
+
+updateCityFields();
 
 function formatDate(date) {
   const d = String(date.getDate()).padStart(2, '0');
@@ -488,12 +562,19 @@ function formatDate(date) {
 
 function getDateRange() {
   const now = new Date();
+  const city = cityEl.value;
   const type = typeEl.value;
   const ap = apEl.value;
   const customTime = customTimeEl.value;
   let offset;
   if (customTime) {
     offset = Number(customTime) * 60 * 1000;
+  }
+  else if (city === "zhlobin") {
+    offset = 3600000;
+  }
+  else if (city === "bobr") {
+    offset = 3600000;
   }
   else if (type === "trolley") {
     offset = 3600000; 
@@ -503,9 +584,6 @@ function getDateRange() {
       offset = 2400000; 
     }
     else if (ap === "6") {
-      offset = 3600000; 
-    }
-    else if (ap === "zhlobin") {
       offset = 3600000; 
     }
     else {
@@ -542,14 +620,31 @@ function generateIdFromData(data) {
 }
 
 function buildRecipientParts() {
+  const city = cityEl.value;
   const type = typeEl.value;
   const ap = apEl.value;
   const num = numEl.value;
   const price = FIXED_PRICE;
 
-  if (!type || !num) return null;
+  if (!city || !type || !num) return null;
 
-  if (type === "bus" && ap) {
+  if (city === "zhlobin") {
+    return [
+      `Оплата проезда в автобусе, гар. номер ${num}`,
+      `г. Жлобин`,
+      `Филиал "Жлобинавтотранс" ОАО "Гомельоблавтотранс"`
+    ];
+  }
+
+  if (city === "bobr") {
+    return [
+      `Оплата проезда в автобусе, гар. номер ${num}`,
+      `г. Бобруйск`,
+      `Бобруйский ф-л Автобусный парк №2 ОАО "Могилевоблавтотранс"`
+    ];
+  }
+
+  if (city === "gomel" && type === "bus" && ap) {
     if (ap === "1") {
       return [
         `Оплата проезда в автобусе, гар. номер ${num}`,
@@ -562,20 +657,6 @@ function buildRecipientParts() {
         `Оплата проезда в автобусе, гар. номер ${num} (в городском транспорте: ${price} руб)`,
         `г. Гомель`,
         `Гомельоблавтотранс ф-л "АП №6"`
-      ];
-    }
-    if (ap === "zhlobin") {
-      return [
-        `Оплата проезда в автобусе, гар. номер ${num}`,
-        `г. Жлобин`,
-        `Филиал "Жлобинавтотранс" ОАО "Гомельоблавтотранс"`
-      ];
-    }
-    if (ap === "bobr2") {
-      return [
-        `Оплата проезда в автобусе, гар. номер ${num}`,
-        `г. Бобруйск`,
-        `Бобруйский ф-л Автобусный парк №2 ОАО "Могилевоблавтотранс"`
       ];
     }
   }
@@ -987,6 +1068,7 @@ async function captureAndRecognize() {
     const text = result.data.text.toLowerCase();
     console.log("Распознанный текст:", text);
     
+    const cityEl = document.getElementById('city');
     const typeEl = document.getElementById('type');
     const apEl = document.getElementById('ap');
     const numEl = document.getElementById('num');
@@ -1003,7 +1085,14 @@ async function captureAndRecognize() {
     const hasTrolleyKeywords = cleanText.includes('электр') || cleanText.includes('трол') || cleanText.includes('гэт') || cleanText.includes('горэл');
     const hasBusKeywords = cleanText.includes('автобус') || cleanText.includes('ап1') || cleanText.includes('ап6') || cleanText.includes('парк1') || cleanText.includes('парк6');
 
-    if (hasTrolleyKeywords) {
+    if (cityEl.value === 'zhlobin' || cityEl.value === 'bobr') {
+      // Для Жлобина и Бобруйска тип транспорта всегда автобус.
+      typeEl.value = 'bus';
+      typeEl.style.display = 'none';
+      apEl.value = '';
+      apEl.style.display = 'none';
+      foundType = true;
+    } else if (hasTrolleyKeywords) {
       typeEl.value = 'trolley';
       apEl.style.display = 'none';
       apEl.value = '';
@@ -1043,7 +1132,7 @@ async function captureAndRecognize() {
     if (foundNumber || foundType) {
       let transportName = typeEl.value === 'trolley' ? 'Троллейбус' : 'Автобус';
       let apName = apEl.value ? ` (АП №${apEl.value})` : '';
-      showModal("Успех", `Данные распознаны!\n\nТранспорт: ${transportName}${apName}\nНомер: ${numEl.value}`);
+      showModal("Успех", `Данные распознаны!\n\nГород: ${cityEl.options[cityEl.selectedIndex].text}\nТранспорт: ${transportName}${apName}\nНомер: ${numEl.value}`);
     } else {
       showModal("Внимание", "Не удалось автоматически считать данные. Проверьте фото и введите вручную.");
     }
