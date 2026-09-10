@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>любименньькооой ❤️</title>
+  <style>
+    body, html { 
+      margin: 0; padding: 0; 
+      background-color: #ffe6e9; 
+      color: #4a4a4a; 
+      font-family: 'Courier New', Courier, monospace; 
+      overflow-x: hidden; 
+      text-align: center; 
+      -webkit-tap-highlight-color: transparent;
+    }
+    #background-canvas {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+    }
+    .container { 
+      display: flex; flex-direction: column; align-items: center; 
+      justify-content: center; min-height: 100vh; padding: 20px; 
+      position: relative; z-index: 1; 
+    }
+    #typewriter { 
+      font-size: 1.8rem; text-shadow: 0 0 10px rgba(216, 27, 96, 0.2);
+      min-height: 80px; margin-bottom: 30px; color: #d81b60; font-weight: bold;
+      transition: filter 1.5s ease, opacity 1.5s ease;
+      filter: blur(0px);
+      opacity: 1;
+    }
+    #typewriter.blurred {
+      filter: blur(10px);
+      opacity: 0;
+    }
+    .cursor { animation: blink 1s infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    .memories-grid { 
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+      gap: 20px; width: 100%; max-width: 1000px; opacity: 0; 
+      transition: opacity 2s ease-in;
+      padding-bottom: 40px;
+    }
+    .memory-card { 
+      background: #ffffff; border-radius: 15px; padding: 10px; 
+      box-shadow: 0 10px 20px rgba(216, 27, 96, 0.1); 
+      transition: transform 0.3s ease, box-shadow 0.3s ease; 
+    }
+    .memory-card p {
+      color: #d81b60; margin: 10px 0 5px 0; font-weight: bold; font-size: 1rem;
+    }
+    .memory-card img { 
+      width: 100%; border-radius: 10px; border: 2px solid transparent; 
+      transition: 0.3s;
+    }
+    .memory-card:active {
+      transform: scale(0.96);
+    }
+    .trail-heart { 
+      position: absolute; pointer-events: none; 
+      font-size: 24px; color: #ff69b4; 
+      animation: floatUp 1.2s ease-out forwards; 
+      z-index: 9999;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0.9; }
+      100% { transform: translateY(-80px) scale(0.5) rotate(360deg); opacity: 0; }
+    }
+    @media (min-width: 768px) {
+      #typewriter { font-size: 2.5rem; }
+      .memories-grid { gap: 30px; }
+      .memory-card { padding: 15px; }
+      .memory-card:hover { 
+        transform: translateY(-10px) scale(1.02); 
+        box-shadow: 0 15px 30px rgba(216, 27, 96, 0.2); 
+      }
+      .memory-card:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="background-canvas"></canvas>
+
+  <div class="container">
+    <div id="typewriter"></div>
+    <div class="memories-grid" id="memories">
+      <div class="memory-card"><img src="photo1.jpg" alt="Фото"><p>тот самый день...</p></div>
+      <div class="memory-card"><img src="photo2.jpg" alt="Фото"><p>моя любимая улыбка</p></div>
+      <div class="memory-card"><img src="photo3.jpg" alt="Фото"><p>просто мы ❤️</p></div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('background-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray = [];
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+
+    class Particle {
+      constructor(x, y, size, color, speedX, speedY) {
+        this.x = x;
+        this.y = y;
+        this.size = size;
+        this.color = color;
+        this.speedX = speedX;
+        this.speedY = speedY;
+        this.angle = Math.random() * 360; 
+        this.isHeart = Math.random() > 0.6; 
+      }
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle * Math.PI / 180);
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = 0.6; 
+
+        if (this.isHeart) {
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.bezierCurveTo(-this.size, -this.size, -this.size, this.size, 0, this.size * 1.5);
+          ctx.bezierCurveTo(this.size, this.size, this.size, -this.size, 0, 0);
+          ctx.fill();
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.angle += 0.3;
+
+        const dx = mouseX - this.x;
+        const dy = mouseY - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < 100) {
+          const forceDirectionX = dx / distance;
+          const forceDirectionY = dy / distance;
+          const force = (100 - distance) / 100;
+          this.speedX -= forceDirectionX * force * 0.05;
+          this.speedY -= forceDirectionY * force * 0.05;
+        }
+
+        if (this.x > canvas.width + 10) this.x = -10;
+        if (this.x < -10) this.x = canvas.width + 10;
+        if (this.y > canvas.height + 10) this.y = -10;
+        if (this.y < -10) this.y = canvas.height + 10;
+      }
+    }
+
+    function initParticles() {
+      particlesArray = [];
+      const particleCount = window.innerWidth < 768 ? 80 : 150; 
+      for (let i = 0; i < particleCount; i++) {
+        const size = Math.random() * 3 + 1.5;
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const colors = ['#ffe1e5', '#ffb2bd', '#fff9f0', '#ffccd5'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const speedX = (Math.random() - 0.5) * 0.4;
+        const speedY = (Math.random() - 0.5) * 0.4 + 0.2; 
+        particlesArray.push(new Particle(x, y, size, color, speedX, speedY));
+      }
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < particlesArray.length; i++) {
+        particlesArray[i].update();
+        particlesArray[i].draw();
+      }
+      requestAnimationFrame(animateParticles);
+    }
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      initParticles();
+    });
+
+    initParticles();
+    animateParticles();
+
+    const text = "я хочу сказать тебе кое-что важное...";
+    const typewriterElement = document.getElementById('typewriter');
+    let i = 0;
+
+    function typeWriter() {
+      if (i < text.length) {
+        typewriterElement.innerHTML = text.substring(0, i + 1) + '<span class="cursor">|</span>';
+        i++;
+        setTimeout(typeWriter, 120); 
+      } else {
+        setTimeout(() => {
+          typewriterElement.classList.add('blurred');
+          
+          setTimeout(() => {
+            typewriterElement.innerHTML = "ты — лучшее, что со мной случалось ❤️";
+            typewriterElement.classList.remove('blurred');
+            document.getElementById('memories').style.opacity = 1;
+          }, 1500); 
+
+        }, 1500);
+      }
+    }
+    
+    window.onload = () => setTimeout(typeWriter, 1000);
+
+    function createTrail(x, y) {
+      const heart = document.createElement('div');
+      heart.classList.add('trail-heart');
+      heart.innerText = '❤️';
+      heart.style.left = (x - 12) + 'px';
+      heart.style.top = (y - 12) + 'px';
+      heart.style.transform = `rotate(${Math.random() * 360}deg)`;
+      
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 1200);
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.pageX; mouseY = e.pageY - window.scrollY; 
+      if (Math.random() > 0.6) createTrail(e.pageX, e.pageY);
+    });
+
+    document.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      mouseX = touch.pageX; mouseY = touch.pageY - window.scrollY; 
+      if (Math.random() > 0.4) createTrail(touch.pageX, touch.pageY);
+    }, {passive: true});
+  </script>
+</body>
+</html>
