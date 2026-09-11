@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>для моей любимой ♡</title>
+  <!-- Подключаем милые мягкие шрифты -->
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(135deg, #fff0f3 0%, #ffccd5 50%, #fff0f3 100%);
+      font-family: 'Comfortaa', cursive, sans-serif;
+      color: #5c3d46;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 15px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Медленно падающие сердечки на фоне */
+    .bg-heart {
+      position: fixed;
+      top: -20px;
+      color: #ffb3c1;
+      user-select: none;
+      pointer-events: none;
+      z-index: 0;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(105vh) rotate(360deg);
+      }
+    }
+
+    .container {
+      max-width: 650px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(8px);
+      border-radius: 30px;
+      padding: 35px 25px;
+      box-shadow: 0 15px 35px rgba(255, 182, 193, 0.4);
+      border: 3px solid #ffccd5;
+      text-align: center;
+      z-index: 1;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-family: 'Caveat', cursive;
+      font-size: 2.8rem;
+      color: #ff4d6d;
+      margin-bottom: 10px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+    }
+
+    p.subtitle {
+      font-size: 1rem;
+      color: #8d5b68;
+      margin-bottom: 25px;
+    }
+
+    /* Секция с сердцем */
+    .heart-section {
+      margin: 20px 0 35px 0;
+      position: relative;
+    }
+
+    canvas {
+      max-width: 100%;
+      height: auto;
+      filter: drop-shadow(0 0 10px rgba(255, 117, 143, 0.3));
+    }
+
+    /* Секция генератора комплиментов */
+    .compliment-section {
+      background: #fff;
+      border-radius: 20px;
+      padding: 25px 20px;
+      border: 2px dashed #ff8fa3;
+      box-shadow: 0 8px 20px rgba(255, 204, 213, 0.3);
+    }
+
+    .btn-cute {
+      background: linear-gradient(135deg, #ff8fa3, #ff4d6d);
+      color: white;
+      border: none;
+      padding: 15px 28px;
+      font-size: 1.1rem;
+      font-family: 'Comfortaa', cursive;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(255, 77, 109, 0.35);
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .btn-cute:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 10px 22px rgba(255, 77, 109, 0.45);
+    }
+
+    .btn-cute:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    .compliment-box {
+      margin-top: 20px;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      line-height: 1.5;
+      color: #c9184a;
+      font-weight: bold;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s ease;
+    }
+
+    .compliment-box.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    footer {
+      z-index: 1;
+      font-size: 0.9rem;
+      color: #a36675;
+      margin-top: 10px;
+    }
+
+    /* Всплывающие сердечки при клике */
+    .burst-heart {
+      position: fixed;
+      pointer-events: none;
+      animation: popAndFade 1s forwards ease-out;
+      z-index: 999;
+    }
+
+    @keyframes popAndFade {
+      0% { opacity: 1; transform: translate(0, 0) scale(0.5); }
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.4); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>для самой прекрасной девочки на свете</h1>
+    <p class="subtitle">ты самая лучшая девочка во всей вселенной</p>
+
+    <!-- Холст с текстом в форме сердца -->
+    <div class="heart-section">
+      <canvas id="heartCanvas" width="420" height="380"></canvas>
+    </div>
+
+    <!-- Генератор комплиментов -->
+    <div class="compliment-section">
+      <button class="btn-cute" id="complimentBtn" onclick="generateCompliment(event)">
+        нажми, если грустишь((
+      </button>
+      <div class="compliment-box" id="complimentText">
+        нажми на кнопочку выше, чтобы узнать секрет
+      </div>
+    </div>
+  </div>
+
+  <footer>сделано с бесконечной любовью только для тебя</footer>
+
+  <script>
+    // --- 1. АНИМИРОВАННОЕ СЕРДЦЕ ИЗ ТЕКСТА ---
+    const canvas = document.getElementById('heartCanvas');
+    const ctx = canvas.getContext('2d');
+    const text = "я люблю тебя ♡ ";
+    let textIndex = 0;
+
+    // Массив точек для формы сердца
+    const heartPoints = [];
+    const totalPoints = 75;
+
+    // Математическая формула сердца
+    for (let i = 0; i < totalPoints; i++) {
+      let t = (Math.PI * 2 / totalPoints) * i;
+      let x = 16 * Math.pow(Math.sin(t), 3);
+      let y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+      heartPoints.push({ x: x, y: y });
+    }
+
+    let scale = 11;
+    let pulseAngle = 0;
+
+    function drawHeart() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2 - 10;
+      
+      // Легкая пульсация сердца
+      let currentPulse = Math.sin(pulseAngle) * 0.08 + 1;
+      pulseAngle += 0.04;
+
+      ctx.font = "bold 13px 'Comfortaa', cursive";
+      ctx.fillStyle = "#ff4d6d";
+
+      for (let i = 0; i < totalPoints; i++) {
+        let pt = heartPoints[i];
+        let px = centerX + pt.x * scale * currentPulse;
+        let py = centerY + pt.y * scale * currentPulse;
+
+        let char = text[i % text.length];
+
+        ctx.save();
+        ctx.translate(px, py);
+        
+        // Мягкий розовый цвет с небольшим переливом
+        let alpha = 0.7 + Math.sin(pulseAngle + i * 0.1) * 0.3;
+        ctx.fillStyle = `rgba(201, 24, 74, ${alpha})`;
+        
+        ctx.fillText(char, 0, 0);
+        ctx.restore();
+      }
+
+      // Текст в центре сердца
+      ctx.font = "bold 20px 'Caveat', cursive";
+      ctx.fillStyle = "#c9184a";
+      ctx.textAlign = "center";
+      ctx.fillText("мое сердце бьется для тебя", centerX, centerY + 5);
+
+      requestAnimationFrame(drawHeart);
+    }
+
+    drawHeart();
+
+    // --- 2. ГЕНЕРАТОР КОМПЛИМЕНТОВ ---
+    const compliments = [
+      "твоя улыбка — это первое, от чего на моем лице мгновенно появляется счастье",
+      "ты делаешь этот мир в тысячу раз теплее, уютее и добрее 💕",
+      "даже когда ты просто рядом, я уже безумно счастлив!!",
+      "ты невероятно красивая... особенная... и только моя))",
+      "если бы за каждую мысль о тебе давали звезду, мы бы уже жили в другой галактике",
+      "твой голос — мой самый любимый звук во всей вселенной",
+      "ты умеешь обнимать так, что все проблемы сразу исчезают 🫂",
+      "я люблю тебя сильнее, чем кто-либо когда-либо любил, котик!!"
+    ];
+
+    let lastIndex = -1;
+
+    function generateCompliment(e) {
+      const box = document.getElementById('complimentText');
+      box.classList.remove('show');
+
+      // Выбираем случайную причину (не повторяясь подряд)
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * compliments.length);
+      } while (randomIndex === lastIndex && compliments.length > 1);
+      
+      lastIndex = randomIndex;
+
+      setTimeout(() => {
+        box.innerText = compliments[randomIndex];
+        box.classList.add('show');
+      }, 200);
+
+      // Запускаем всплеск сердечек из кнопки
+      createHeartBurst(e.clientX, e.clientY);
+    }
+
+    // Всплеск маленьких сердечек при клике
+    function createHeartBurst(x, y) {
+      const icons = ['❤️', '💖', '🌸', '✨', '💕', '💗'];
+      for (let i = 0; i < 12; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'burst-heart';
+        heart.innerText = icons[Math.floor(Math.random() * icons.length)];
+        heart.style.left = x + 'px';
+        heart.style.top = y + 'px';
+        
+        const dx = (Math.random() - 0.5) * 160 + 'px';
+        const dy = (Math.random() - 0.5) * 160 - 40 + 'px';
+        heart.style.setProperty('--dx', dx);
+        heart.style.setProperty('--dy', dy);
+        heart.style.fontSize = (14 + Math.random() * 12) + 'px';
+
+        document.body.appendChild(heart);
+
+        setTimeout(() => heart.remove(), 1000);
+      }
+    }
+
+    // --- 3. ПАДАЮЩИЕ СЕРДЕЧКИ НА ФОНЕ ---
+    function createBgHeart() {
+      const heart = document.createElement('div');
+      heart.className = 'bg-heart';
+      heart.innerText = ['🌸', '💖', '✨', '🤍', '💗'][Math.floor(Math.random() * 5)];
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDuration = (4 + Math.random() * 4) + 's';
+      heart.style.fontSize = (12 + Math.random() * 14) + 'px';
+      heart.style.opacity = Math.random() * 0.6 + 0.3;
+
+      document.body.appendChild(heart);
+
+      setTimeout(() => heart.remove(), 8000);
+    }
+
+    setInterval(createBgHeart, 450);
+  </script>
+</body>
+</html>
