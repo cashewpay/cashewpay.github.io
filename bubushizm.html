@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>тур 2026 / минск / bushido zho</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Oswald:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        poster: {
+                            bg: '#141212',
+                            card: '#1c1a19',
+                            paper: '#242120',
+                            peach: '#F49B82',
+                            peachDark: '#d97f66',
+                            beige: '#e6d3c1',
+                            muted: '#9a8c82',
+                            darkBorder: '#36302c',
+                        }
+                    },
+                    fontFamily: {
+                        poster: ['Oswald', 'sans-serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #141212;
+            color: #e6d3c1;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            text-transform: lowercase;
+        }
+
+        /* Paper Grain Effect Overlay */
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 99;
+            opacity: 0.28;
+            mix-blend-mode: overlay;
+        }
+
+        /* Poster borders and stamp effect */
+        .poster-frame {
+            border: 1px solid rgba(244, 155, 130, 0.25);
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .stamp {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            text-transform: lowercase;
+            font-weight: 700;
+            border: 2px dashed #F49B82;
+            color: #F49B82;
+            border-radius: 4px;
+            transform: rotate(-3deg);
+            transition: all 0.4s ease;
+        }
+
+        .stamp-approved {
+            border-style: solid;
+            background-color: rgba(244, 155, 130, 0.12);
+            color: #F49B82;
+            transform: rotate(0deg);
+        }
+
+        /* Ticket stub serrated edge effect */
+        .ticket-stub-top {
+            background: radial-gradient(circle, transparent, transparent 8px, #1c1a19 8px, #1c1a19);
+            background-size: 20px 20px;
+            background-position: -10px -10px;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #141212;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #36302c;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #F49B82;
+        }
+
+        .fade-in-text {
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="relative min-h-screen pb-16">
+
+    <!-- SVG Noise Filter for Paper Texture -->
+    <svg class="grain-overlay">
+        <filter id="noiseFilter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
+        </filter>
+        <rect width="100%" height="100%" filter="url(#noiseFilter)"/>
+    </svg>
+
+    <!-- Header Marquee Banner -->
+    <header class="w-full border-b border-poster-darkBorder bg-poster-card/80 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center text-xs tracking-widest text-poster-muted">
+            <div class="flex items-center space-x-2">
+                <span class="inline-block w-2 h-2 rounded-full bg-poster-peach animate-pulse"></span>
+                <span>эксклюзивный постер поддержки</span>
+            </div>
+            <div class="hidden sm:block text-poster-peach font-mono">
+                25.09.2026 // минск
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 pt-8 space-y-12">
+
+        <!-- Main Concert Poster Artwork Section -->
+        <section class="poster-frame bg-poster-card rounded-lg p-6 sm:p-10 relative overflow-hidden border border-poster-darkBorder">
+            
+            <!-- Vintage Poster Header Details -->
+            <div class="flex justify-between items-start border-b border-poster-darkBorder/80 pb-4 mb-6 text-xs text-poster-muted font-mono tracking-wider">
+                <div>
+                    <span class="block text-poster-peach font-bold uppercase tracking-widest text-sm">sweet & tearz</span>
+                    <span>официальный тур 2026</span>
+                </div>
+                <div class="text-right">
+                    <span>начало: 20:00</span>
+                    <span class="block">живой звук</span>
+                </div>
+            </div>
+
+            <!-- Big Poster Typography Title -->
+            <div class="text-center my-6 space-y-2">
+                <h2 class="text-xs sm:text-sm tracking-[0.3em] text-poster-muted font-mono">тур по городам</h2>
+                <h1 class="text-5xl sm:text-7xl md:text-8xl font-poster font-black tracking-wider text-poster-peach uppercase leading-none">
+                    bushido zho
+                </h1>
+                <p class="text-base sm:text-xl font-serif italic text-poster-beige/90 pt-2">
+                    не переживай, малышка, всё уже под контролем
+                </p>
+            </div>
+
+            <!-- Poster Artwork Collage Box -->
+            <div class="my-8 relative bg-poster-paper border border-poster-darkBorder rounded p-6 text-center overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 rounded-full bg-poster-peach/5 pointer-events-none"></div>
+                
+                <!-- Graphic Styling simulating the poster image -->
+                <div class="max-w-md mx-auto space-y-4 py-4">
+                    <div class="text-2xl sm:text-3xl font-poster text-poster-peach tracking-wide">
+                        25.09 — минск
+                    </div>
+                    <div class="text-lg sm:text-xl font-bold tracking-widest text-poster-beige uppercase">
+                        дворец спорта
+                    </div>
+                    <div class="w-16 h-0.5 bg-poster-peach/40 mx-auto my-3"></div>
+                    <p class="text-xs sm:text-sm text-poster-muted leading-relaxed px-4">
+                        мы обязательно будем там вместе. я возьму весь разговор с твоими родителями на себя, и они со спокойным сердцем отпустят тебя со мной.
+                    </p>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-poster-darkBorder/50 flex justify-between items-center text-[11px] text-poster-muted font-mono">
+                    <span>16+</span>
+                    <span>персональная гарантия безопасности</span>
+                    <span>вход по списку любимых</span>
+                </div>
+            </div>
+
+            <!-- Countdown Timer Block -->
+            <div class="bg-poster-bg/80 border border-poster-darkBorder rounded-lg p-5">
+                <div class="text-center text-xs text-poster-muted font-mono mb-3">
+                    до нашего главного концерта этой осени осталось
+                </div>
+                <div id="countdown" class="grid grid-cols-4 gap-2 text-center font-poster">
+                    <div class="bg-poster-paper p-3 rounded border border-poster-darkBorder">
+                        <span id="timer-days" class="block text-2xl sm:text-4xl text-poster-peach font-bold">00</span>
+                        <span class="text-[10px] text-poster-muted font-sans">дней</span>
+                    </div>
+                    <div class="bg-poster-paper p-3 rounded border border-poster-darkBorder">
+                        <span id="timer-hours" class="block text-2xl sm:text-4xl text-poster-peach font-bold">00</span>
+                        <span class="text-[10px] text-poster-muted font-sans">часов</span>
+                    </div>
+                    <div class="bg-poster-paper p-3 rounded border border-poster-darkBorder">
+                        <span id="timer-minutes" class="block text-2xl sm:text-4xl text-poster-peach font-bold">00</span>
+                        <span class="text-[10px] text-poster-muted font-sans">минут</span>
+                    </div>
+                    <div class="bg-poster-paper p-3 rounded border border-poster-darkBorder">
+                        <span id="timer-seconds" class="block text-2xl sm:text-4xl text-poster-peach font-bold">00</span>
+                        <span class="text-[10px] text-poster-muted font-sans">секунд</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Interactive Virtual Ticket Section -->
+        <section class="space-y-4">
+            <div class="flex items-center space-x-3">
+                <div class="h-px bg-poster-peach/30 flex-1"></div>
+                <h3 class="text-sm font-mono tracking-widest text-poster-peach uppercase">интерактивный билет</h3>
+                <div class="h-px bg-poster-peach/30 flex-1"></div>
+            </div>
+
+            <div class="bg-poster-card border border-poster-darkBorder rounded-lg overflow-hidden shadow-2xl">
+                <div class="p-6 sm:p-8 space-y-6">
+                    
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-poster-darkBorder pb-6">
+                        <div>
+                            <span class="text-xs text-poster-muted font-mono block">тикет #67</span>
+                            <h4 class="text-xl font-bold text-poster-beige">твой специальный билет в минск</h4>
+                        </div>
+                        <div id="ticket-stamp-container">
+                            <span id="ticket-stamp" class="stamp">
+                                статус: переговоры с родителями
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
+                        <div class="bg-poster-paper p-3 rounded border border-poster-darkBorder">
+                            <span class="text-poster-muted block">артист</span>
+                            <span class="text-poster-peach font-bold text-sm">бушидо жо</span>
+                        </div>
+                        <div class="bg-poster-paper p-3 rounded border border-poster-darkBorder">
+                            <span class="text-poster-muted block">место проведения</span>
+                            <span class="text-poster-beige font-bold text-sm">минск, дворец спорта</span>
+                        </div>
+                        <div class="bg-poster-paper p-3 rounded border border-poster-darkBorder">
+                            <span class="text-poster-muted block">сопровождение</span>
+                            <span class="text-poster-beige font-bold text-sm">со мной (100% защита)</span>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Action Box inside Ticket -->
+                    <div class="bg-poster-bg p-4 rounded border border-poster-darkBorder/80 text-center space-y-3">
+                        <p id="ticket-message" class="text-xs sm:text-sm text-poster-beige/90 italic font-serif">
+                            сейчас родители сомневаются, но я уже подготовил идеальный план разговора. нажми ниже, чтобы активировать полную гарантию
+                        </p>
+                        
+                        <button id="activate-ticket-btn" onclick="activateTicket()" class="px-6 py-3 rounded bg-poster-peach hover:bg-poster-peachDark text-poster-bg font-bold text-xs tracking-wider transition transform active:scale-95">
+                            активировать гарантию 100%
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Plan for Parents (Argument Cards) -->
+        <section class="space-y-6">
+            <div class="text-center space-y-2">
+                <h3 class="text-xs font-mono tracking-widest text-poster-peach uppercase">план разговора с родителями</h3>
+                <h2 class="text-2xl sm:text-3xl font-poster text-poster-beige">почему они обязательно тебя отпустят</h2>
+                <p class="text-xs text-poster-muted">нажми на любой пункт, чтобы узнать детальный план действий</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="arguments-grid">
+                
+                <!-- Card 1 -->
+                <div onclick="toggleCard(this)" class="arg-card bg-poster-card p-5 rounded-lg border border-poster-darkBorder cursor-pointer hover:border-poster-peach/50 transition duration-300">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-mono text-poster-peach">01 / личная встреча</span>
+                        <span class="text-xs text-poster-muted card-icon">+</span>
+                    </div>
+                    <h4 class="text-base font-bold text-poster-beige mb-2">разговор тет-а-тет</h4>
+                    <p class="text-xs text-poster-muted leading-relaxed card-content hidden pt-2 border-t border-poster-darkBorder/50">
+                        я сам позвоню твоим родителям. спокойно всё объясню, отвечу на любой их вопрос и покажу, что ты под надёжной защитой
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div onclick="toggleCard(this)" class="arg-card bg-poster-card p-5 rounded-lg border border-poster-darkBorder cursor-pointer hover:border-poster-peach/50 transition duration-300">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-mono text-poster-peach">02 / логистика</span>
+                        <span class="text-xs text-poster-muted card-icon">+</span>
+                    </div>
+                    <h4 class="text-base font-bold text-poster-beige mb-2">комфортный трансфер</h4>
+                    <p class="text-xs text-poster-muted leading-relaxed card-content hidden pt-2 border-t border-poster-darkBorder/50">
+                        никаких непонятных маршруток или странных людей. доставим поездом прямо до площадки и привезем обратно к порогу общаги
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div onclick="toggleCard(this)" class="arg-card bg-poster-card p-5 rounded-lg border border-poster-darkBorder cursor-pointer hover:border-poster-peach/50 transition duration-300">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-mono text-poster-peach">03 / связь</span>
+                        <span class="text-xs text-poster-muted card-icon">+</span>
+                    </div>
+                    <h4 class="text-base font-bold text-poster-beige mb-2">постоянный фотоотчёт</h4>
+                    <p class="text-xs text-poster-muted leading-relaxed card-content hidden pt-2 border-t border-poster-darkBorder/50">
+                        родители смогут позвонить или написать в любой момент. мы будем скидывать геолокацию и фото, чтобы их сердце было полностью спокойно
+                    </p>
+                </div>
+
+                <!-- Card 4 -->
+                <div onclick="toggleCard(this)" class="arg-card bg-poster-card p-5 rounded-lg border border-poster-darkBorder cursor-pointer hover:border-poster-peach/50 transition duration-300">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-mono text-poster-peach">04 / площадка</span>
+                        <span class="text-xs text-poster-muted card-icon">+</span>
+                    </div>
+                    <h4 class="text-base font-bold text-poster-beige mb-2">безопасность на месте</h4>
+                    <p class="text-xs text-poster-muted leading-relaxed card-content hidden pt-2 border-t border-poster-darkBorder/50">
+                        я буду рядом с тобой каждую секунду и ни на шаг не отойду
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Generator of Reassuring Romantic Notes -->
+        <section class="bg-poster-card p-6 sm:p-8 rounded-lg border border-poster-darkBorder text-center space-y-6">
+            <div class="space-y-1">
+                <span class="text-xs font-mono text-poster-peach tracking-widest uppercase">генератор тишины и уверенности</span>
+                <h3 class="text-2xl font-poster text-poster-beige">если вдруг стало немного грустно</h3>
+            </div>
+
+            <div class="min-h-[100px] flex items-center justify-center p-6 bg-poster-paper rounded border border-poster-darkBorder">
+                <p id="soothing-note-text" class="text-sm sm:text-base text-poster-peach italic font-serif leading-relaxed fade-in-text">
+                    солнышко, сделаем глубокий вдох. всё уже почти решено, тебе осталось только выбрать наряд на концерт
+                </p>
+            </div>
+
+            <div>
+                <button onclick="generateNextNote()" class="px-6 py-3 rounded border border-poster-peach text-poster-peach hover:bg-poster-peach/10 font-medium text-xs tracking-wider transition active:scale-95">
+                    нажми, если стало тревожно
+                </button>
+            </div>
+        </section>
+
+        <!-- Final Romantic Reassurance Banner -->
+        <section class="text-center py-6 border-t border-b border-poster-darkBorder/60 space-y-3">
+            <p class="text-xs text-poster-muted uppercase tracking-widest font-mono">обещание</p>
+            <p class="text-base sm:text-lg text-poster-beige font-serif italic max-w-xl mx-auto px-4">
+                ты самое дорогое, что у меня есть. твой смех на концерте 25 сентября стоит абсолютно любых переговоров, просто верь мне
+            </p>
+            <div class="text-xs text-poster-peach font-mono">
+                твой главный защитник и спутник
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Countdown timer calculation target: Sept 25, 2026, 20:00:00
+        const concertDate = new Date('2026-09-25T20:00:00').getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = concertDate - now;
+
+            if (distance < 0) {
+                document.getElementById('countdown').innerHTML = "<div class='col-span-4 text-poster-peach text-xl font-bold py-4'>концерт уже сегодня! мы вместе!</div>";
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('timer-days').innerText = String(days).padStart(2, '0');
+            document.getElementById('timer-hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('timer-minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('timer-seconds').innerText = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        let isActivated = false;
+        function activateTicket() {
+            const stamp = document.getElementById('ticket-stamp');
+            const message = document.getElementById('ticket-message');
+            const button = document.getElementById('activate-ticket-btn');
+
+            if (!isActivated) {
+                stamp.className = "stamp stamp-approved";
+                stamp.innerText = "разрешено: 100% всё под контролем";
+                message.innerText = "гарантия успешно активирована. я лично беру на себя всю ответственность, связь с родителями и идеальную поездку.";
+                button.innerText = "гарантия подтверждена";
+                button.classList.add('opacity-75');
+                isActivated = true;
+            }
+        }
+
+        function toggleCard(cardElement) {
+            const content = cardElement.querySelector('.card-content');
+            const icon = cardElement.querySelector('.card-icon');
+            
+            const isHidden = content.classList.contains('hidden');
+            
+            // Close all open cards first
+            document.querySelectorAll('.card-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.card-icon').forEach(el => el.innerText = '+');
+
+            if (isHidden) {
+                content.classList.remove('hidden');
+                icon.innerText = '−';
+            }
+        }
+
+        const soothingPhrases = [
+            "солнышко, не переживай. все взрослые вопросы я беру на себя.",
+            "я обещал, что ты попадёшь на этот концерт, и я сдержу слово.",
+            "родители просто любят тебя и волнуются. я смогу доказать им, что со мной ты в надежных руках.",
+            "представь, как 25 сентября мы будем стоять во дворце спорта и вместе подпевать любимым трекам.",
+            "сделай глубокий вдох. всё уже почти решено, тебе осталось только выбрать наряд.",
+            "ты самое дорогое, что у меня есть, и твоя улыбка стоит любых переговоров.",
+            "я с тобой, несмотря ни на что. отдыхай и ни о чём не думай."
+        ];
+
+        let currentPhraseIndex = 0;
+        function generateNextNote() {
+            const textElement = document.getElementById('soothing-note-text');
+            textElement.classList.remove('fade-in-text');
+            
+            // Trigger reflow for restart animation
+            void textElement.offsetWidth;
+            
+            currentPhraseIndex = (currentPhraseIndex + 1) % soothingPhrases.length;
+            textElement.innerText = soothingPhrases[currentPhraseIndex];
+            textElement.classList.add('fade-in-text');
+        }
+
+        let audioCtx = null;
+        let isPlayingAudio = false;
+        let masterGain = null;
+        let osc1 = null;
+        let osc2 = null;
+
+        function toggleAudio() {
+            const btn = document.getElementById('audio-toggle-btn');
+
+            if (!isPlayingAudio) {
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (!audioCtx) {
+                        audioCtx = new AudioContext();
+                    } else if (audioCtx.state === 'suspended') {
+                        audioCtx.resume();
+                    }
+
+                    masterGain = audioCtx.createGain();
+                    masterGain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+                    masterGain.gain.exponentialRampToValueAtTime(0.12, audioCtx.currentTime + 3);
+
+                    // Lowpass filter for smooth ambient warmth
+                    const filter = audioCtx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(320, audioCtx.currentTime);
+
+                    // Oscillator 1 (Warm Root Note ~ 174 Hz Solfeggio soothing frequency)
+                    osc1 = audioCtx.createOscillator();
+                    osc1.type = 'sine';
+                    osc1.frequency.setValueAtTime(174, audioCtx.currentTime);
+
+                    // Oscillator 2 (Gentle Fifth ~ 261 Hz)
+                    osc2 = audioCtx.createOscillator();
+                    osc2.type = 'triangle';
+                    osc2.frequency.setValueAtTime(261.63, audioCtx.currentTime);
+
+                } catch(e) {
+                    console.log('Audio init prevented or not supported');
+                }
+            } else {
+                if (masterGain && audioCtx) {
+                    masterGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.5);
+                    setTimeout(() => {
+                        if (osc1) osc1.stop();
+                        if (osc2) osc2.stop();
+                        isPlayingAudio = false;
+                        btn.innerText = "включить тишину и покой";
+                        btn.classList.remove('bg-poster-peach/20');
+                    }, 1500);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
