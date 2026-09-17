@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пожалуйста, выдохни</title>
+    
+    <!-- Google Fonts: Comfortaa & Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        * {
+            font-family: 'Nunito', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        h1, h2, h3, .font-heading {
+            font-family: 'Comfortaa', cursive, sans-serif;
+        }
+
+        /* Calm animated gradient background in beige, dusty rose and soft sand */
+        body {
+            background: linear-gradient(-45deg, #fbf7f4, #f4ece5, #efe3d9, #f8f2ec);
+            background-size: 400% 400%;
+            animation: calmBg 18s ease infinite;
+            min-height: 100vh;
+            color: #4a3f3d;
+        }
+
+        @keyframes calmBg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Glassmorphism card styling */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 20px 40px rgba(180, 150, 140, 0.07), 0 4px 12px rgba(0, 0, 0, 0.02);
+        }
+
+        .glass-inner {
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(235, 220, 212, 0.7);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(245, 235, 230, 0.4);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbb2a7;
+            border-radius: 10px;
+        }
+
+        /* Checklist item transitions */
+        .check-item {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .check-item.done {
+            background-color: rgba(243, 236, 232, 0.75);
+            border-color: #d1bebe;
+            opacity: 0.8;
+        }
+        .check-item.done span {
+            text-decoration: line-through;
+            color: #8c7875;
+        }
+
+        /* Accordion smooth expansion */
+        .accordion-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+            opacity: 0;
+        }
+        .accordion-body.open {
+            max-height: 240px;
+            opacity: 1;
+        }
+
+        /* Warm dusty-rose button style */
+        .btn-warm {
+            background-color: #b8867d;
+            color: #ffffff;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 8px 20px rgba(184, 134, 125, 0.25);
+        }
+        .btn-warm:hover {
+            background-color: #a7756c;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(184, 134, 125, 0.32);
+        }
+        .btn-warm:active {
+            transform: translateY(1px);
+        }
+
+        /* Soft ripple animation on click */
+        .ripple-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple 0.7s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(3.5);
+                opacity: 0;
+            }
+        }
+
+        /* Message fade-in effect */
+        .fade-in-message {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="py-8 px-4 sm:px-6 flex justify-center items-center">
+
+    <main class="w-full max-w-2xl glass-card rounded-[32px] p-6 sm:p-10 my-auto relative z-10">
+        
+        <!-- Header -->
+        <header class="text-center mb-8 sm:mb-10">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-stone-200/60 text-stone-600 text-xs tracking-wider uppercase font-semibold mb-4 border border-stone-300/40">
+                Письмо для самой лучшей
+            </span>
+            <h1 class="text-2xl sm:text-3xl font-bold text-stone-800 mb-3 leading-tight">
+                Пожалуйста, выдохни. Всё обязательно вернётся
+            </h1>
+            <p class="text-sm sm:text-base text-stone-500 max-w-lg mx-auto leading-relaxed">
+                Поплакать сейчас — это абсолютно нормально. Потерять всё за одну секунду очень обидно, но давай просто на секундочку остановимся.
+            </p>
+
+            <!-- Warm letter container -->
+            <div class="mt-6 p-5 sm:p-6 glass-inner rounded-2xl text-left text-sm sm:text-base leading-relaxed text-stone-700 space-y-3">
+                <p>
+                    Я понимаю, как тебе сейчас больно и досадно. Там были все твои кружочки, памятные фотки, смешные голосовые, любимые каналы и теплые переписки за долгое время. Кажется, будто пропала целая частичка жизни.
+                </p>
+                <p>
+                    Но послушай меня внимательно: <strong class="font-semibold text-stone-900">все эти воспоминания никуда не исчезли навсегда</strong>. Они живут в твоей галерее, в памяти телефона, в твоём сердце и у всех твоих близких. А страничку и диалоги мы обязательно соберём заново, шажок за шажком.
+                </p>
+            </div>
+        </header>
+
+        <!-- Truths Accordion Section -->
+        <section class="mb-8 sm:mb-10">
+            <h2 class="text-base sm:text-lg font-bold text-stone-800 mb-4 font-heading">
+                Главные истины, о которых стоит помнить
+            </h2>
+
+            <div class="space-y-3" id="truths-accordion">
+                
+                <!-- Card 1 -->
+                <div class="glass-inner rounded-2xl p-4 cursor-pointer hover:bg-white/80 transition" onclick="toggleCard(1)">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold text-stone-800 text-sm sm:text-base">Все воспоминания остаются с тобой</span>
+                        <svg id="arrow-1" class="w-4 h-4 text-stone-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                    <div id="card-1" class="accordion-body mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                        Все сохранённые фотки, видео, кружочки и моменты, которыми ты делилась, всё ещё сбережены в твоем телефоне и у друзей. Никакое удаление кнопки не сотрёт то, что вы пережили вместе.
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-inner rounded-2xl p-4 cursor-pointer hover:bg-white/80 transition" onclick="toggleCard(2)">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold text-stone-800 text-sm sm:text-base">Новая страничка — это чистый лист</span>
+                        <svg id="arrow-2" class="w-4 h-4 text-stone-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                    <div id="card-2" class="accordion-body mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                        Очень скоро там снова появятся все любимые стикеры, нужные папочки, уютные чаты и привычные контакты. А всё лишнее и старое останется в прошлом.
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-inner rounded-2xl p-4 cursor-pointer hover:bg-white/80 transition" onclick="toggleCard(3)">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold text-stone-800 text-sm sm:text-base">Я рядом и во всём помогу</span>
+                        <svg id="arrow-3" class="w-4 h-4 text-stone-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                    <div id="card-3" class="accordion-body mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                        Тебе не придётся делать всё в одиночку. Я перекину тебе ссылки на все важные каналы, контакты наших общих знакомых и отправлю обратно все фотки, которые ты мне присылала.
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Checklist Section -->
+        <section class="mb-8 sm:mb-10">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-base sm:text-lg font-bold text-stone-800 font-heading">
+                    Что мы сделаем прямо сейчас
+                </h2>
+                <span id="progress-badge" class="text-xs font-semibold text-stone-500 bg-stone-200/50 px-2.5 py-1 rounded-full">
+                    0 из 3 шагов
+                </span>
+            </div>
+
+            <div class="space-y-2.5" id="checklist">
+                
+                <label class="check-item flex items-center gap-3.5 p-3.5 glass-inner rounded-2xl cursor-pointer hover:bg-white/80">
+                    <input type="checkbox" onchange="toggleCheck(this)" class="w-4 h-4 rounded text-stone-600 focus:ring-0 cursor-pointer accent-stone-600">
+                    <span class="text-xs sm:text-sm text-stone-700 font-medium">Налить теплый чай или водичку и вытереть слёзки</span>
+                </label>
+
+                <label class="check-item flex items-center gap-3.5 p-3.5 glass-inner rounded-2xl cursor-pointer hover:bg-white/80">
+                    <input type="checkbox" onchange="toggleCheck(this)" class="w-4 h-4 rounded text-stone-600 focus:ring-0 cursor-pointer accent-stone-600">
+                    <span class="text-xs sm:text-sm text-stone-700 font-medium">Спокойно открыть новую страничку по номеру телефона</span>
+                </label>
+
+                <label class="check-item flex items-center gap-3.5 p-3.5 glass-inner rounded-2xl cursor-pointer hover:bg-white/80">
+                    <input type="checkbox" onchange="toggleCheck(this)" class="w-4 h-4 rounded text-stone-600 focus:ring-0 cursor-pointer accent-stone-600">
+                    <span class="text-xs sm:text-sm text-stone-700 font-medium">Потихоньку вернуть всё на свои места и улыбнуться</span>
+                </label>
+
+            </div>
+        </section>
+
+        <!-- Interactive Hug Box -->
+        <section class="mb-8 text-center p-6 glass-inner rounded-2xl relative overflow-hidden">
+            <h3 class="text-sm sm:text-base font-semibold text-stone-800 mb-1 font-heading">
+                Если очень нужно обняться
+            </h3>
+            <p class="text-xs text-stone-500 mb-4">
+                Нажми на кнопку столько раз, сколько хочешь почувствовать поддержку
+            </p>
+
+            <div class="relative inline-block">
+                <button id="hug-btn" onclick="triggerHug(event)" class="btn-warm px-7 py-3 rounded-xl text-sm font-semibold tracking-wide relative overflow-hidden">
+                    Обнять
+                </button>
+            </div>
+
+            <div class="mt-3">
+                <span class="text-xs font-medium text-stone-500">
+                    Передано тёплых обнимашек: <span id="counter" class="font-bold text-stone-700">0</span>
+                </span>
+            </div>
+
+            <!-- Soft pop-up encouragement phrase -->
+            <div id="support-phrase" class="mt-4 text-xs sm:text-sm font-semibold text-stone-600 min-h-[20px]"></div>
+        </section>
+
+        <footer class="text-center pt-4 border-t border-stone-200/50">
+            <p class="text-xs text-stone-500">
+                Ты со всем справишься. Я всегда рядом с тобой.
+            </p>
+        </footer>
+
+    </main>
+
+    <script>
+        // Accordion functionality
+        function toggleCard(id) {
+            const body = document.getElementById(`card-${id}`);
+            const arrow = document.getElementById(`arrow-${id}`);
+            const isOpen = body.classList.contains('open');
+
+            // Close all open sections
+            document.querySelectorAll('.accordion-body').forEach(el => el.classList.remove('open'));
+            document.querySelectorAll('[id^="arrow-"]').forEach(el => el.style.transform = 'rotate(0deg)');
+
+            // Open clicked section if closed
+            if (!isOpen) {
+                body.classList.add('open');
+                arrow.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Checklist toggle and progress counter
+        function toggleCheck(checkbox) {
+            const parent = checkbox.closest('.check-item');
+            if (checkbox.checked) {
+                parent.classList.add('done');
+            } else {
+                parent.classList.remove('done');
+            }
+
+            const total = document.querySelectorAll('#checklist input[type="checkbox"]').length;
+            const checked = document.querySelectorAll('#checklist input[type="checkbox"]:checked').length;
+            
+            const badge = document.getElementById('progress-badge');
+            if (checked === total) {
+                badge.innerText = 'Всё выполнено';
+                badge.className = 'text-xs font-semibold text-stone-700 bg-stone-300/60 px-2.5 py-1 rounded-full';
+            } else {
+                badge.innerText = `${checked} из ${total} шагов`;
+                badge.className = 'text-xs font-semibold text-stone-500 bg-stone-200/50 px-2.5 py-1 rounded-full';
+            }
+        }
+
+        // Hug Counter and Warm Encouragement Phrases
+        let hugCount = 0;
+        const warmPhrases = [
+            "Крепко-крепко обнимаю тебя.",
+            "Ты у меня самая лучшая, всё наладится.",
+            "Слезинки вытираем, вместе мы со всем справимся.",
+            "Я рядом, даже если мы не в одной комнате.",
+            "Каждая мелочь скоро вернётся на своё место.",
+            "Отправляю тебе всё своё тепло."
+        ];
+
+        function triggerHug(e) {
+            hugCount++;
+            document.getElementById('counter').innerText = hugCount;
+
+            // Ripple effect
+            const button = e.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(button.clientWidth, button.clientHeight);
+            const radius = diameter / 2;
+
+            const rect = button.getBoundingClientRect();
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${e.clientX - rect.left - radius}px`;
+            circle.style.top = `${e.clientY - rect.top - radius}px`;
+            circle.classList.add('ripple-circle');
+
+            const existingRipple = button.getElementsByClassName('ripple-circle')[0];
+            if (existingRipple) {
+                existingRipple.remove();
+            }
+            button.appendChild(circle);
+
+            // Display random soothing phrase
+            const phraseContainer = document.getElementById('support-phrase');
+            const randomPhrase = warmPhrases[(hugCount - 1) % warmPhrases.length];
+            
+            phraseContainer.innerHTML = `<span class="fade-in-message inline-block">${randomPhrase}</span>`;
+        }
+    </script>
+</body>
+</html>
