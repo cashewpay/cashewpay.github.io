@@ -305,6 +305,7 @@ button:active {
       <option value="zhlobin">Жлобин</option>
       <option value="bobr">Бобруйск</option>
       <option value="rechitsa">Речица</option>
+      <option value="mozyr">Мозырь</option>
     </select>
 
     <select id="type">
@@ -456,7 +457,7 @@ function updateCityFields() {
 
     apEl.value = "";
     apEl.style.display = "none";
-  } else if (city === "zhlobin" || city === "rechitsa") {
+  } else if (city === "zhlobin" || city === "rechitsa" || city === "mozyr") {
     // В Жлобине и Речице используется только автобус, без выбора АП.
     typeEl.value = "bus";
     typeEl.style.display = "none";
@@ -485,7 +486,7 @@ cityEl.addEventListener("change", () => {
 });
 
 typeEl.addEventListener("change", () => {
-  if (cityEl.value === "zhlobin" || cityEl.value === "rechitsa") {
+  if (cityEl.value === "zhlobin" || cityEl.value === "rechitsa" || cityEl.value === "mozyr") {
     typeEl.value = "bus";
     typeEl.style.display = "none";
     typeEl.disabled = true;
@@ -557,7 +558,7 @@ function isFormValid() {
     return !!type;
   }
 
-  if (city === "zhlobin" || city === "rechitsa") {
+  if (city === "zhlobin" || city === "rechitsa" || city === "mozyr") {
     // В Жлобине и Речице транспорт фиксирован как автобус.
     typeEl.classList.remove("error");
     apEl.classList.remove("error");
@@ -612,6 +613,9 @@ function getDateRange() {
   else if (city === "rechitsa") {
     offset = 2700000;
   }
+  else if (city === "mozyr") {
+    offset = 2400000;
+  } 
   else if (city === "bobr" && (type === "trolley" || type === "bus")) {
     offset = 3600000;
   }
@@ -680,6 +684,13 @@ function buildRecipientParts() {
       `Оплата проезда в автобусе, гар. номер ${num}`,
       `г. Речица`,
       `Филиал "Автобусный парк №3"`
+    ];
+  }
+  if (city === "mozyr") {
+    return [
+      `Оплата проезда в автобусе, гар. номер ${num}`,
+      `г. Мозырь`,
+      `Автобусный парк #2 г.Мозыря`
     ];
   }
 
@@ -1142,7 +1153,7 @@ async function captureAndRecognize() {
     const hasTrolleyKeywords = cleanText.includes('электр') || cleanText.includes('трол') || cleanText.includes('гэт') || cleanText.includes('горэл');
     const hasBusKeywords = cleanText.includes('автобус') || cleanText.includes('ап1') || cleanText.includes('ап6') || cleanText.includes('парк1') || cleanText.includes('парк6');
 
-    if (cityEl.value === 'zhlobin' || cityEl.value === 'rechitsa') {
+    if (cityEl.value === 'zhlobin' || cityEl.value === 'rechitsa' || cityEl.value === "mozyr") {
       // Для Жлобина и Речицы тип транспорта фиксирован: автобус.
       typeEl.value = 'bus';
       typeEl.style.display = 'none';
