@@ -13,189 +13,218 @@
   <meta name="apple-mobile-web-app-title" content="Билет">
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
-* { box-sizing: border-box; }
-
-body {
-  background: linear-gradient(180deg, #e9f1ff, #f5f5f7);
-  padding: 24px;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  transition: background 0.3s;
-  min-height: 100vh;
+:root {
+  --bg-color: #f2f2f7;
+  --card-bg: #ffffff;
+  --text-color: #1c1c1e;
+  --text-secondary: #8e8e93;
+  --input-bg: #f2f2f7;
+  --border-color: #e5e5ea;
+  --focus-border: #007aff;
+  --accent-blue: #007aff;
+  --accent-green: #34c759;
+  --accent-red: #ff3b30;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --card-border: #e5e5ea;
 }
 
-.dark body {
-  background: linear-gradient(180deg, #0f0f10, #1c1c1e);
+.dark {
+  --bg-color: #121214;
+  --card-bg: #1c1c1e;
+  --text-color: #ffffff;
+  --text-secondary: #8e8e93;
+  --input-bg: #2c2c2e;
+  --border-color: #38383a;
+  --focus-border: #0a84ff;
+  --accent-blue: #0a84ff;
+  --accent-green: #30d158;
+  --accent-red: #ff453a;
+  --shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+  --card-border: #2c2c2e;
+}
+
+* { 
+  box-sizing: border-box; 
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  padding: 24px 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .box {
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border-radius: 24px;
-  padding: 24px;
-  box-shadow:
-    0 10px 40px rgba(0,0,0,0.08),
-    inset 0 1px rgba(255,255,255,0.6);
-  max-width: 480px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 28px 24px;
+  box-shadow: var(--shadow);
+  width: 100%;
+  max-width: 440px;
   margin: auto;
-  transition: 0.3s;
-}
-
-.dark .box {
-  background: rgba(44,44,46,0.6);
-  box-shadow:
-    0 10px 40px rgba(0,0,0,0.5),
-    inset 0 1px rgba(255,255,255,0.05);
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 h2 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text-color);
   margin: 0;
-  transition: 0.3s;
 }
 
 .update {
   font-size: 13px;
-  color: #aaa;
+  color: var(--text-secondary);
   margin-top: 2px;
-  opacity: 0.8;
 }
 
-.dark h2 {
-  color: white;
-}
-
+/* Переключатель темы */
 .theme-switch {
   position: relative;
-  width: 52px;
-  height: 30px;
+  width: 48px;
+  height: 28px;
+  display: inline-block;
 }
 
 .theme-switch input {
   opacity: 0;
+  width: 0;
+  height: 0;
 }
 
 .slider {
   position: absolute;
   inset: 0;
-  background: rgba(120,120,128,0.25);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  transition: 0.3s;
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 30px;
+  transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 }
 
 .slider::before {
   content: "🌙";
   position: absolute;
-  height: 24px;
-  width: 24px;
-  left: 3px;
-  top: 3px;
-  background: rgba(255,255,255,0.9);
+  height: 22px;
+  width: 22px;
+  left: 2px;
+  top: 2px;
+  background: var(--card-bg);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  transition: 0.3s;
+  font-size: 11px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+  transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 input:checked + .slider {
-  background: rgba(52,199,89,0.5);
-}
-
-.dark input:checked + .slider {
-  background: rgba(52,199,89,0.35);
+  background-color: var(--input-bg);
 }
 
 input:checked + .slider::before {
-  transform: translateX(22px);
+  transform: translateX(20px);
   content: "☀️";
 }
 
+/* Поля ввода и выборки */
 input, select {
   width: 100%;
-  padding: 14px;
-  margin-bottom: 16px;
-  border-radius: 16px;
-  border: 1px solid rgba(0,0,0,0.05);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
   font-size: 15px;
-  background: rgba(255,255,255,0.6);
-  backdrop-filter: blur(10px);
+  font-weight: 400;
+  background-color: var(--input-bg);
+  color: var(--text-color);
   outline: none;
-  transition: 0.2s;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
 }
 
 input::placeholder {
-  color: #999;
-}
-
-.dark input::placeholder {
-  color: #aaa;
-}
-
-.dark input,
-.dark select {
-  background: rgba(58,58,60,0.6);
-  border-color: rgba(255,255,255,0.05);
-  color: white;
-}
-
-.error {
-  border-color: rgba(255, 59, 48, 0.6) !important;
-  background: rgba(255, 240, 240, 0.6);
-}
-
-.dark .error {
-  border-color: rgba(255, 80, 80, 0.5) !important;
-  background: rgba(60, 20, 20, 0.5);
+  color: var(--text-secondary);
 }
 
 input:focus, select:focus {
-  border-color: #0a84ff;
-  background: rgba(255,255,255,0.85);
+  border-color: var(--focus-border);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.12);
 }
 
-.dark input:focus,
-.dark select:focus {
-  border-color: #4da3ff;
-  background: rgba(72,72,74,0.85);
+.error {
+  border-color: var(--accent-red) !important;
+  background-color: rgba(255, 59, 48, 0.05) !important;
 }
 
+/* Кнопки */
 button {
   width: 100%;
-  padding: 15px;
-  border-radius: 16px;
+  padding: 14px;
+  border-radius: 12px;
   border: none;
-  background: linear-gradient(135deg, #0a84ff, #0066ff);
-  color: white;
-  font-size: 16px;
+  background-color: var(--accent-blue);
+  color: #ffffff;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
-  box-shadow: 0 6px 20px rgba(10,132,255,0.35);
+  transition: background-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  opacity: 0.92;
 }
 
 button:disabled {
-  background: rgba(120,120,128,0.3);
-  box-shadow: none;
+  background-color: var(--border-color);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
-button:active {
-  transform: scale(0.96);
+button:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .share-btn {
-  margin-top: 12px;
-  background: linear-gradient(135deg, #34c759, #30b350);
-  box-shadow: 0 6px 20px rgba(52,199,89,0.35);
+  margin-top: 10px;
+  background-color: var(--accent-green);
+}
+
+#scanBtn {
+  border-radius: 12px;
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+#scanBtn:hover:not(:disabled) {
+  border-color: var(--focus-border);
 }
 
 .optional-row {
@@ -203,8 +232,7 @@ button:active {
 }
 
 .optional-select {
-  padding-right: 55px;
-  opacity: 0.65;
+  opacity: 0.85;
 }
 
 #loadingContainer, #activationContainer, #generatorContainer {
@@ -214,49 +242,88 @@ button:active {
   display: block;
 }
 
+/* Модальные окна */
 .modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 9999; opacity: 0; pointer-events: none;
-  transition: opacity 0.3s ease;
+  position: fixed; 
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  z-index: 9999; 
+  opacity: 0; 
+  pointer-events: none;
+  transition: opacity 0.25s ease;
 }
-.modal-overlay.active {
-  opacity: 1; pointer-events: auto;
-}
-.modal-box {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border-radius: 20px; padding: 24px;
-  width: 90%; max-width: 320px; text-align: center;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2), inset 0 1px rgba(255,255,255,0.6);
-  transform: scale(0.95); transition: transform 0.3s ease;
-}
-.modal-overlay.active .modal-box { transform: scale(1); }
-.dark .modal-box {
-  background: rgba(44, 44, 46, 0.85); color: white;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.05);
-}
-.modal-title { font-size: 18px; font-weight: 600; margin: 0 0 8px 0; }
-.modal-message { font-size: 14px; color: #666; margin: 0 0 20px 0; line-height: 1.4; word-break: break-word; }
-.dark .modal-message { color: #aaa; }
-.modal-btn {
-  background: linear-gradient(135deg, #0a84ff, #0066ff);
-  color: white; border: none; padding: 14px; width: 100%;
-  border-radius: 14px; font-weight: 600; font-size: 16px;
-  cursor: pointer; transition: 0.2s; box-shadow: 0 6px 20px rgba(10,132,255,0.35);
-}
-.modal-btn:active { transform: scale(0.96); }
 
-.loader {
-  border: 3px solid rgba(0,0,0,0.1); border-top-color: #0a84ff;
-  border-radius: 50%; width: 36px; height: 36px; animation: spin 1s linear infinite; margin: 0 auto 16px;
+.modal-overlay.active {
+  opacity: 1; 
+  pointer-events: auto;
 }
-.dark .loader { border-color: rgba(255,255,255,0.1); border-top-color: #0a84ff; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.modal-box {
+  background: var(--card-bg);
+  border-radius: 18px; 
+  padding: 24px;
+  width: 90%; 
+  max-width: 340px; 
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  transform: translateY(10px) scale(0.98); 
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-overlay.active .modal-box { 
+  transform: translateY(0) scale(1); 
+}
+
+.modal-title { 
+  font-size: 18px; 
+  font-weight: 700; 
+  margin: 0 0 8px 0; 
+  color: var(--text-color);
+}
+
+.modal-message { 
+  font-size: 14px; 
+  color: var(--text-secondary); 
+  margin: 0 0 20px 0; 
+  line-height: 1.45; 
+  word-break: break-word; 
+}
+
+.modal-btn {
+  background-color: var(--accent-blue);
+  color: white; 
+  border: none; 
+  padding: 13px; 
+  width: 100%;
+  border-radius: 12px; 
+  font-weight: 600; 
+  font-size: 15px;
+  cursor: pointer; 
+  transition: opacity 0.2s ease;
+}
+
+.modal-btn:active { 
+  transform: scale(0.98); 
+}
+
+/* Лоадер */
+.loader {
+  border: 3px solid var(--border-color); 
+  border-top-color: var(--accent-blue);
+  border-radius: 50%; 
+  width: 36px; 
+  height: 36px; 
+  animation: spin 0.8s linear infinite; 
+  margin: 0 auto 16px;
+}
+
+@keyframes spin { 
+  0% { transform: rotate(0deg); } 
+  100% { transform: rotate(360deg); } 
+}
 </style>
 </head>
 
@@ -265,7 +332,7 @@ button:active {
 <div id="loadingContainer" class="box active" style="text-align: center; padding: 40px 24px;">
   <div class="loader"></div>
   <h2 style="font-size: 18px; margin-bottom: 8px;">Проверка доступа</h2>
-  <p style="color: #666; font-size: 14px; margin: 0;">Пожалуйста, подождите...</p>
+  <p style="color: var(--text-secondary); font-size: 14px; margin: 0;">Пожалуйста, подождите...</p>
 </div>
 
 <div id="activationContainer" class="box">
@@ -273,14 +340,14 @@ button:active {
     <h2>Активация доступа</h2>
   </div>
 
-  <div id="telegramWarning" style="display: none; background: rgba(255, 149, 0, 0.12); border: 1px solid rgba(255, 149, 0, 0.4); border-radius: 16px; padding: 14px; margin-bottom: 20px; text-align: left;">
+  <div id="telegramWarning" style="display: none; background: rgba(255, 149, 0, 0.1); border: 1px solid rgba(255, 149, 0, 0.3); border-radius: 14px; padding: 14px; margin-bottom: 20px; text-align: left;">
     <p style="margin: 0; color: #d97300; font-size: 13px; line-height: 1.45; font-weight: 500;">
       ⚠️ <strong>Вы внутри браузера Telegram!</strong><br>
       Код активации одноразовый. Настоятельно рекомендуется нажать на <strong>три точки в углу экрана</strong> и выбрать <strong>«Открыть в Браузере»</strong>, чтобы активировать его непосредственно на самом устройстве.
     </p>
   </div>
 
-  <p style="text-align: center; color: #666; font-size: 14px; margin-bottom: 20px; line-height: 1.4;">
+  <p style="text-align: center; color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; line-height: 1.4;">
     Введите код активации, чтобы получить доступ к генератору билетов.
   </p>
   <input id="activationCodeInput" placeholder="XXXX-XXXX-XXXX" style="text-align: center; font-family: monospace; font-size: 18px; letter-spacing: 2px; text-transform: uppercase;">
@@ -320,9 +387,9 @@ button:active {
       <option value="6">АП №6</option>
     </select>
 
-    <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+    <div style="display: flex; gap: 10px; margin-bottom: 14px;">
       <input id="num" placeholder="Гар. номер (26012)" inputmode="numeric" pattern="[0-9]*" style="margin-bottom: 0;">
-      <button type="button" id="scanBtn" onclick="startScanner()" style="width: 60px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;" title="Сканировать текст">
+      <button type="button" id="scanBtn" onclick="startScanner()" style="width: 52px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;" title="Сканировать текст">
         📷
       </button>
     </div>
@@ -343,8 +410,8 @@ button:active {
       📤 Поделиться
     </button>
 
-    <div id="syncSection" style="margin-top: 20px; border-top: 1px solid rgba(120,120,128,0.15); padding-top: 16px; text-align: center;">
-      <button id="syncBtn" onclick="generateSyncLink()" style="background: linear-gradient(135deg, #5ac8fa, #5856d6); box-shadow: 0 6px 20px rgba(88,86,214,0.25); font-size: 14px; padding: 12px; border-radius: 12px;">
+    <div id="syncSection" style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 16px; text-align: center;">
+      <button id="syncBtn" onclick="generateSyncLink()" style="background-color: transparent; border: 1px solid var(--border-color); color: var(--text-color); font-size: 14px; padding: 12px; border-radius: 12px;">
         🔗 Привязать другой браузер
       </button>
     </div>
@@ -357,11 +424,12 @@ button:active {
     <h3 id="modalTitle" class="modal-title"></h3>
     <p id="modalMessage" class="modal-message"></p>
     <div id="modalInputWrapper" style="display: none; margin-bottom: 16px;">
-      <input id="modalCopyInput" readonly style="margin-bottom: 0; text-align: center; background: rgba(120,120,128,0.1); border: 1px solid rgba(0,0,0,0.1); font-size: 13px;">
+      <input id="modalCopyInput" readonly style="margin-bottom: 0; text-align: center; font-size: 13px;">
     </div>
     <button class="modal-btn" onclick="closeModal()">OK</button>
   </div>
 </div>
+
 <div id="scannerModal" class="modal-overlay">
   <div class="modal-box" style="max-width: 400px; width: 95%;">
     <h3 class="modal-title">Сканирование афиши</h3>
@@ -372,14 +440,14 @@ button:active {
       
       <canvas id="captureCanvas" style="width: 100%; display: none; object-fit: cover;"></canvas>
       
-      <div id="scannerTarget" style="position: absolute; top: 30%; left: 10%; right: 10%; bottom: 30%; border: 2px solid #34c759; border-radius: 8px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.4); pointer-events: none;"></div>
+      <div id="scannerTarget" style="position: absolute; top: 30%; left: 10%; right: 10%; bottom: 30%; border: 2px solid var(--accent-green); border-radius: 8px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5); pointer-events: none;"></div>
     </div>
     
-    <p id="scannerStatus" style="font-size: 14px; font-weight: bold; color: #0a84ff; margin-bottom: 16px; display: none;">⏳ Распознавание текста...</p>
+    <p id="scannerStatus" style="font-size: 14px; font-weight: bold; color: var(--accent-blue); margin-bottom: 16px; display: none;">⏳ Распознавание текста...</p>
     
     <div style="display: flex; gap: 10px;">
-      <button class="modal-btn" id="captureBtn" style="background: linear-gradient(135deg, #34c759, #30b350);" onclick="captureAndRecognize()">Распознать</button>
-      <button class="modal-btn" style="background: linear-gradient(135deg, #ff3b30, #d70015);" onclick="stopScanner()">Отмена</button>
+      <button class="modal-btn" id="captureBtn" style="background-color: var(--accent-green);" onclick="captureAndRecognize()">Распознать</button>
+      <button class="modal-btn" style="background-color: var(--accent-red);" onclick="stopScanner()">Отмена</button>
     </div>
   </div>
 </div>
@@ -447,7 +515,6 @@ function updateCityFields() {
       apEl.value = "";
     }
   } else if (city === "bobr") {
-    // В Бобруйске доступны автобус и троллейбус, без выбора АП.
     typeEl.style.display = "block";
     typeEl.disabled = false;
 
@@ -458,7 +525,6 @@ function updateCityFields() {
     apEl.value = "";
     apEl.style.display = "none";
   } else if (city === "zhlobin" || city === "rechitsa" || city === "mozyr") {
-    // В Жлобине и Речице используется только автобус, без выбора АП.
     typeEl.value = "bus";
     typeEl.style.display = "none";
     typeEl.disabled = true;
@@ -471,7 +537,6 @@ function updateCityFields() {
 }
 
 cityEl.addEventListener("change", () => {
-  // При смене города очищаем транспортную часть, гаражный номер сохраняем.
   if (cityEl.value === "gomel") {
     typeEl.value = "";
   } else if (cityEl.value === "bobr") {
@@ -499,7 +564,6 @@ typeEl.addEventListener("change", () => {
   typeEl.disabled = false;
 
   if (cityEl.value === "bobr") {
-    // В Бобруйске АП не выбирается ни для автобуса, ни для троллейбуса.
     apEl.style.display = "none";
     apEl.value = "";
     numEl.focus();
@@ -559,14 +623,12 @@ function isFormValid() {
   }
 
   if (city === "zhlobin" || city === "rechitsa" || city === "mozyr") {
-    // В Жлобине и Речице транспорт фиксирован как автобус.
     typeEl.classList.remove("error");
     apEl.classList.remove("error");
     return true;
   }
 
   if (city === "bobr") {
-    // В Бобруйске пользователь выбирает автобус или троллейбус.
     validateField(typeEl, type === "bus" || type === "trolley");
     apEl.classList.remove("error");
     return !!(type === "bus" || type === "trolley");
@@ -1154,7 +1216,6 @@ async function captureAndRecognize() {
     const hasBusKeywords = cleanText.includes('автобус') || cleanText.includes('ап1') || cleanText.includes('ап6') || cleanText.includes('парк1') || cleanText.includes('парк6');
 
     if (cityEl.value === 'zhlobin' || cityEl.value === 'rechitsa' || cityEl.value === "mozyr") {
-      // Для Жлобина и Речицы тип транспорта фиксирован: автобус.
       typeEl.value = 'bus';
       typeEl.style.display = 'none';
       typeEl.disabled = true;
@@ -1162,7 +1223,6 @@ async function captureAndRecognize() {
       apEl.style.display = 'none';
       foundType = true;
     } else if (cityEl.value === 'bobr') {
-      // Для Бобруйска распознаём и автобус, и троллейбус.
       typeEl.style.display = 'block';
       typeEl.disabled = false;
       apEl.value = '';
@@ -1193,8 +1253,6 @@ async function captureAndRecognize() {
       }
     } else if (foundNumber) {
       if (cityEl.value === 'bobr') {
-        // В Бобруйске сохраняем отсутствие АП и определяем тип по длине номера,
-        // если OCR не смог прочитать название транспорта.
         apEl.style.display = 'none';
         apEl.value = '';
         if (numEl.value.length === 4) {
