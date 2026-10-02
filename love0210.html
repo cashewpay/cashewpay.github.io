@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>для моей любимой 💓</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-main: #fbf8f3;
+      --card-bg: #f4ece1;
+      --card-border: #e8dad0;
+      --color-wine: #52222e;
+      --color-wine-muted: #8a5a65;
+      --color-cream: #fdfaf6;
+    }
+
+    /* сброс серых подсветок при тапе и оптимизация под экраны айфонов */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--color-wine);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Georgia", serif;
+      min-height: 100svh;
+      margin: 0;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      user-select: none;
+      overflow-x: hidden;
+    }
+
+    /* стилизация вылетающих винных и розовых сердечек */
+    @keyframes floatHeart {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(0.8) rotate(0deg);
+      }
+      50% {
+        opacity: 0.9;
+        transform: translateY(-60px) scale(1.2) rotate(8deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-120px) scale(0.6) rotate(-8deg);
+      }
+    }
+
+    .floating-heart {
+      position: absolute;
+      pointer-events: none;
+      animation: floatHeart 1.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      z-index: 60;
+      font-size: 1.5rem;
+    }
+
+    /* кастомный пиксельный канвас */
+    canvas {
+      image-rendering: pixelated;
+    }
+
+    /* анимация покачивания баночки */
+    @keyframes gentleWobble {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-5deg); }
+      75% { transform: rotate(5deg); }
+    }
+
+    .jar-wobble {
+      animation: gentleWobble 0.4s ease-in-out;
+    }
+
+    /* анимация сердечек внутри баночки */
+    @keyframes heartFloatInJar {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .jar-heart-1 { animation: heartFloatInJar 2s ease-in-out infinite; }
+    .jar-heart-2 { animation: heartFloatInJar 2.5s ease-in-out infinite 0.4s; }
+    .jar-heart-3 { animation: heartFloatInJar 2.2s ease-in-out infinite 0.8s; }
+
+    /* интерактивный конверт */
+    .envelope-wrapper {
+      perspective: 1000px;
+    }
+
+    .envelope-flap {
+      transform-origin: top;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .envelope-open .envelope-flap {
+      transform: rotateX(-180deg);
+    }
+
+    .letter-paper {
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease;
+      transform: translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .envelope-open .letter-paper {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-start min-h-[100svh] px-4 py-6 max-w-md mx-auto relative">
+
+  <!-- шапка сайта в стиле крафтового дневника -->
+  <header class="text-center py-4 w-full mb-3">
+    <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#f4ece1] text-[#52222e] text-[11px] tracking-wider font-medium rounded-full border border-[#e8dad0] shadow-sm mb-3">
+      <span>уютный сундучок</span>
+      <span>💓</span>
+    </div>
+    <h1 class="text-2xl font-serif font-bold text-[#52222e] tracking-tight">для моей любимой</h1>
+    <p class="text-xs text-[#8a5a65] mt-1.5 leading-relaxed font-serif italic">маленькое теплое пространство созданное с любовью для тебя 🫶</p>
+  </header>
+
+  <!-- блок 1: крафтовый пиксельный питомец -->
+  <section class="w-full bg-[#f4ece1] rounded-3xl p-5 border border-[#e8dad0] shadow-[0_4px_20px_rgba(82,34,46,0.03)] relative mb-6">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-sm font-serif font-bold text-[#52222e]">твой уютный питомец</h2>
+      <span class="text-xs text-[#8a5a65]">💓</span>
+    </div>
+
+    <!-- облачко с фразами котика -->
+    <div id="cat-speech" class="bg-[#fdfaf6] border border-[#e8dad0] text-[#52222e] text-xs font-medium px-4 py-2.5 rounded-2xl text-center mb-3 shadow-sm transition-all duration-300 min-h-[38px] flex items-center justify-center">
+      муррр я очень рад тебя видеть 🥰
+    </div>
+
+    <!-- пиксельный котик на холсте canvas -->
+    <div class="flex justify-center items-center my-2 cursor-pointer active:scale-95 transition-transform duration-200" onclick="interactCat('pet', event)">
+      <canvas id="pixel-cat-canvas" width="160" height="160" class="w-36 h-36"></canvas>
+    </div>
+
+    <!-- статус питомца -->
+    <div class="text-center mb-4">
+      <span id="cat-status-tag" class="inline-block bg-[#fdfaf6] text-[#52222e] text-[11px] font-medium px-3 py-1 rounded-full border border-[#e8dad0]">
+        настроение: мурчит от твоего тепла 💓
+      </span>
+    </div>
+
+    <!-- кнопки действий -->
+    <div class="grid grid-cols-3 gap-2">
+      <button onclick="interactCat('feed', event)" class="bg-[#fdfaf6] hover:bg-white text-[#52222e] text-xs font-medium py-2.5 px-2 rounded-2xl border border-[#e8dad0] shadow-sm active:scale-95 transition flex flex-col items-center gap-1">
+        <span>покормить</span>
+        <span class="text-xs">💓</span>
+      </button>
+      <button onclick="interactCat('pet', event)" class="bg-[#fdfaf6] hover:bg-white text-[#52222e] text-xs font-medium py-2.5 px-2 rounded-2xl border border-[#e8dad0] shadow-sm active:scale-95 transition flex flex-col items-center gap-1">
+        <span>погладить</span>
+        <span class="text-xs">🥰</span>
+      </button>
+      <button onclick="interactCat('kiss', event)" class="bg-[#fdfaf6] hover:bg-white text-[#52222e] text-xs font-medium py-2.5 px-2 rounded-2xl border border-[#e8dad0] shadow-sm active:scale-95 transition flex flex-col items-center gap-1">
+        <span>поцеловать</span>
+        <span class="text-xs">💋</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- блок 2: баночка с теплыми комплиментами -->
+  <section class="w-full bg-[#f4ece1] rounded-3xl p-5 border border-[#e8dad0] shadow-[0_4px_20px_rgba(82,34,46,0.03)] relative mb-6">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-sm font-serif font-bold text-[#52222e]">баночка комплиментов</h2>
+      <span class="text-xs text-[#8a5a65]">🥰</span>
+    </div>
+
+    <!-- svg баночка в эстетичном стиле -->
+    <div class="flex justify-center items-center my-3 cursor-pointer" onclick="drawCompliment(event)">
+      <div id="jar-element" class="relative transition-transform duration-300">
+        <svg class="w-28 h-36" viewBox="0 0 100 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- пробка -->
+          <rect x="32" y="8" width="36" height="12" rx="3" fill="#c29b7f" stroke="#52222e" stroke-width="2"/>
+          <!-- горлышко -->
+          <rect x="26" y="20" width="48" height="8" rx="2" fill="#fdfaf6" stroke="#52222e" stroke-width="2"/>
+          <!-- корпус баночки -->
+          <rect x="18" y="28" width="64" height="92" rx="18" fill="rgba(253, 250, 246, 0.75)" stroke="#52222e" stroke-width="2.5"/>
+          <!-- джутовая нитка на горлышке -->
+          <path d="M26 24 C38 28 62 28 74 24" stroke="#8a5a65" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="50" cy="27" r="3" fill="#8a5a65"/>
+
+          <!-- плавающие внутри сердечки -->
+          <text x="32" y="65" font-size="14" fill="#52222e" class="jar-heart-1">💓</text>
+          <text x="52" y="80" font-size="15" fill="#52222e" class="jar-heart-2">🥰</text>
+          <text x="38" y="102" font-size="13" fill="#52222e" class="jar-heart-3">❤️</text>
+
+          <!-- бумажная этикетка -->
+          <rect x="28" y="62" width="44" height="28" rx="5" fill="#f4ece1" stroke="#e8dad0" stroke-width="1.5"/>
+          <text x="50" y="79" font-size="8" fill="#52222e" text-anchor="middle" font-family="serif">для тебя</text>
+          <text x="50" y="86" font-size="7" fill="#8a5a65" text-anchor="middle">💓💓💓</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- плашка с выпавшим комплиментом -->
+    <div id="compliment-box" class="bg-[#fdfaf6] border border-[#e8dad0] rounded-2xl p-4 transition-all duration-300 shadow-sm min-h-[76px] flex items-center justify-center">
+      <p id="compliment-text" class="text-xs font-medium text-[#52222e] text-center leading-relaxed font-serif italic">
+        нажми на баночку или кнопку снизу чтобы достать любовную записку 💓
+      </p>
+    </div>
+
+    <button onclick="drawCompliment(event)" class="w-full bg-[#52222e] text-[#fbf8f3] text-xs font-medium py-3 px-4 rounded-2xl shadow-sm active:scale-95 transition mt-4 flex items-center justify-center gap-2">
+      <span>достать комплимент</span>
+      <span class="text-xs">🫶</span>
+    </button>
+  </section>
+
+  <!-- блок 3: открывающийся интерактивный конверт -->
+  <section class="w-full bg-[#f4ece1] rounded-3xl p-5 border border-[#e8dad0] shadow-[0_4px_20px_rgba(82,34,46,0.03)] relative mb-8">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-sm font-serif font-bold text-[#52222e]">письмо для тебя</h2>
+      <span class="text-xs text-[#8a5a65]">🫶</span>
+    </div>
+
+    <!-- конверт -->
+    <div id="envelope-container" class="envelope-wrapper cursor-pointer my-2" onclick="toggleEnvelope(event)">
+      <div class="relative w-full bg-[#e8dad0] rounded-2xl border-2 border-[#52222e] p-4 shadow-sm overflow-hidden">
+        
+        <!-- верхняя крышка конверта -->
+        <div class="envelope-flap absolute top-0 left-0 w-full h-1/2 bg-[#dfcebe] border-b-2 border-[#52222e] rounded-t-2xl flex items-center justify-center z-20">
+          <div class="w-7 h-7 bg-[#52222e] rounded-full flex items-center justify-center text-white text-[11px] shadow-sm">
+            💓
+          </div>
+        </div>
+
+        <!-- лицо закрытого конверта -->
+        <div class="py-5 text-center z-10 relative">
+          <p class="text-xs font-serif font-bold text-[#52222e]">нажми чтобы открыть послание</p>
+          <p class="text-[10px] text-[#8a5a65] mt-1 font-serif italic">согреет в любой день 💋</p>
+        </div>
+
+        <!-- вытягивающееся крафтовое письмо -->
+        <div id="letter-content" class="letter-paper bg-[#fdfaf6] rounded-xl p-4 border border-[#e8dad0] text-[#52222e] text-xs leading-relaxed shadow-sm">
+          
+          <!-- ТЕКСТ ПИСЬМА: ты можешь легко заменить строки ниже на свои -->
+          <p class="font-serif font-bold text-[#52222e] text-sm mb-2 text-center">моя самая дорогая и любимая девочка 💓</p>
+          
+          <p class="mb-2 font-serif">
+            я создал этот маленький сундучок с теплом специально для тебя
+          </p>
+          
+          <p class="mb-2 font-serif">
+            хочу чтобы ты всегда помнила насколько ты важна особенная и любимая
+          </p>
+          
+          <p class="mb-2 font-serif">
+            спасибо тебе за твою нежность за твои обнимашки и за твою волшебную улыбку
+          </p>
+          
+          <p class="mb-3 font-serif">
+            ты делаешь мою жизнь бесконечно светлой и счастливой 🫶
+          </p>
+          
+          <div class="text-right font-serif font-bold text-[#52222e] mt-4">
+            <p>крепко обнимаю тебя и целую в носик 💋</p>
+            <p class="mt-1">всегда твой ❤️</p>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <button onclick="toggleEnvelope(event)" class="w-full bg-[#fdfaf6] border border-[#e8dad0] text-[#52222e] text-xs font-medium py-3 px-4 rounded-2xl shadow-sm active:scale-95 transition mt-3 flex items-center justify-center gap-2">
+      <span id="envelope-btn-text">открыть письмо</span>
+      <span id="envelope-btn-icon" class="text-xs">💓</span>
+    </button>
+  </section>
+
+  <!-- подвал -->
+  <footer class="text-center py-3 text-[11px] text-[#8a5a65] font-serif italic">
+    с любовью для тебя ❤️
+  </footer>
+
+  <script>
+    // плавный вылет винных и розовых сердечек
+    function spawnHearts(x, y, count = 5) {
+      const allowedEmojis = ['💓', '❤️', '🥰', '💋', '🫶'];
+      for (let i = 0; i < count; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'floating-heart';
+        heart.textContent = allowedEmojis[Math.floor(Math.random() * allowedEmojis.length)];
+        
+        const offsetX = (Math.random() - 0.5) * 80;
+        const offsetY = (Math.random() - 0.5) * 20;
+        
+        heart.style.left = `${x + offsetX}px`;
+        heart.style.top = `${y + offsetY}px`;
+        
+        document.body.appendChild(heart);
+        
+        setTimeout(() => {
+          heart.remove();
+        }, 1400);
+      }
+    }
+
+    // отрисовка стильного пиксельного котика через html5 canvas
+    const canvas = document.getElementById('pixel-cat-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // пиксельная сетка котика (16x16)
+    let catState = {
+      isBlinking: false,
+      tailOffset: 0,
+      bounceY: 0,
+      time: 0
+    };
+
+    // цветовая палитра котика в тонах латте и винного цвета
+    const colors = {
+      fur: '#caa693',       // шерсть латте
+      darkFur: '#a8826f',   // пятнышки
+      belly: '#fdf5ef',     // животик
+      blush: '#e8a598',     // румянец
+      outline: '#52222e',   // контуры винного цвета
+      eye: '#52222e',       // глазки
+      white: '#ffffff'
+    };
+
+    // функция рисования сетки пикселей
+    function drawPixelCat() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const p = 8; // размер одного пикселя (16x16 * 8 = 128x128 в центре)
+      const offsetX = 16;
+      const offsetY = 16 + catState.bounceY;
+
+      function px(x, y, color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(offsetX + x * p, offsetY + y * p, p, p);
+      }
+
+      // хвост (с анимацией покачивания)
+      const tailX = Math.round(catState.tailOffset);
+      px(13 + tailX, 11, colors.outline);
+      px(14 + tailX, 10, colors.darkFur);
+      px(14 + tailX, 9, colors.darkFur);
+      px(13 + tailX, 8, colors.outline);
+
+      // тело котика
+      for (let x = 5; x <= 11; x++) {
+        for (let y = 10; y <= 14; y++) {
+          px(x, y, colors.fur);
+        }
+      }
+      // животик
+      for (let x = 7; x <= 9; x++) {
+        for (let y = 11; y <= 13; y++) {
+          px(x, y, colors.belly);
+        }
+      }
+      // контур тела
+      for (let x = 5; x <= 11; x++) {
+        px(x, 14, colors.outline);
+        px(x, 10, colors.outline);
+      }
+      px(4, 11, colors.outline);
+      px(4, 12, colors.outline);
+      px(4, 13, colors.outline);
+      px(12, 11, colors.outline);
+      px(12, 12, colors.outline);
+      px(12, 13, colors.outline);
+
+      // ушки
+      px(4, 3, colors.outline); px(5, 3, colors.outline);
+      px(4, 4, colors.darkFur); px(5, 4, colors.blush);
+      px(11, 3, colors.outline); px(12, 3, colors.outline);
+      px(11, 4, colors.blush); px(12, 4, colors.darkFur);
+
+      // голова
+      for (let x = 4; x <= 12; x++) {
+        for (let y = 5; y <= 9; y++) {
+          px(x, y, colors.fur);
+        }
+      }
+
+      // контур головы
+      for (let x = 5; x <= 11; x++) px(x, 4, colors.outline);
+      for (let y = 5; y <= 9; y++) {
+        px(3, y, colors.outline);
+        px(13, y, colors.outline);
+      }
+
+      // щечки с румянцем
+      px(4, 8, colors.blush);
+      px(12, 8, colors.blush);
+
+      // глазки (моргание)
+      if (catState.isBlinking) {
+        px(5, 7, colors.outline); px(6, 7, colors.outline);
+        px(10, 7, colors.outline); px(11, 7, colors.outline);
+      } else {
+        px(5, 6, colors.eye); px(6, 6, colors.eye);
+        px(5, 7, colors.eye); px(6, 7, colors.eye);
+        px(5, 6, colors.white); // блики
+
+        px(10, 6, colors.eye); px(11, 6, colors.eye);
+        px(10, 7, colors.eye); px(11, 7, colors.eye);
+        px(10, 6, colors.white); // блики
+      }
+
+      // носик и ротик
+      px(8, 7, colors.blush);
+      px(7, 8, colors.outline);
+      px(9, 8, colors.outline);
+
+      // лапки
+      px(5, 14, colors.belly); px(6, 14, colors.belly);
+      px(10, 14, colors.belly); px(11, 14, colors.belly);
+    }
+
+    // цикл анимации котика
+    function animateCat() {
+      catState.time += 0.05;
+      catState.tailOffset = Math.sin(catState.time) * 1.2;
+
+      // случайное моргание
+      if (Math.random() < 0.012 && !catState.isBlinking) {
+        catState.isBlinking = true;
+        setTimeout(() => { catState.isBlinking = false; }, 180);
+      }
+
+      drawPixelCat();
+      requestAnimationFrame(animateCat);
+    }
+
+    // запуск анимации после загрузки страницы
+    window.onload = function() {
+      animateCat();
+    };
+
+    // реплики котика
+    const catResponses = {
+      feed: [
+        "ням-ням спасибо за вкусноту 💓",
+        "довольно мурчит и просит еще 🥰",
+        "покушал и сладко потягивается 🫶"
+      ],
+      pet: [
+        "муррр как приятно 🥰",
+        "прищурил глазки от нежности 💓",
+        "мулыкает и трется о ладошку 🫶"
+      ],
+      kiss: [
+        "чмок, котик смущенно мурчит 💋",
+        "отправляет ответный поцелуйчик 💓",
+        "самый счастливый питомец на свете 🥰"
+      ]
+    };
+
+    function interactCat(type, event) {
+      if (event) {
+        const rect = event.currentTarget.getBoundingClientRect();
+        spawnHearts(rect.left + rect.width / 2, rect.top, 6);
+      }
+
+      // подпрыгивание котика
+      catState.bounceY = -6;
+      setTimeout(() => { catState.bounceY = 0; }, 150);
+
+      const list = catResponses[type];
+      const randomText = list[Math.floor(Math.random() * list.length)];
+      
+      document.getElementById('cat-speech').textContent = randomText;
+      document.getElementById('cat-status-tag').textContent = "настроение: сладко мурчит от твоих прикосновений 💓";
+    }
+
+    // массив теплых комплиментов
+    // ты можешь менять строки в этом списке
+    const compliments = [
+      "ты самое теплое и дорогое что у меня есть 💓",
+      "твоя улыбка делает любой день намного лучше 🥰",
+      "обожаю твои глазки и твой милый смех 🫶",
+      "с тобой так уютно и спокойно на душе ❤️",
+      "ты невероятно красивая умная и бесконечно милая 💋",
+      "каждый день с тобой наполнен нежностью и счастьем 💓",
+      "ты мое главное вдохновение и самая любимая девочка 🥰",
+      "хочу всегда обнимать тебя так крепко насколько могу 🫶",
+      "ты украшаешь собой весь этот мир ❤️",
+      "люблю тебя сильнее с каждой секундой 💋"
+    ];
+
+    let lastIndex = -1;
+
+    function drawCompliment(event) {
+      const jar = document.getElementById('jar-element');
+      const box = document.getElementById('compliment-box');
+      const text = document.getElementById('compliment-text');
+
+      jar.classList.remove('jar-wobble');
+      void jar.offsetWidth;
+      jar.classList.add('jar-wobble');
+
+      if (event) {
+        const rect = jar.getBoundingClientRect();
+        spawnHearts(rect.left + rect.width / 2, rect.top + rect.height / 2, 7);
+      }
+
+      box.style.opacity = '0.3';
+      box.style.transform = 'scale(0.97)';
+
+      setTimeout(() => {
+        let idx;
+        do {
+          idx = Math.floor(Math.random() * compliments.length);
+        } while (idx === lastIndex && compliments.length > 1);
+
+        lastIndex = idx;
+        text.textContent = compliments[idx];
+
+        box.style.opacity = '1';
+        box.style.transform = 'scale(1)';
+      }, 180);
+    }
+
+    // интерактив открывающегося конверта
+    let isEnvelopeOpen = false;
+
+    function toggleEnvelope(event) {
+      const container = document.getElementById('envelope-container');
+      const btnText = document.getElementById('envelope-btn-text');
+      const btnIcon = document.getElementById('envelope-btn-icon');
+
+      isEnvelopeOpen = !isEnvelopeOpen;
+
+      if (isEnvelopeOpen) {
+        container.classList.add('envelope-open');
+        btnText.textContent = 'закрыть письмо';
+        btnIcon.textContent = '🫶';
+
+        if (event) {
+          const rect = container.getBoundingClientRect();
+          spawnHearts(rect.left + rect.width / 2, rect.top + 20, 8);
+        }
+      } else {
+        container.classList.remove('envelope-open');
+        btnText.textContent = 'открыть письмо';
+        btnIcon.textContent = '💓';
+      }
+    }
+  </script>
+</body>
+</html>
