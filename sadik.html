@@ -1,0 +1,414 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>сад для любимой</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito:wght@400;600;700&family=Marck+Script&display=swap">
+<style>
+/* layout: одна колонка; сцена-сад из 12 грядок (3 в ряд), под ней карточка с шёпотом цветочка, внизу финал */
+:root{
+  --bg:#f4effc; --surface:#fffdff; --ink:#35255a; --ink-soft:#6a5894;
+  --accent:#7656c9; --accent-deep:#5a3fa3; --lilac:#d6c8f2; --lilac-soft:#ebe3fa;
+  --line:#e0d5f4; --soil:#b9a5e3; --leaf:#8fae95; --white:#fffdff; --on-accent:#ffffff;
+  --scene:#e6dcf8; --shadow:rgba(80,56,150,.32);
+  --font-d:'Comfortaa','Avenir Next Rounded',ui-rounded,system-ui,sans-serif;
+  --font-b:'Nunito','Avenir Next',system-ui,-apple-system,sans-serif;
+  --font-s:'Marck Script','Bradley Hand','Snell Roundhand',cursive;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1d1433; --surface:#2a1f47; --ink:#f4edff; --ink-soft:#b9a8de;
+    --accent:#b39bf1; --accent-deep:#d4c5fb; --lilac:#4d3d7d; --lilac-soft:#352a5a;
+    --line:#41336b; --soil:#4a3a78; --leaf:#6f9a7c; --scene:#271c45; --on-accent:#1d1433;
+    --shadow:rgba(0,0,0,.5); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1d1433; --surface:#2a1f47; --ink:#f4edff; --ink-soft:#b9a8de;
+  --accent:#b39bf1; --accent-deep:#d4c5fb; --lilac:#4d3d7d; --lilac-soft:#352a5a;
+  --line:#41336b; --soil:#4a3a78; --leaf:#6f9a7c; --scene:#271c45; --on-accent:#1d1433;
+  --shadow:rgba(0,0,0,.5); color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--ink);
+  font:400 17px/1.5 var(--font-b);text-transform:lowercase;
+  padding-block:20px 0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  touch-action:manipulation;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  -webkit-user-select:none;user-select:none;
+}
+body.sheet-open{overflow:hidden}
+button{font:inherit;color:inherit;text-transform:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:12px}
+h1,h2,p{margin:0}
+
+.wrap{max-width:520px;margin:0 auto;padding-bottom:calc(40px + env(safe-area-inset-bottom,0px));animation:rise .6s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0 4px}
+.head > div{min-width:0}
+.eyebrow{font:700 13px/1.3 var(--font-b);letter-spacing:.09em;color:var(--accent-deep);margin-bottom:6px}
+h1{font:700 28px/1.2 var(--font-d);text-wrap:balance;letter-spacing:-.01em}
+.sub{margin-top:8px;color:var(--ink-soft);font-size:16px;max-width:34ch}
+.deco{flex:none;width:64px;height:64px;color:var(--accent);margin-top:2px}
+
+/* сцена */
+.scene{position:relative;margin-top:20px;background:var(--scene);border-radius:30px;padding:18px 10px 14px;overflow:hidden}
+.chip{display:inline-block;font:700 12px var(--font-b);letter-spacing:.05em;background:var(--surface);color:var(--accent-deep);padding:6px 12px;border-radius:999px;margin:0 0 6px 6px;font-variant-numeric:tabular-nums}
+.sun{position:absolute;top:16px;right:18px;width:46px;height:46px;color:var(--lilac)}
+.garden{display:grid;grid-template-columns:repeat(3,1fr);gap:2px 4px;position:relative;z-index:1}
+.plot{position:relative;border:0;background:none;padding:0;cursor:pointer;aspect-ratio:100/128;min-width:0;display:block}
+.plot svg{display:block;width:100%;height:100%;overflow:visible}
+.plot:active{transform:scale(.96)}
+.plot .plus{transform-box:fill-box;transform-origin:center;animation:breathe 2.8s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.12);opacity:1}}
+.plot .sway{transform-box:view-box;transform-origin:50px 126px;animation:sway 5s ease-in-out infinite}
+.plot:nth-child(2n) .sway{animation-delay:-1.7s}.plot:nth-child(3n) .sway{animation-delay:-3.1s}
+@keyframes sway{0%,100%{transform:rotate(-1.6deg)}50%{transform:rotate(1.6deg)}}
+.plot.grow .stem{transform-box:view-box;transform-origin:50px 126px;animation:stem 1s cubic-bezier(.3,.8,.3,1) both}
+.plot.grow .hd{transform-box:view-box;transform-origin:50px 52px;animation:bloom .9s 0.9s cubic-bezier(.3,1.5,.4,1) both}
+@keyframes stem{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes bloom{from{transform:scale(0) rotate(-40deg)}to{transform:scale(1) rotate(0)}}
+.plot.wiggle .sway{animation:wig .6s ease}
+@keyframes wig{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
+
+/* бабочки */
+.bf{position:absolute;z-index:2;width:30px;height:26px;color:var(--accent-deep);pointer-events:none;opacity:0}
+.scene.done .bf{opacity:1;animation:drift 11s ease-in-out infinite}
+.bf svg{width:100%;height:100%;display:block;animation:flap .5s ease-in-out infinite alternate;transform-origin:center}
+@keyframes flap{from{transform:scaleX(1)}to{transform:scaleX(.35)}}
+@keyframes drift{
+  0%{transform:translate(0,0)}
+  25%{transform:translate(70px,-60px)}
+  50%{transform:translate(150px,10px)}
+  75%{transform:translate(60px,70px)}
+  100%{transform:translate(0,0)}
+}
+
+/* шёпот */
+.whisper{margin-top:14px;background:var(--surface);border:1.5px solid var(--line);border-radius:22px;padding:18px 20px;min-height:116px;position:relative}
+.whisper .lbl{font:700 12px var(--font-b);letter-spacing:.1em;color:var(--accent-deep);margin-bottom:6px}
+.whisper p{font-size:19px;line-height:1.5}
+.whisper .tag{position:absolute;top:16px;right:16px;font:400 22px/1 var(--font-s);color:var(--accent)}
+.whisper.pop p{animation:rise .5s ease both}
+
+.finale{margin-top:14px;background:var(--accent);color:var(--on-accent);border-radius:22px;padding:22px 20px;text-align:center;animation:rise .6s ease both}
+.finale .big{font:700 20px/1.3 var(--font-d);margin-bottom:8px;text-wrap:balance}
+.finale p{font-size:17px}
+.finale .sign{display:block;font:400 26px/1 var(--font-s);margin-top:10px}
+
+.tools{display:flex;justify-content:center;margin-top:22px}
+.btn{border:0;background:var(--accent);color:var(--on-accent);font:700 16px var(--font-b);min-height:52px;padding:0 28px;border-radius:999px;cursor:pointer;transition:transform .15s}
+.btn:active{transform:scale(.96)}
+.btn.soft{background:var(--lilac-soft);color:var(--accent-deep)}
+.foot{text-align:center;color:var(--ink-soft);font-size:14px;margin-top:26px}
+.foot svg{width:16px;height:14px;color:var(--accent);vertical-align:-1px}
+
+/* выбор семечка */
+.sheet{position:fixed;inset:0;z-index:40;visibility:hidden;transition:visibility 0s .4s}
+.sheet.open{visibility:visible;transition:none}
+.scrim{position:absolute;inset:0;background:rgba(32,20,60,.6);opacity:0;transition:opacity .35s}
+.sheet.open .scrim{opacity:1}
+.panel{position:absolute;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;max-height:88vh;max-height:88dvh;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:var(--bg);border-radius:28px 28px 0 0;
+  padding:12px max(18px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));
+  transform:translateY(105%);transition:transform .45s cubic-bezier(.2,.8,.2,1);display:grid;gap:14px}
+.sheet.open .panel{transform:none}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--lilac);justify-self:center}
+.panel h2{font:700 21px/1.25 var(--font-d);text-align:center;text-wrap:balance}
+.panel .note{text-align:center;color:var(--ink-soft);font-size:15px;margin-top:-6px}
+.seeds{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px}
+.seed{border:1.5px solid var(--line);background:var(--surface);border-radius:20px;padding:10px 6px 12px;display:grid;gap:4px;justify-items:center;cursor:pointer;min-height:112px;font:700 14px var(--font-b);transition:transform .15s}
+.seed:active{transform:scale(.95)}
+.seed svg{width:64px;height:58px;display:block}
+
+.fl{position:fixed;z-index:200;pointer-events:none;width:18px;height:16px;margin:-8px 0 0 -9px;animation:fl 1.5s ease-out forwards}
+.fl svg{width:100%;height:100%}
+@keyframes fl{0%{opacity:0;transform:translate(0,0) scale(.4) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1) rotate(var(--r))}}
+
+@media (orientation:landscape) and (max-height:500px){h1{font-size:24px}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;transition-delay:0s!important}
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="heart" viewBox="0 0 24 22"><path d="M12 21C12 21 2 14.5 2 8 2 4.5 4.6 2 7.7 2c1.9 0 3.5 1 4.3 2.4C12.8 3 14.4 2 16.3 2 19.4 2 22 4.5 22 8c0 6.5-10 13-10 13z" stroke-linejoin="round"/></symbol>
+    <symbol id="star" viewBox="0 0 24 24"><path d="M12 2.5l2.8 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.4 6 20.9l1.5-6.8L2.3 9.5l6.9-.7z" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<main class="wrap">
+  <header class="head">
+    <div>
+      <p class="eyebrow" id="hello">привет, солнышко</p>
+      <h1>сад для моей любимой</h1>
+      <p class="sub">я приготовил для тебя двенадцать грядок. посади на каждой цветочек, принцесса, и он расскажет, что я о тебе думаю.</p>
+    </div>
+    <svg class="deco" viewBox="0 0 64 64" aria-hidden="true">
+      <path d="M32 58V30" stroke="var(--leaf)" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M32 46c-8 0-12-4-13-10 8 0 12 4 13 10z" fill="var(--leaf)"/>
+      <use href="#heart" x="18" y="6" width="28" height="26" fill="currentColor"/>
+      <use href="#star" x="46" y="12" width="12" height="12" fill="var(--lilac)"/>
+    </svg>
+  </header>
+
+  <section class="scene" id="scene" aria-label="сад">
+    <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><use href="#star" fill="currentColor"/></svg>
+    <div class="chip" id="chip">расцвело 0 из 12</div>
+    <div class="garden" id="garden"></div>
+    <span class="bf" style="left:8%;top:26%;animation-delay:0s"><svg viewBox="0 0 24 20"><use href="#bfly" fill="currentColor"/></svg></span>
+    <span class="bf" style="left:52%;top:12%;animation-delay:-3s"><svg viewBox="0 0 24 20"><use href="#bfly" fill="currentColor"/></svg></span>
+    <span class="bf" style="left:20%;top:62%;animation-delay:-6s"><svg viewBox="0 0 24 20"><use href="#bfly" fill="currentColor"/></svg></span>
+    <span class="bf" style="left:66%;top:54%;animation-delay:-8.5s"><svg viewBox="0 0 24 20"><use href="#bfly" fill="currentColor"/></svg></span>
+  </section>
+
+  <div class="whisper" id="whisper" aria-live="polite">
+    <div class="lbl" id="wLbl">подсказка</div>
+    <p id="wText">коснись пустой грядки, любимая, и выбери семечко.</p>
+    <span class="tag" id="wTag"></span>
+  </div>
+
+  <div class="finale" id="finale" hidden>
+    <div class="big">твой сад расцвёл, моя королева</div>
+    <p>двенадцать цветов, и каждый о тебе. но настоящий сад у нас с тобой впереди, и я буду поливать его всю жизнь.</p>
+    <span class="sign">люблю тебя, солнышко</span>
+  </div>
+
+  <div class="tools"><button class="btn soft" id="reset" type="button" hidden>посадить всё заново</button></div>
+  <p class="foot">выращено с любовью для той, кто лучше всех <svg viewBox="0 0 24 22" aria-hidden="true"><use href="#heart" fill="currentColor"/></svg></p>
+</main>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="bfly" viewBox="0 0 24 20"><path d="M12 10C8 1 1 2 2 8s6 7 10 2z"/><path d="M12 10c4-9 11-8 10-2s-6 7-10 2z"/><path d="M12 10C7 11 4 17 8 18.5s4-4 4-8.5z"/><path d="M12 10c5 1 8 7 4 8.5s-4-4-4-8.5z"/></symbol>
+  </defs>
+</svg>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" aria-hidden="true">
+  <div class="scrim" id="scrim"></div>
+  <div class="panel">
+    <div class="grab"></div>
+    <h2 id="sheetTitle">какой цветочек посадим, принцесса?</h2>
+    <p class="note">выбирай тот, что нравится сердцу</p>
+    <div class="seeds" id="seeds"></div>
+    <button class="btn soft" id="cancel" type="button">передумала</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)};
+  var store={
+    get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},
+    set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+  };
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var HEART='<svg viewBox="0 0 24 22" aria-hidden="true"><use href="#heart" fill="currentColor"/></svg>';
+
+  function burst(x,y,n){
+    if(reduce)return;
+    n=n||7;
+    for(var i=0;i<n;i++){
+      var s=document.createElement('span');
+      s.className='fl';
+      s.style.left=x+'px';s.style.top=y+'px';
+      s.style.color=i%2?'var(--accent)':'var(--lilac)';
+      s.style.setProperty('--dx',(Math.random()*130-65)+'px');
+      s.style.setProperty('--dy',(-(70+Math.random()*100))+'px');
+      s.style.setProperty('--r',(Math.random()*60-30)+'deg');
+      s.style.animationDelay=(Math.random()*.15)+'s';
+      s.innerHTML=HEART;
+      document.body.appendChild(s);
+      s.addEventListener('animationend',function(e){e.currentTarget.remove()});
+    }
+  }
+  function burstFrom(el,n){var r=el.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,n)}
+
+  var h=new Date().getHours();
+  var part=h>=5&&h<12?'доброе утро':h>=12&&h<18?'добрый день':h>=18&&h<23?'добрый вечер':'доброй ночи';
+  var endear=['солнышко','принцесса','королева','любимая','моя радость'];
+  $('#hello').textContent=part+', '+endear[Math.floor(Math.random()*endear.length)];
+
+  /* цветы: голова нарисована вокруг (50,48) */
+  var TYPES=[
+    {id:'tulip',name:'тюльпан'},
+    {id:'daisy',name:'ромашка'},
+    {id:'lav',name:'лаванда'},
+    {id:'iris',name:'ирис'},
+    {id:'love',name:'сердечко'}
+  ];
+  function head(t){
+    var s='',k;
+    if(t==='tulip'){
+      s+='<path d="M29 38C29 62 41 74 50 74 59 74 71 62 71 38L61 28 50 41 39 28Z" fill="var(--accent)"/>';
+      s+='<path d="M39 28L50 41 61 28C58 52 54 66 50 74 46 66 42 52 39 28Z" fill="var(--accent-deep)"/>';
+    }else if(t==='daisy'){
+      for(k=0;k<12;k++)s+='<ellipse cx="50" cy="28" rx="6" ry="14" transform="rotate('+(k*30)+' 50 48)" fill="var(--white)" stroke="var(--lilac)" stroke-width="1.5"/>';
+      s+='<circle cx="50" cy="48" r="10" fill="var(--accent-deep)"/><circle cx="50" cy="48" r="4" fill="var(--lilac)"/>';
+    }else if(t==='lav'){
+      for(k=0;k<6;k++){
+        var y=22+k*9;
+        s+='<ellipse cx="43" cy="'+y+'" rx="6" ry="3.8" transform="rotate(-32 43 '+y+')" fill="'+(k%2?'var(--accent-deep)':'var(--accent)')+'"/>';
+        s+='<ellipse cx="57" cy="'+y+'" rx="6" ry="3.8" transform="rotate(32 57 '+y+')" fill="'+(k%2?'var(--accent)':'var(--accent-deep)')+'"/>';
+      }
+      s+='<ellipse cx="50" cy="12" rx="3.6" ry="6" fill="var(--accent)"/>';
+    }else if(t==='iris'){
+      s+='<ellipse cx="50" cy="34" rx="11" ry="22" fill="var(--accent-deep)"/>';
+      s+='<ellipse cx="50" cy="40" rx="10" ry="21" transform="rotate(-48 50 52)" fill="var(--accent)"/>';
+      s+='<ellipse cx="50" cy="40" rx="10" ry="21" transform="rotate(48 50 52)" fill="var(--accent)"/>';
+      s+='<ellipse cx="50" cy="66" rx="9" ry="14" transform="rotate(-40 50 52)" fill="var(--lilac)" stroke="var(--accent)" stroke-width="1.5"/>';
+      s+='<ellipse cx="50" cy="66" rx="9" ry="14" transform="rotate(40 50 52)" fill="var(--lilac)" stroke="var(--accent)" stroke-width="1.5"/>';
+      s+='<circle cx="50" cy="50" r="4.5" fill="var(--white)"/>';
+    }else{
+      for(k=0;k<5;k++)s+='<g transform="rotate('+(k*72)+' 50 48)"><use href="#heart" x="34" y="12" width="32" height="30" fill="'+(k%2?'var(--accent-deep)':'var(--accent)')+'"/></g>';
+      s+='<circle cx="50" cy="48" r="7" fill="var(--white)"/>';
+    }
+    return s;
+  }
+  function flower(t){
+    return '<g class="sway"><g class="stem"><path d="M50 126C50 100 50 80 50 60" stroke="var(--leaf)" stroke-width="4" fill="none" stroke-linecap="round"/>'+
+      '<path d="M50 102C38 100 30 92 28 82 40 82 48 90 50 102Z" fill="var(--leaf)"/>'+
+      '<path d="M50 90C62 88 70 80 72 70 60 70 52 78 50 90Z" fill="var(--leaf)"/></g>'+
+      '<g class="hd">'+head(t)+'</g></g>';
+  }
+
+  var MSG=[
+    'ты моё солнышко даже в самый пасмурный день, любимая.',
+    'у тебя самая красивая улыбка на свете, принцесса.',
+    'рядом с тобой мне всегда тепло, даже в мороз, моя радость.',
+    'твой смех лучше любой музыки. я бы слушал его вечно.',
+    'ты умеешь делать обычные дни особенными, просто оставаясь собой.',
+    'я счастлив, что именно ты моя девочка, моя королева.',
+    'твои глаза такие тёплые, что в них можно спрятаться от всего мира.',
+    'я люблю, как ты заботишься о тех, кто тебе дорог, солнышко.',
+    'ты не просто красивая, ты красивая внутри, и это ценнее всего.',
+    'с тобой я хочу всего подряд: и скучных вечеров, и приключений.',
+    'ты у меня самая смелая и самая нежная одновременно, принцесса.',
+    'я люблю тебя больше, чем умею сказать. поэтому и придумал этот сад.'
+  ];
+
+  var state=store.get('sad-state');
+  if(!Array.isArray(state)||state.length!==12)state=[];
+  for(var q=0;q<12;q++)if(state[q]===undefined)state[q]=null;
+
+  var garden=$('#garden'),plots=[],pending=null,lastFocus=null;
+  function plotHtml(i){
+    var t=state[i];
+    return '<svg viewBox="0 0 100 128" aria-hidden="true"><ellipse cx="50" cy="123" rx="34" ry="8" fill="var(--soil)"/>'+
+      (t?flower(t):'<g class="plus"><circle cx="50" cy="104" r="12" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="4 5"/><path d="M50 98v12M44 104h12" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/></g>')+'</svg>';
+  }
+  function label(i){
+    var t=state[i];
+    var nm=t?TYPES.filter(function(x){return x.id===t})[0].name:null;
+    return nm?'грядка '+(i+1)+': '+nm+', коснись, чтобы услышать':'грядка '+(i+1)+': пусто, коснись, чтобы посадить';
+  }
+  for(var i=0;i<12;i++){
+    (function(i){
+      var b=document.createElement('button');
+      b.type='button';b.className='plot';
+      b.innerHTML=plotHtml(i);
+      b.setAttribute('aria-label',label(i));
+      b.addEventListener('click',function(){onPlot(i)});
+      garden.appendChild(b);plots.push(b);
+    })(i);
+  }
+
+  function count(){return state.filter(Boolean).length}
+  function sync(){
+    var n=count();
+    $('#chip').textContent='расцвело '+n+' из 12';
+    $('#scene').classList.toggle('done',n===12);
+    $('#finale').hidden=n!==12;
+    $('#reset').hidden=n===0;
+  }
+  function whisper(i,lbl){
+    var w=$('#whisper');
+    $('#wLbl').textContent=lbl||'цветочек шепчет';
+    $('#wText').textContent=MSG[i];
+    $('#wTag').textContent='№ '+(i+1);
+    w.classList.remove('pop');void w.offsetWidth;w.classList.add('pop');
+  }
+
+  function onPlot(i){
+    if(!state[i]){openSheet(i);return}
+    var b=plots[i];
+    b.classList.remove('wiggle');void b.offsetWidth;b.classList.add('wiggle');
+    burstFrom(b,5);
+    whisper(i);
+  }
+
+  /* выбор семечка */
+  var sheet=$('#sheet'),seeds=$('#seeds');
+  TYPES.forEach(function(t){
+    var b=document.createElement('button');
+    b.type='button';b.className='seed';
+    b.innerHTML='<svg viewBox="12 6 76 72" aria-hidden="true">'+head(t.id)+'</svg><span>'+t.name+'</span>';
+    b.addEventListener('click',function(){plant(t.id)});
+    seeds.appendChild(b);
+  });
+  function openSheet(i){
+    pending=i;lastFocus=document.activeElement;
+    sheet.classList.add('open');sheet.setAttribute('aria-hidden','false');
+    document.body.classList.add('sheet-open');
+    setTimeout(function(){var f=$('.seed',seeds);if(f)f.focus({preventScroll:true})},60);
+  }
+  function closeSheet(){
+    sheet.classList.remove('open');sheet.setAttribute('aria-hidden','true');
+    document.body.classList.remove('sheet-open');
+    if(lastFocus&&lastFocus.focus)lastFocus.focus({preventScroll:true});
+  }
+  $('#cancel').addEventListener('click',closeSheet);
+  $('#scrim').addEventListener('click',closeSheet);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sheet.classList.contains('open'))closeSheet()});
+
+  function plant(type){
+    var i=pending;if(i===null)return;
+    pending=null;
+    state[i]=type;store.set('sad-state',state);
+    closeSheet();
+    var b=plots[i];
+    b.innerHTML=plotHtml(i);
+    b.setAttribute('aria-label',label(i));
+    b.classList.add('grow');
+    var wasFull=count()===12;
+    setTimeout(function(){
+      burstFrom(b,8);
+      whisper(i,'новый цветочек шепчет');
+      sync();
+      if(count()===12&&!wasFull){
+        setTimeout(function(){
+          burstFrom($('#scene'),14);
+          $('#finale').scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});
+        },700);
+      }
+    },reduce?100:1700);
+  }
+
+  /* заново */
+  var rt=null,rb=$('#reset');
+  rb.addEventListener('click',function(){
+    if(rb.getAttribute('data-arm')!=='1'){
+      rb.setAttribute('data-arm','1');rb.textContent='точно? коснись ещё раз';
+      rt=setTimeout(function(){rb.removeAttribute('data-arm');rb.textContent='посадить всё заново'},3500);
+      return;
+    }
+    clearTimeout(rt);rb.removeAttribute('data-arm');rb.textContent='посадить всё заново';
+    state=[];for(var k=0;k<12;k++)state.push(null);
+    store.set('sad-state',state);
+    plots.forEach(function(b,k){b.classList.remove('grow');b.innerHTML=plotHtml(k);b.setAttribute('aria-label',label(k))});
+    $('#wLbl').textContent='подсказка';
+    $('#wText').textContent='грядки снова пустые, любимая. посадим новый сад?';
+    $('#wTag').textContent='';
+    sync();
+  });
+
+  sync();
+  if(count()>0)whisper(state.indexOf(state.filter(Boolean)[0]),'цветочек шепчет');
+})();
+</script>
+
+</body></html>
