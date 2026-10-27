@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>для тебя</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:wght@400;600&family=Marck+Script&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --table: #2f4b47;
+    --table-shadow: #223835;
+    --heading: #f1ece0;
+    --muted: #c5d3cc;
+    --text: #2b2733;
+    --stamp: #fbf8f1;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { background: var(--table); }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--table);
+    color: var(--heading);
+    font-family: "Literata", Georgia, "Times New Roman", serif;
+    line-height: 1.6;
+  }
+
+  .page {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: clamp(40px, 8vw, 88px) clamp(20px, 5vw, 56px) 96px;
+  }
+
+  header { margin-bottom: clamp(40px, 7vw, 72px); }
+
+  h1 {
+    margin: 0;
+    font-family: "Marck Script", "Segoe Script", cursive;
+    font-weight: 400;
+    font-size: clamp(3.6rem, 11vw, 7.5rem);
+    line-height: 1;
+    color: var(--heading);
+  }
+
+  .sub {
+    margin: 18px 0 0;
+    max-width: 36ch;
+    font-size: 1.15rem;
+    color: var(--muted);
+  }
+
+  .count {
+    margin: 10px 0 0;
+    font-size: .95rem;
+    color: var(--muted);
+  }
+
+  .table {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 36px 28px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 1fr auto;
+    column-gap: 14px;
+    height: 100%;
+    min-height: 208px;
+    padding: 20px 20px 16px;
+    background: var(--paper);
+    color: var(--text);
+    text-decoration: none;
+    border-radius: 4px;
+    box-shadow: 0 5px 0 var(--table-shadow);
+    transform: rotate(var(--tilt));
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+
+  .card:hover,
+  .card:focus-visible {
+    transform: rotate(0deg) translateY(-6px);
+    box-shadow: 0 12px 0 var(--table-shadow);
+  }
+
+  .card:focus-visible {
+    outline: 3px solid var(--heading);
+    outline-offset: 5px;
+  }
+
+  .title {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+    font-family: "Marck Script", "Segoe Script", cursive;
+    font-weight: 400;
+    font-size: 2rem;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+
+  .note {
+    grid-column: 1;
+    grid-row: 2;
+    margin: 8px 0 0;
+    font-size: .92rem;
+    line-height: 1.45;
+  }
+
+  .stamp {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    width: 56px;
+    height: 66px;
+    padding: 7px;
+    background: var(--stamp);
+    background-clip: padding-box;
+    border: 4px dotted var(--stamp);
+    color: var(--ink);
+    transform: rotate(2.5deg);
+  }
+
+  .stamp svg { display: block; width: 100%; height: 100%; }
+
+  .address {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin-top: 18px;
+    font-size: .8rem;
+    letter-spacing: .02em;
+    color: var(--ink);
+  }
+
+  .address::before {
+    content: "";
+    display: block;
+    height: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .address span {
+    display: block;
+    padding-top: 6px;
+    border-bottom: 1px solid var(--line);
+    overflow-wrap: anywhere;
+  }
+
+  .empty { color: var(--muted); font-size: 1.05rem; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .table li {
+      animation: deal .55s cubic-bezier(.2, .7, .3, 1) both;
+      animation-delay: calc(var(--i) * 55ms);
+    }
+    @keyframes deal {
+      from { opacity: 0; transform: translateY(-28px) rotate(-5deg); }
+      to   { opacity: 1; transform: none; }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card { transition: none; }
+  }
+</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <h1>для тебя</h1>
+    <p class="sub">здесь живёт всё, что я для тебя сделал</p>
+    <p class="count" id="count"></p>
+  </header>
+
+  <ul class="table" id="table"></ul>
+</main>
+
+<script>
+/*
+  как добавить новый сайт
+
+  1 положи новый html файл в ту же папку, где лежит этот файл
+  2 допиши его имя в конец списка ниже
+
+  самый простой вариант, только имя файла:
+    "newsite.html",
+
+  если хочется красивое название и подпись:
+    { file: "newsite.html", title: "наше лето", note: "про тот самый вечер" },
+
+  название и подпись можно не указывать, тогда название возьмётся из имени файла
+*/
+const sites = [
+  { file: "love.html", title: "твой первый сайтик<3", note: "19.06.2026" },
+  { file: "love2.html", title: "второй, потому что мало", note: "08.07.2026" },
+  { file: "lovee.html", title: "с лишней буквой, зато от души", note: "15.07.2026" },
+  { file: "love4.html", title: "четвёртый, и всё ещё влюблён", note: "10.09.2026" },
+  { file: "love5.html", title: "пятый, и не последний", note: "11.09.2026" },
+  { file: "bubushizm.html", title: "бубушизм, только для своих", note: "15.09.2026" },
+  { file: "nochhh.html", title: "ночь, длинная-предлинная", note: "18.09.2026" },
+  { file: "love0210.html", title: "второе октября", note: "02.10.2026" },
+  { file: "my_gf.html", title: "моя девушка, если что", note: "08.10.2026" },
+  { file: "mylove.html", title: "просто моя любовь", note: "24.10.2026" },
+  { file: "sadik.html", title: "наш с тобой садик", note: "25.10.2026" },
+];
+
+const papers = [
+  { paper: "#e9c4c0", ink: "#a8454f" },
+  { paper: "#f0da9b", ink: "#9c7414" },
+  { paper: "#c3d1b3", ink: "#4f7040" },
+  { paper: "#bfd6e3", ink: "#356a8c" },
+  { paper: "#d5c8e0", ink: "#6e528f" },
+  { paper: "#f2cdb1", ink: "#b25d2e" }
+];
+
+const shapes = [
+  '<path fill="currentColor" d="M12 21s-7.5-4.6-9.5-9.2C1.2 8.6 3.2 5 6.6 5c2 0 3.5 1.1 5.4 3.2C13.900 6.100 15.400 5 17.400 5c3.400 0 5.400 3.600 4.100 6.800C19.500 16.400 12 21 12 21z"/>',
+  '<path fill="currentColor" d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.300 6.100 20.600l1.300-6.600L2.500 9.400l6.600-.8z"/>',
+  '<path fill="currentColor" d="M20 14.500A8.500 8.500 0 0 1 9.500 4a8.500 8.500 0 1 0 10.500 10.500z"/>',
+  '<g fill="currentColor"><circle cx="12" cy="6.500" r="4"/><circle cx="17.200" cy="10.300" r="4"/><circle cx="15.200" cy="16.400" r="4"/><circle cx="8.800" cy="16.400" r="4"/><circle cx="6.800" cy="10.300" r="4"/></g><circle cx="12" cy="12" r="2.600" fill="var(--stamp)"/>',
+  '<path fill="currentColor" d="M5 19C5 10 10 4 20 4c0 10-6 15-15 15z"/><path d="M5 19l8-8" stroke="var(--stamp)" stroke-width="1.600" stroke-linecap="round" fill="none"/>',
+  '<circle cx="12" cy="12" r="4.200" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.900 4.900L7 7M17 17l2.100 2.100M4.900 19.100L7 17M17 7l2.100-2.100" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>'
+];
+
+function plural(n) {
+  const a = n % 10, b = n % 100;
+  if (a === 1 && b !== 11) return "открытка";
+  if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return "открытки";
+  return "открыток";
+}
+
+const table = document.getElementById("table");
+const count = document.getElementById("count");
+
+if (sites.length === 0) {
+  const p = document.createElement("p");
+  p.className = "empty";
+  p.textContent = "пока здесь пусто";
+  table.replaceWith(p);
+  count.textContent = "";
+} else {
+  count.textContent = "на столе: " + sites.length + " " + plural(sites.length);
+
+  sites.forEach((entry, i) => {
+    const s = typeof entry === "string" ? { file: entry } : entry;
+    const title = s.title || s.file.replace(/\.html?$/i, "").replace(/[_-]+/g, " ");
+    const color = papers[i % papers.length];
+    const shape = shapes[(i + Math.floor(i / papers.length)) % shapes.length];
+    const tilt = ((i * 7) % 9 - 4) * 0.35;
+
+    const li = document.createElement("li");
+    li.style.setProperty("--i", i);
+
+    const a = document.createElement("a");
+    a.className = "card";
+    a.href = s.file;
+    a.style.cssText =
+      "--paper:" + color.paper + ";--ink:" + color.ink +
+      ";--line:" + color.ink + "55;--tilt:" + tilt + "deg";
+
+    const h = document.createElement("h2");
+    h.className = "title";
+    h.textContent = title;
+    a.appendChild(h);
+
+    if (s.note) {
+      const n = document.createElement("p");
+      n.className = "note";
+      n.textContent = s.note;
+      a.appendChild(n);
+    }
+
+    const stamp = document.createElement("div");
+    stamp.className = "stamp";
+    stamp.setAttribute("aria-hidden", "true");
+    stamp.innerHTML = '<svg viewBox="0 0 24 24">' + shape + "</svg>";
+    a.appendChild(stamp);
+
+    const addr = document.createElement("div");
+    addr.className = "address";
+    const f = document.createElement("span");
+    f.textContent = s.file;
+    addr.appendChild(f);
+    a.appendChild(addr);
+
+    li.appendChild(a);
+    table.appendChild(li);
+  });
+}
+</script>
+</body>
+</html>
