@@ -9,22 +9,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Literata:wght@400;600&family=Marck+Script&display=swap" rel="stylesheet">
 <style>
   :root {
-    --table: #2f4b47;
-    --table-shadow: #223835;
-    --heading: #f1ece0;
-    --muted: #c5d3cc;
-    --text: #2b2733;
-    --stamp: #fbf8f1;
+    --table: #553a85;
+    --table-shadow: #3f2a66;
+    --heading: #f4eefc;
+    --muted: #d8cbee;
+    --text: #2b2438;
+    --stamp: #fbf8fd;
   }
 
   * { box-sizing: border-box; }
 
-  html { background: var(--table); }
+  html, body { background: #553a85 !important; }
 
   body {
     margin: 0;
     min-height: 100vh;
-    background: var(--table);
     color: var(--heading);
     font-family: "Literata", Georgia, "Times New Roman", serif;
     line-height: 1.6;
@@ -81,7 +80,7 @@
     color: var(--text);
     text-decoration: none;
     border-radius: 4px;
-    box-shadow: 0 5px 0 var(--table-shadow);
+    box-shadow: 0 5px 0 #3f2a66;
     transform: rotate(var(--tilt));
     transition: transform .18s ease, box-shadow .18s ease;
   }
@@ -89,7 +88,7 @@
   .card:hover,
   .card:focus-visible {
     transform: rotate(0deg) translateY(-6px);
-    box-shadow: 0 12px 0 var(--table-shadow);
+    box-shadow: 0 12px 0 #3f2a66;
   }
 
   .card:focus-visible {
@@ -155,6 +154,14 @@
   }
 
   .empty { color: var(--muted); font-size: 1.05rem; }
+
+  /* цвета открыток, перекрывают те, что приходят из js */
+  .table li:nth-child(6n+1) .card { --paper: #e4d6f2 !important; --ink: #6b3f99 !important; --line: #6b3f9955 !important; }
+  .table li:nth-child(6n+2) .card { --paper: #d2bde8 !important; --ink: #55307f !important; --line: #55307f55 !important; }
+  .table li:nth-child(6n+3) .card { --paper: #f0e4f7 !important; --ink: #7d3f91 !important; --line: #7d3f9155 !important; }
+  .table li:nth-child(6n+4) .card { --paper: #c9c3ee !important; --ink: #4a3f94 !important; --line: #4a3f9455 !important; }
+  .table li:nth-child(6n+5) .card { --paper: #dfcdea !important; --ink: #7a3e86 !important; --line: #7a3e8655 !important; }
+  .table li:nth-child(6n)   .card { --paper: #bda9e0 !important; --ink: #43286f !important; --line: #43286f55 !important; }
 
   @media (prefers-reduced-motion: no-preference) {
     .table li {
