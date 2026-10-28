@@ -1,0 +1,180 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#2b2233"><title>наше маленькое приключение</title>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--pn:#fff4e0;--ink:#4a2f3a;--ac:#e0607e;--s:320px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html,body{margin:0;height:100%;overflow:hidden;background:#2b2233;font-family:'Pixelify Sans',monospace;text-transform:lowercase;color:var(--ink);touch-action:none;overscroll-behavior:none}
+#app{position:fixed;inset:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+#wrap{display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:6px}
+#hd{display:flex;justify-content:space-between;align-items:center;color:var(--pn);font-size:15px;min-height:42px;gap:8px}
+#hd small{font-size:13px;opacity:.85}
+button{font:inherit;font-weight:600;background:var(--pn);color:var(--ink);border:3px solid var(--ink);padding:.45em .9em;border-radius:0;box-shadow:0 3px 0 var(--ink);touch-action:manipulation}
+button:active{transform:translateY(3px);box-shadow:none}
+#st{position:relative;overflow:hidden;box-shadow:0 0 0 3px #4a2f3a,0 0 0 6px #fff4e0}
+#cv{width:100%;height:100%;image-rendering:pixelated;display:block}
+#dl{position:absolute;left:3%;right:3%;bottom:3%;background:var(--pn);border:3px solid var(--ink);box-shadow:0 0 0 3px #fff4e0,0 0 0 6px var(--ink);padding:.5em .7em;display:none;font-size:max(14px,calc(var(--s)*.046));line-height:1.3}
+#dl.on,#dl.fin{display:block}
+#dl.fin{inset:0;background:var(--ac);color:var(--pn);border:0;box-shadow:none;display:flex;flex-direction:column;justify-content:center;text-align:center;font-size:max(15px,calc(var(--s)*.056));padding:1em}
+#dsp{color:var(--ac);font-weight:600;font-size:.8em}#dl.fin #dsp{display:none}
+#dtx{min-height:2.6em}
+#dl i{position:absolute;right:8px;bottom:2px;font-style:normal;color:var(--ac);animation:bl 1s steps(2) infinite}
+@keyframes bl{50%{opacity:0}}
+#tt{position:absolute;top:8px;left:50%;transform:translate(-50%,-30px);background:var(--ink);color:var(--pn);padding:.35em .8em;font-size:13px;opacity:0;transition:.25s;white-space:nowrap;max-width:96%;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+#tt.on{opacity:1;transform:translate(-50%,0)}
+#joy{position:absolute;left:calc(env(safe-area-inset-left) + 22px);bottom:calc(env(safe-area-inset-bottom) + 34px);width:132px;height:132px;border-radius:50%;background:rgba(255,244,224,.13);border:3px solid rgba(255,244,224,.4);touch-action:none}
+#kn{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px;border-radius:50%;background:rgba(255,244,224,.75);border:3px solid #4a2f3a}
+#ab{position:absolute;right:calc(env(safe-area-inset-right) + 24px);bottom:calc(env(safe-area-inset-bottom) + 50px);width:84px;height:84px;border-radius:50%;background:var(--ac);color:#fff4e0;font-size:22px;touch-action:none}
+#ab.on{animation:pu .8s infinite}
+@keyframes pu{50%{box-shadow:0 3px 0 var(--ink),0 0 0 8px rgba(255,244,224,.35)}}
+#mn,#ti{position:fixed;inset:0;background:rgba(43,34,51,.97);color:var(--pn);overflow:auto;padding:calc(env(safe-area-inset-top) + 18px) 20px calc(env(safe-area-inset-bottom) + 24px);z-index:9;touch-action:pan-y;font-size:16px}
+#ti{z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;touch-action:none;background:rgba(43,34,51,.8)}
+#ti h1{font-size:30px;margin:0;line-height:1.1}#ti p{margin:0}
+#mn h2,#mn h3{margin:.6em 0 .3em}#mn h3{font-size:15px;color:#ffb3c6}
+#mn ul{padding-left:1.2em;margin:0}#mn li{opacity:.55}#mn li.y{opacity:1;color:#ffe27a}
+.gal{display:flex;flex-wrap:wrap;gap:8px}.row{display:flex;gap:10px;margin-top:18px}
+.off{display:none!important}
+</style></head><body>
+<div id="app"><div id="wrap"><div id="hd"><div><b id="hh"></b><br><small id="qq"></small></div><button id="mb">меню</button></div>
+<div id="st"><canvas id="cv" width="160" height="160"></canvas><div id="dl"><div id="dsp"></div><div id="dtx"></div><i>▼</i></div><div id="tt"></div></div></div>
+<div id="joy"><div id="kn"></div></div><button id="ab">ок</button>
+<div id="mn" class="off"></div><div id="ti"></div></div>
+<script>
+// === здесь можно заменить имена, воспоминания и признание ===
+const C={her:'солнышко',me:'твой любимый',
+mem:['наша первая встреча произошла достаточно внезапно, мы просто пошли вместе купить тебе пивка, но тогда я понял, что ты просто чудо<3','нашим первым свиданием можно назвать уже следующий день - когда мы просто беззаботно гуляли, веселились и я в этот момент светился от счастья','наш любимый балкончик, там произошло буквально всё, все наши признания, откровения, он по факту родил нас как пару)','а помнишь как мы впервые присели в беседки смотреть тикток в обнимочку?) это было очень-очень мило))','я тебя безумно боюсь потерять, я без тебя не смогу жить, прости меня за все мои проступки, я правда не хочу делать больно, я тебя очень очень сильно люблю солнышко<3'],
+love:['зайка','я долго думал, как рассказать тебе обо всём, что у меня на сердце','ты моя самая тёплая поляна, моя самая яркая звезда','лучик света появившийся в моей жизни, который я никогда не отпущу','я очень сильно люблю тебя','навсегда твой котенок']};
+const $=i=>document.getElementById(i),cv=$('cv'),g=cv.getContext('2d'),R=(c,x,y,w,h)=>{g.fillStyle=c;g.fillRect(x|0,y|0,w,h)};
+const hs=(x,y)=>((x*73856093^y*19349663)>>>0)%97,TH=17,KS='pxlove1';
+const P=(p,x,y,c)=>p.forEach((r,j)=>[...r].forEach((ch,i)=>ch!=' '&&R(c[ch]||c['#'],x+i,y+j,1,1)));
+const HT=[' #o ## ','#######','#######',' ##### ','  ###  ','   #   '],SR=['   #   ','   #   ','#######',' ##### ','  ###  ',' ## ## ','##   ##'];
+const F=()=>({m:0,x:56,y:136,d:0,got:{},fl:{},ach:{},h:0});
+let S,sv0=0;try{S=JSON.parse(localStorage.getItem(KS));sv0=!!(S&&S.got)}catch(e){}if(!sv0)S=F();
+const n=a=>a.filter(i=>S.got[i]).length,has=k=>S.got[k]||S.fl[k];
+function sv(){hud();try{localStorage.setItem(KS,JSON.stringify(S))}catch(e){}}
+// тосты
+let tq=[],tb=0;const T=$('tt');
+function toast(s){tq.push(s);if(!tb)nt()}
+function nt(){const s=tq.shift();if(!s){tb=0;return}tb=1;T.textContent=s;T.classList.add('on');setTimeout(()=>{T.classList.remove('on');setTimeout(nt,250)},1600)}
+// диалоги
+let D=null;const dl=$('dl'),dsp=$('dsp'),dtx=$('dtx');
+function say(a,cb,fin){D={a,i:0,c:0,cb};dl.className=fin?'fin':'on';sh()}
+function sh(){const s=D.a[D.i],k=s.indexOf('|');D.t=k>0?s.slice(k+1):s;D.c=0;dsp.textContent=k>0?s.slice(0,k):'';dtx.textContent=''}
+function adv(){if(!D)return;if(D.c<D.t.length){D.c=D.t.length;dtx.textContent=D.t;return}if(++D.i>=D.a.length){dl.className='';const c=D.cb;D=null;sv();c&&c();return}sh()}
+// предметы и объекты
+const it=(x,y,k,id,nm,l)=>({x,y,k,id,rm:1,on(){S.got[id]=1;toast(nm+' '+n(l)+'/'+l.length);ck();sv()}});
+const H=(m,a)=>a.map(([x,y],i)=>({x,y,k:'h',id:'h'+m+i,rm:1}));
+const mm=(x,y,i)=>({x,y,k:'m',id:'m'+i,on(){const f=!S.got['m'+i];S.got['m'+i]=1;say(['воспоминание '+i+' из 5',C.mem[i-1]],()=>{if(f){if(i<4&&n(['m1','m2','m3'])==3&&!S.fl.g2){S.fl.g2=1;toast('калитка в лесу открылась')}if(i==4){S.fl.g3=1;toast('ворота к озеру открылись')}ck();sv()}})}});
+const npc=(x,y,k,pc,f)=>({x,y,k,pc,s:1,on:f});
+const IN=['##########','#::::::::#','#::::::::#','#::::::::#','#::::::::#','#::::::::#','#::::::::#','#::::::::#','#::::::::#','####::####'];
+const M=[
+{n:'поляна цветов',t:'#fff3df',p:'p',gf:'g1',g:['TTTTTTTTTTTTTTTT','T..,..,...,..,.T','T,.....F..,.,..T','T..W...F.....,.T','T.WWW..,..,...TT','T..W...pppppppGp','T,.....p..,....T','T..,..,p..,..,.T','T.....,p.......T','T,..,...,..,,..T','T..,...,..,..,.T','TTTTTTTTTTTTTTTT'],
+ex:[{x:15,y:5,to:1,tx:1,ty:5}],o:[it(2,1,'f','f1','цветок',['f1','f2','f3']),it(13,2,'f','f2','цветок',['f1','f2','f3']),it(4,9,'f','f3','цветок',['f1','f2','f3']),...H(0,[[5,2],[12,7],[10,10]]),
+npc(9,4,'n',['#7a4a2a','#6fae6a','#f2e27a'],()=>{const c=n(['f1','f2','f3']);if(S.fl.g1)say(['садовница|в лесу тебя ждут камни воспоминаний','садовница|а ещё говорят, у старого пня есть секрет']);else if(c<3)say(['садовница|ой, привет! мои три волшебных цветка разлетелись по поляне','садовница|найди их и принеси мне — тогда я открою калитку в лес воспоминаний']);else say(['садовница|ты нашла все три! они прекрасны, совсем как ты','садовница|калитка в лес открыта — иди смело'],()=>{S.fl.g1=1;toast('калитка открылась');ck();sv()})}),
+npc(6,5,'sg',0,()=>say(['табличка|добро пожаловать, '+C.her,'табличка|это маленький мир, сделанный с любовью специально для тебя']))]},
+{n:'лес воспоминаний',t:'#8aa595',p:'f',d:1,gf:'g2',g:['TTTTTTTTTTTTTTTT','T..T,...T,..T..T','T,.....T....,..T','TT..,T....T..,.T','T..,...,......TT','ppppppppppppppGp','T,..T....,..T..T','T..,..T...,...,T','TT...,..T..,...T','T,..T..,....T..T','T,TT..,...,.T,.T','TTTTTTTTTTTTTTTT'],
+ex:[{x:0,y:5,to:0,tx:13,ty:5},{x:15,y:5,to:2,tx:1,ty:5},{x:1,y:10,to:6,tx:4,ty:8}],o:[mm(2,3,1),mm(9,2,2),mm(10,8,3),...H(1,[[5,7],[11,4],[13,9]]),
+{x:7,y:4,k:'sp',on:()=>say(['светлячок|тсс~ здесь хранятся самые тёплые моменты','светлячок|коснись трёх камней — они вспомнят всё за нас'])}]},
+{n:'уютный город',t:'#ffd9b8',p:'p',gf:'g3',g:['TTTTTTTTTTTTTTTT','T.####..,..###.T','T.####.....###.T','T..p,..,..,.p..T','T..p........p..T','ppppppppppppppGp','T..F..,..F..,..T','T.,..WW.....,.,T','T....WW..,.....T','T,..,.....,..,.T','T..,..,.T...,..T','TTTTTTTTTTTTTTTT'],
+ex:[{x:0,y:5,to:1,tx:13,ty:5},{x:15,y:5,to:4,tx:1,ty:5},{x:3,y:3,to:3,tx:4,ty:8,need:'key'}],o:[it(9,10,'k','key','ключ от кафе',['key']),...H(2,[[11,4],[9,7],[2,9]]),
+npc(5,4,'n',['#fff4e0','#d9b07a','#fff'],()=>{if(!S.got.key)say(['пекарь|ох, я потерял ключ от кафе где-то в городе','пекарь|найдёшь — внутри тебя ждёт сюрприз']);else if(!S.fl.g3)say(['пекарь|нашла ключ? отлично! кафе под красной крышей']);else say(['пекарь|надеюсь, тебе понравилось в кафе','пekарь|дорога к озеру теперь открыта'.replace('e','е')])})]},
+{n:'кафе',i:1,t:'#ffd8a8',p:'f',g:IN,ex:[{x:4,y:9,to:2,tx:3,ty:4},{x:5,y:9,to:2,tx:3,ty:4}],o:[mm(4,3,4),{x:3,y:6,k:'tb',s:1},{x:6,y:6,k:'tb',s:1},...H(3,[[1,1],[8,1]])]},
+{n:'звёздное озеро',t:'#6470b0',p:'f',n:1,d:1,g:['TTTTTTTTTTTTTTTT','T..,..,.TWWWWWWW','T,.....,.WWWWWWW','T..,..T..WWWWWWW','T.....,..WWWWWWW','pppppppppBBBBBBp','T.,....,.WWWWWWW','T..,..,..WWWWWWW','T,.......WWWWWWW','T..,..,..WWWWWWW','T.,.....,WWWWWWW','TTTTTTTTTTTTTTTT'],
+ex:[{x:0,y:5,to:2,tx:13,ty:5},{x:15,y:5,to:5,tx:1,ty:5}],o:[it(2,2,'s','s1','осколок звезды',['s1','s2','s3']),it(5,8,'s','s2','осколок звезды',['s1','s2','s3']),it(3,10,'s','s3','осколок звезды',['s1','s2','s3']),...H(4,[[7,1],[1,6],[8,9]]),
+npc(7,4,'al',0,()=>{const c=n(['s1','s2','s3']);if(S.fl.br)say(['алтарь|иди по мосту, тебя уже ждут']);else if(c<3)say(['алтарь|три звёздных осколка упали на берег','алтарь|собери их и вернись сюда']);else say(['алтарь|звёзды вернулись на небо','алтарь|через озеро появился мост'],()=>{S.fl.br=1;toast('появился звёздный мост');ck();sv()})})]},
+{n:'холм признаний',t:'#ffc8d8',p:'p',g:['TTTTTTTTTTTTTTTT','T,.,..,.,..,.,.T','T..,..,..,..,..T','T,..,..,..,..,.T','T..,..,..,..,..T','ppppppppppppp..T','T,..,..,..,..,.T','T..,..,..,..,..T','T,..,..,..,..,.T','T..,..,..,..,..T','T,.,..,.,..,.,.T','TTTTTTTTTTTTTTTT'],
+ex:[{x:0,y:5,to:4,tx:14,ty:5}],o:[{x:12,y:5,k:'ls',on(){say(C.love,()=>{S.fl.end=1;ck();sv();toast('конец~ но это только начало')},1)}}]},
+{n:'тайная комната',i:1,t:'#a890d0',p:'f',g:IN,ex:[{x:4,y:9,to:1,tx:1,ty:9},{x:5,y:9,to:1,tx:1,ty:9}],o:[mm(4,3,5),npc(6,5,'ct',0,()=>say(['кот|мяу~ ты нашла тайную комнату','кот|здесь хранится самое личное воспоминание'])),...H(6,[[1,1],[8,1],[8,8]])]}];
+const A=[['a1','первое сердечко',()=>S.h>=1],['a2','десять сердечек',()=>S.h>=10],['a3','все сердечки',()=>S.h>=TH],['a4','подруга садовницы',()=>S.fl.g1],['a5','хранительница воспоминаний',()=>n(['m1','m2','m3','m4','m5'])>=5],['a6','тайная комната',()=>S.fl.sec],['a7','звёздный мост',()=>S.fl.br],['a8','признание услышано',()=>S.fl.end]];
+function ck(){for(const a of A)if(!S.ach[a[0]]&&a[2]()){S.ach[a[0]]=1;toast('достижение: '+a[1])}}
+function quest(){const f=S.fl;return f.end?(S.h<TH?'собери все сердечки: '+S.h+' из '+TH:'ты прошла всю игру, я люблю тебя'):!f.g1?'цветы для садовницы: '+n(['f1','f2','f3'])+'/3':!f.g2?'камни воспоминаний: '+n(['m1','m2','m3'])+'/3':!S.got.key?'найди потерянный ключ в городе':!f.g3?'открой кафе ключом':!f.br?'осколки звёзд: '+n(['s1','s2','s3'])+'/3':'найди письмо на холме'}
+function hud(){$('hh').textContent='сердечки '+S.h+' из '+TH;$('qq').textContent=quest()}
+// движение
+const sol=(x,y)=>{const mp=M[S.m],c=(mp.g[y]||'')[x];if(!c||'TWF#'.includes(c))return 1;if(c=='G'&&!S.fl[mp.gf])return 1;if(c=='B'&&!S.fl.br)return 1;return mp.o.some(o=>o.s&&o.x==x&&o.y==y)};
+const hit=(x,y)=>[[-5,-2],[5,-2],[-5,4],[5,4]].some(([a,b])=>sol(Math.floor((x+a)/16),Math.floor((y+b)/16)));
+const near=()=>{let b=null,bd=24;for(const o of M[S.m].o){if(!o.on||(o.rm&&S.got[o.id]))continue;const d=Math.hypot(o.x*16+8-S.x,o.y*16+8-S.y);if(d<bd){bd=d;b=o}}return b};
+let go0=0,mo=0,fd=0,mv=0,lx,lsv=0,jv={x:0,y:0};const K={};
+function go(e){if(e.need&&!has(e.need)){toast('заперто~ нужен ключ');return}S.m=e.to;S.x=e.tx*16+8;S.y=e.ty*16+8;if(e.to==6&&!S.fl.sec){S.fl.sec=1;ck()}fd=1;toast(M[S.m].n);sv()}
+function upd(dt,t){
+ if(D&&D.c<D.t.length){D.c+=dt*45;dtx.textContent=D.t.slice(0,D.c|0)}
+ $('ab').classList.toggle('on',!!(go0&&!D&&!mo&&near()));
+ if(!go0||D||mo){mv=0;return}
+ let vx=jv.x+(K.arrowright||K.d?1:0)-(K.arrowleft||K.a?1:0),vy=jv.y+(K.arrowdown||K.s?1:0)-(K.arrowup||K.w?1:0);const m=Math.hypot(vx,vy);mv=m>.2;
+ if(mv){if(m>1){vx/=m;vy/=m}S.d=Math.abs(vx)>Math.abs(vy)?(vx>0?3:2):(vy>0?0:1);const v=58*dt,nx=S.x+vx*v,ny=S.y+vy*v;if(!hit(nx,S.y))S.x=nx;if(!hit(S.x,ny))S.y=ny}
+ const mp=M[S.m];
+ for(const o of mp.o)if(o.k=='h'&&!S.got[o.id]&&Math.hypot(o.x*16+8-S.x,o.y*16+8-S.y)<11){S.got[o.id]=1;S.h++;toast('сердечко '+S.h+' из '+TH);ck();sv()}
+ const e=mp.ex.find(e=>e.x==S.x>>4&&e.y==S.y>>4);if(e!==lx){lx=e;if(e)go(e)}
+ if(t-lsv>4000){lsv=t;sv()}}
+// рисование
+const PA=Array.from({length:22},()=>({x:Math.random()*160,y:Math.random()*160,s:Math.random()}));
+let cx=0,cy=0;
+function pr(x,y,hr,dr,d,f,hat){x|=0;y|=0;R('rgba(0,0,0,.25)',x+3,y+13,10,3);R('#4a3a4a',x+5,y+11,2,3-f);R('#4a3a4a',x+9,y+11,2,2+f);R(dr,x+4,y+7,8,4);R(dr,x+3,y+10,10,2);R('#f6d2b5',x+2,y+8,2,3);R('#f6d2b5',x+12,y+8,2,3);R('#f6d2b5',x+4,y+2,8,6);R(hr,x+3,y,10,3);
+ if(d==1)R(hr,x+3,y,10,8);else{R(hr,x+3,y+1,2,6);R(hr,x+11,y+1,2,6)}
+ const ey=d==0?[6,9]:d==2?[5]:d==3?[10]:[];ey.forEach(i=>R('#3a2a3a',x+i,y+4,1,2));if(d==0){R('#ffb3c1',x+5,y+6,2,1);R('#ffb3c1',x+9,y+6,2,1)}if(hat)R(hat,x+2,y-1,12,2)}
+function tl(c,X,Y,tx,ty,t,mp){const r=hs(tx,ty);
+ if(c==':'){R('#d9a679',X,Y,16,16);R('#c48d5f',X,Y+((tx+ty)%2?7:3),16,1);R('#c48d5f',X+r%12+2,Y,1,16);return}
+ if(c=='#'){if(mp.i){R('#9b6b57',X,Y,16,16);R('#b5826a',X,Y,16,4);R('#7e5442',X,Y+13,16,3);return}
+  if(mp.g[ty-1]?.[tx]!='#'){R('#c4566a',X,Y,16,16);R('#d96f82',X,Y+2,16,2);R('#a9475a',X,Y+11,16,5)}else{R('#f2d6b8',X,Y,16,16);R('#e0bf9d',X,Y+13,16,3);if(tx%2==0){R('#8fc5e8',X+3,Y+3,10,8);R('#fff',X+3,Y+3,10,1);R('#b88a5a',X+7,Y+3,2,8)}}return}
+ if(c=='W'||c=='B'){R('#4f9fd6',X,Y,16,16);R('#7cc4ee',X+((t/220|0)+r)%12,Y+4+r%8,4,1);R('#3f8cc4',X+r%9,Y+12,5,1);if(mp.n&&((t/280|0)+r)%11==0)R('#fff',X+r%14,Y+r%12,1,1);
+  if(c=='B'){if(S.fl.br){R('#c9965f',X,Y+2,16,12);R('#a9743f',X,Y+7,16,1);R('#a9743f',X+(tx%2?4:10),Y+2,1,12)}else{g.globalAlpha=.2+.1*Math.sin(t/300);R('#fff',X,Y+3,16,10);g.globalAlpha=1}}return}
+ if(c=='p'||c=='G'){R('#e8cf9d',X,Y,16,16);R('#d9bb84',X+r%12,Y+(r>>2)%12,2,1);
+  if(c=='G'&&!S.fl[mp.gf]){R('#b88a5a',X+1,Y+1,2,14);R('#b88a5a',X+13,Y+1,2,14);R('#d9b07a',X,Y+4,16,2);R('#d9b07a',X,Y+10,16,2);P(HT,X+5,Y+5,{'#':'#e0607e',o:'#ff9bb5'})}return}
+ R((tx+ty)%2?'#7ec26a':'#78bc65',X,Y,16,16);if(r%5==0)R('#92d27a',X+r%12+1,Y+(r>>1)%12+1,2,1);
+ if(c==','){const w=Math.sin(t/400+tx)>.5?1:0,cl=['#f7a8c4','#fff3b0','#c9a7f0','#fff'];[[3,5],[10,9]].forEach(([a,b],i)=>{R('#4f9a4f',X+a+1,Y+b+2,1,4);R(cl[(r+i)%4],X+a+w,Y+b,3,3);R('#ffd45e',X+a+1+w,Y+b+1,1,1)})}
+ if(c=='F'){R('#b88a5a',X,Y+6,16,2);R('#b88a5a',X,Y+10,16,2);R('#9a7048',X+2,Y+3,2,11);R('#9a7048',X+12,Y+3,2,11)}
+ if(c=='T'){const s=Math.sin(t/900+tx)*.8|0;R('#7a4e3a',X+6,Y+9,4,7);R('#3c8450',X+1+s,Y+1,14,10);R('#4aa060',X+2+s,Y,12,9);R('#6cc17a',X+4+s,Y+2,3,2);R('#2f6b42',X+2+s,Y+9,12,2)}}
+function dr(o,t){const X=o.x*16-cx,Y=o.y*16-cy,k=o.k,b=Math.sin(t/180+o.x)*1.5;
+ if(k=='h')P(HT,X+4,Y+4+b,{'#':'#e0607e',o:'#ffc2d0'});
+ else if(k=='f'){R('#4f9a4f',X+7,Y+8,2,7);R('#ff8fb3',X+4,Y+3,8,6);R('#ffb3c9',X+5,Y+2,6,2);R('#ffd45e',X+7,Y+5,2,2);if((t/300|0)%3==0)R('#fff',X+12,Y+2,1,1)}
+ else if(k=='k'){R('#ffd45e',X+3,Y+6+b,5,5);R('#b8892e',X+5,Y+8+b,1,1);R('#ffd45e',X+7,Y+8+b,7,2);R('#ffd45e',X+12,Y+10+b,2,3)}
+ else if(k=='s')P(SR,X+4,Y+4+b,{'#':(t/200|0)%2?'#ffe27a':'#fff7c4'});
+ else if(k=='m'){const on=S.got[o.id];if(o.id=='m4'||o.id=='m5'){R('#b88a5a',X+2,Y+2,12,12);R('#fde9ef',X+4,Y+4,8,8);P(HT,X+5,Y+6,{'#':on?'#e0607e':'#c9a9b4',o:'#fff'})}else{R('#8d93ab',X+3,Y+4,10,11);R('#a9aec4',X+4,Y+3,8,3);R(on?'#ff7fa0':'#6e7490',X+6,Y+8,4,3)}}
+ else if(k=='n')pr(X,Y,o.pc[0],o.pc[1],0,0,o.pc[2]);
+ else if(k=='sg'){R('#b88a5a',X+7,Y+8,2,7);R('#d9b07a',X+2,Y+3,12,7);R('#8a5a3a',X+4,Y+5,8,1);R('#8a5a3a',X+4,Y+7,6,1)}
+ else if(k=='al'){R('#b8b2c8',X+2,Y+8,12,8);R('#d6d0e6',X+1,Y+6,14,3);for(let i=0;i<3;i++)R(S.got['s'+(i+1)]?'#ffe27a':'#6a6480',X+3+i*4,Y+3,2,2)}
+ else if(k=='tb'){R('#fff4e0',X,Y+7,16,8);R('#e0607e',X,Y+7,16,2);R('#fff',X+7,Y+3,2,4);R('#ffd45e',X+7,Y+1+(t/120%2|0),2,2)}
+ else if(k=='sp'){R('#fff7b0',X+5,Y+5+b,6,6);R('#ffd45e',X+6,Y+6+b,4,4)}
+ else if(k=='ct'){R('#e8a050',X+3,Y+7,10,7);R('#e8a050',X+3,Y+4,3,3);R('#e8a050',X+10,Y+4,3,3);R('#3a2a3a',X+5,Y+9,1,2);R('#3a2a3a',X+10,Y+9,1,2)}
+ else if(k=='ls'){R('#fff4e0',X+3,Y+6+b,10,8);R('#e6d2b8',X+3,Y+6+b,10,1);P(HT,X+5,Y+8+b,{'#':'#e0607e',o:'#ff9bb5'})}}
+const LG={h:['255,150,170',14,.5],s:['255,240,160',20,.6],sp:['255,230,150',26,.6],tb:['255,200,120',28,.5],ls:['255,200,220',20,.6],al:['180,220,255',24,.4]};
+const gl=(x,y,r,c,a)=>{const q=g.createRadialGradient(x,y,0,x,y,r);q.addColorStop(0,`rgba(${c},${a})`);q.addColorStop(1,`rgba(${c},0)`);g.fillStyle=q;g.fillRect(x-r,y-r,2*r,2*r)};
+function rd(t){const mp=M[S.m],gr=mp.g,W=gr[0].length*16,Hh=gr.length*16;
+ cx=W<=160?(W-160)/2:Math.max(0,Math.min(W-160,S.x-80));cy=Hh<=160?(Hh-160)/2:Math.max(0,Math.min(Hh-160,S.y-80));cx|=0;cy|=0;
+ R('#1b1424',0,0,160,160);
+ for(let y=cy>>4;y<=(cy+159>>4);y++)for(let x=cx>>4;x<=(cx+159>>4);x++){const c=(gr[y]||'')[x];if(c)tl(c,x*16-cx,y*16-cy,x,y,t,mp)}
+ for(const e of mp.ex)if(e.need){R('#7a4e3a',e.x*16-cx+2,e.y*16-cy,12,16);R('#ffd45e',e.x*16-cx+10,e.y*16-cy+8,2,2)}
+ const L=mp.o.filter(o=>!(o.rm&&S.got[o.id]));L.push({k:'pl',y:S.y/16-.5});L.sort((a,b)=>a.y-b.y);
+ for(const o of L){if(o.k=='pl'){const f=mv?(t/130|0)%2:0;pr(S.x-cx-8,S.y-cy-13-(mv&&f?1:0),'#6b3b2a','#f27c9b',S.d,f,'#ff9bb5')}else dr(o,t)}
+ g.globalCompositeOperation='multiply';g.fillStyle=mp.t;g.fillRect(0,0,160,160);g.globalCompositeOperation='lighter';
+ if(mp.d)gl(S.x-cx,S.y-cy-6,48,'255,214,150',.4);
+ for(const o of L){const l=o.k=='m'?(S.got[o.id]?['255,170,200',18,.5]:0):LG[o.k];if(l)gl(o.x*16-cx+8,o.y*16-cy+8,l[1],l[0],l[2])}
+ for(const p of PA){if(mp.p=='f'){g.globalAlpha=.4+.6*Math.abs(Math.sin(t/400+p.s*30));R('#ffe27a',p.x+Math.sin(t/900+p.s*20)*14,p.y+Math.cos(t/1100+p.s*17)*12,2,2)}else{g.globalAlpha=1;g.globalCompositeOperation='source-over';R(S.fl.end?'#ff7fa0':p.s>.5?'#ffc2d4':'#fff',(p.x+t*.01*(.5+p.s)+Math.sin(t/700+p.s*9)*6)%168-4,(p.y+t*.018*(.4+p.s))%168-4,2,2)}}
+ g.globalAlpha=1;g.globalCompositeOperation='source-over';
+ const q=g.createRadialGradient(80,80,60,80,80,118);q.addColorStop(0,'rgba(20,10,30,0)');q.addColorStop(1,'rgba(20,10,30,.45)');g.fillStyle=q;g.fillRect(0,0,160,160);
+ if(fd>0){g.globalAlpha=fd;R('#1b1424',0,0,160,160);g.globalAlpha=1;fd-=.05}}
+let last=0;function lp(ts){const dt=Math.min(.05,(ts-last)/1000||0);last=ts;upd(dt,ts);rd(ts);requestAnimationFrame(lp)}
+// управление
+const J=$('joy'),kn=$('kn');let jid=null;
+function jm(e){const r=J.getBoundingClientRect(),mx=r.width/2-14;let dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2;const m=Math.hypot(dx,dy);if(m>mx){dx*=mx/m;dy*=mx/m}kn.style.transform=`translate(${dx}px,${dy}px)`;jv={x:dx/mx,y:dy/mx}}
+J.onpointerdown=e=>{e.preventDefault();jid=e.pointerId;J.setPointerCapture(jid);jm(e)};J.onpointermove=e=>{if(e.pointerId===jid)jm(e)};
+J.onpointerup=J.onpointercancel=()=>{jid=null;jv={x:0,y:0};kn.style.transform=''};
+function act(){if(!go0)return;if(D){adv();return}if(mo)return;const o=near();o&&o.on()}
+$('ab').onpointerdown=e=>{e.preventDefault();act()};dl.onpointerdown=e=>{e.preventDefault();adv()};
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();K[k]=1;if(' ,enter,e,z'.split(',').includes(k)||k==' ')act()});addEventListener('keyup',e=>delete K[e.key.toLowerCase()]);
+document.addEventListener('touchmove',e=>{if(!e.target.closest('#mn'))e.preventDefault()},{passive:false});
+document.addEventListener('gesturestart',e=>e.preventDefault());
+// меню
+const MN=$('mn');
+function menu(){mo=1;MN.className='';MN.innerHTML=`<h2>меню</h2><h3>задание</h3><p>${quest()}</p><h3>сердечки: ${S.h} из ${TH}</h3><h3>галерея воспоминаний</h3><div class="gal">${['m1','m2','m3','m4','m5'].map((id,i)=>`<button data-i="${i}">${S.got[id]?'воспоминание '+(i+1):'закрыто'}</button>`).join('')}</div><p id="gt">нажми на рамку</p><h3>достижения</h3><ul>${A.map(a=>`<li class="${S.ach[a[0]]?'y':''}">${S.ach[a[0]]?a[1]:'???'}</li>`).join('')}</ul><div class="row"><button id="cl">закрыть</button><button id="rs">начать заново</button></div>`}
+const cm=()=>{mo=0;MN.className='off'};
+MN.onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.id=='cl')cm();else if(b.id=='rs'){if(b.dataset.c){try{localStorage.removeItem(KS)}catch(x){}location.reload()}else{b.dataset.c=1;b.textContent='точно? нажми ещё раз'}}else if(b.dataset.i!=null){const i=+b.dataset.i;$('gt').textContent=S.got['m'+(i+1)]?C.mem[i]:'это воспоминание ещё не найдено'}};
+$('mb').onclick=()=>{if(!go0||D)return;mo?cm():menu()};
+// старт и размер
+const ti=$('ti');
+ti.innerHTML=`<h1>наше маленькое приключение</h1><p>для ${C.her} с любовью</p><button id="go">${sv0?'продолжить':'играть'}</button>${sv0?'<button id="ng">новая игра</button>':''}`;
+$('go').onclick=()=>{ti.className='off';go0=1;hud();toast(M[S.m].n);if(!sv0){sv0=1;say(['незнакомец|привет, '+C.her,'незнакомец|для тебя приготовлено маленькое приключение','незнакомец|веди героиню джойстиком, а кнопка «ок», чтобы говорить и брать вещи'])}};
+if(sv0)$('ng').onclick=()=>{try{localStorage.removeItem(KS)}catch(x){}location.reload()};
+const app=$('app'),st=$('st');
+function rz(){const w=innerWidth,h=innerHeight,L=w>h*1.15;let s=L?Math.min(h-70,w-340):Math.min(w-12,h-280);s=Math.max(150,Math.floor(s));st.style.width=st.style.height=s+'px';$('hd').style.width=s+'px';document.documentElement.style.setProperty('--s',s+'px')}
+addEventListener('resize',rz);addEventListener('orientationchange',()=>setTimeout(rz,200));addEventListener('pagehide',sv);document.addEventListener('visibilitychange',sv);
+rz();hud();requestAnimationFrame(lp);
+</script></body></html>
