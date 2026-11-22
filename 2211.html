@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>для тебя</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Nunito:wght@400;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f3eefa; --paper:#fbf8ff; --note:#e9defa; --line:#d6c7ef;
+  --accent:#9a82cc; --ink:#3f3556; --soft:#6f6488; --onacc:#fff;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#241e33; --paper:#2d2640; --note:#3a3053; --line:#4b4066;
+    --accent:#b9a2e6; --ink:#efe9fa; --soft:#b4a9cc; --onacc:#241e33;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito",system-ui,sans-serif;font-size:18px;line-height:1.6;overflow-x:hidden}
+main{max-width:640px;margin:0 auto;padding:56px 22px 72px}
+h1,h2{font-family:"Caveat","Segoe Script",cursive;font-weight:700;margin:0;line-height:1.05}
+h1{font-size:clamp(56px,16vw,92px);color:var(--accent)}
+h2{font-size:38px;margin-bottom:6px}
+.sub{margin:0 0 18px;color:var(--soft);font-size:16px}
+.hero p{margin:14px 0 0;color:var(--soft);max-width:30ch}
+section{margin-top:72px}
+.box{background:var(--paper);border:2px dashed var(--line);border-radius:26px 30px 24px 32px;padding:22px}
+.clock{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+.clock b{display:block;font-family:"Caveat",cursive;font-size:clamp(40px,12vw,64px);color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+.clock span{font-size:14px;color:var(--soft)}
+.since{margin:14px 0 0;text-align:center;color:var(--soft);font-size:16px}
+.ms{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.ms li{display:flex;gap:12px;align-items:baseline;background:var(--note);padding:12px 16px;border-radius:16px 20px 14px 20px}
+.ms li i{font-style:normal;color:var(--accent);font-size:22px}
+.ms li small{margin-left:auto;color:var(--soft);font-size:14px;text-align:right}
+.ms li.next{outline:2px solid var(--accent)}
+.ms li.done{opacity:.75}
+.notes{display:grid;gap:14px}
+.notes div{background:var(--note);padding:16px 20px;border-radius:18px 22px 16px 24px}
+.notes div:nth-child(odd){transform:rotate(-1.2deg)}
+.notes div:nth-child(even){transform:rotate(1deg);margin-left:18px}
+button{font:inherit;font-weight:600;background:var(--accent);color:var(--onacc);border:0;border-radius:999px;padding:12px 24px;cursor:pointer}
+button.ghost{background:var(--note);color:var(--ink)}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.row{display:flex;flex-wrap:wrap;gap:10px}
+.out{margin-top:18px;min-height:64px;background:var(--paper);border-left:5px solid var(--accent);padding:16px 20px;border-radius:6px 20px 20px 6px;font-size:20px;white-space:pre-wrap}
+.arena{position:relative;height:240px;overflow:hidden;margin-top:14px;background:var(--paper);border:2px dashed var(--line);border-radius:26px;touch-action:manipulation}
+.arena .info{position:absolute;top:10px;left:16px;right:16px;display:flex;justify-content:space-between;color:var(--soft);font-size:16px;pointer-events:none}
+.h{position:absolute;bottom:-50px;border:0;background:none;color:var(--accent);font-size:36px;padding:6px;line-height:1;animation:rise 4.2s linear forwards}
+@keyframes rise{to{transform:translateY(-310px)}}
+.pop{position:fixed;pointer-events:none;color:var(--accent);font-size:22px;animation:fly 1s ease-out forwards;z-index:5}
+@keyframes fly{to{transform:translateY(-70px) scale(1.4);opacity:0}}
+@media (prefers-reduced-motion:reduce){.pop{display:none}.h{animation-duration:9s}}
+footer{margin-top:80px;color:var(--soft);font-size:16px}
+</style>
+</head>
+<body>
+<main>
+  <header class="hero">
+    <h1>привет, солнышко</h1>
+    <p>я сделал тебе маленькое место в интернете, тут можно пощёлкать почти везде</p>
+  </header>
+
+  <section>
+    <h2>мы вместе</h2>
+    <p class="sub">с 13 июня 2026, и секунды идут прямо сейчас</p>
+    <div class="box">
+      <div class="clock">
+        <div><b id="d">0</b><span>дней</span></div>
+        <div><b id="h">0</b><span>часов</span></div>
+        <div><b id="m">0</b><span>минут</span></div>
+        <div><b id="s">0</b><span>секунд</span></div>
+      </div>
+      <p class="since" id="months"></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>наши вехи</h2>
+    <p class="sub">что уже было и что будет скоро</p>
+    <ul class="ms" id="ms"></ul>
+  </section>
+
+  <section>
+    <h2>лови сердечки</h2>
+    <p class="sub">нажимай на них, пока они не улетели</p>
+    <div class="row"><button id="play" type="button">играть</button></div>
+    <div class="arena" id="arena"><div class="info"><span id="score">поймано: 0</span><span id="time">20</span></div></div>
+  </section>
+
+  <section>
+    <h2>что делаем сегодня</h2>
+    <p class="sub">пусть выберет судьба</p>
+    <div class="row"><button id="spin" type="button">крутить</button></div>
+    <div class="out" id="idea">нажми на кнопку</div>
+  </section>
+
+  <section>
+    <h2>как ты сейчас</h2>
+    <p class="sub">выбери настроение, у меня есть что сказать</p>
+    <div class="row" id="moods"></div>
+    <div class="out" id="mood">тут появится ответ</div>
+  </section>
+
+  <section>
+    <h2>комплимент дня</h2>
+    <div class="row"><button id="comp" type="button">хочу комплимент</button></div>
+    <div class="out" id="cout">нажми, не стесняйся</div>
+  </section>
+
+  <section>
+    <h2>за что я тебя люблю</h2>
+    <div class="notes">
+      <div>за то, как ты смеёшься над моими глупыми шутками</div>
+      <div>за то, что с тобой можно просто помолчать и не будет неловко</div>
+      <div>за твои тёплые руки</div>
+      <div>за то, что ты рядом, когда мне это нужнее всего</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>письмо тебе</h2>
+    <div class="row"><button id="open" type="button">открыть письмо</button></div>
+    <div class="out" id="letter"></div>
+  </section>
+
+  <footer>сделано с любовью, специально для тебя</footer>
+</main>
+<script>
+var START = new Date(2026, 5, 13);
+var MON = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+function $(i){return document.getElementById(i)}
+function fmt(d){return d.getDate()+' '+MON[d.getMonth()]+' '+d.getFullYear()}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function days(a){return Math.ceil((a-new Date())/86400000)}
+
+function tick(){
+  var s=Math.max(0,Math.floor((Date.now()-START)/1000));
+  $('d').textContent=Math.floor(s/86400);
+  $('h').textContent=Math.floor(s%86400/3600);
+  $('m').textContent=Math.floor(s%3600/60);
+  $('s').textContent=s%60;
+}
+tick(); setInterval(tick,1000);
+
+var now=new Date();
+var mm=(now.getFullYear()-2026)*12+now.getMonth()-5-(now.getDate()<13?1:0);
+$('months').textContent='а ещё это уже '+Math.max(0,mm)+' мес вместе';
+
+function plus(n){return new Date(2026,5,13+n)}
+var list=[['100 дней',plus(100)],['полгода',new Date(2026,11,13)],['200 дней',plus(200)],['300 дней',plus(300)],['год вместе',new Date(2027,5,13)]];
+list.sort(function(a,b){return a[1]-b[1]});
+var nextDone=false, html='';
+list.forEach(function(x){
+  var past=x[1]<=now, cls=past?'done':(!nextDone?'next':''), note;
+  if(!past&&!nextDone)nextDone=true;
+  note=past?'уже было':'осталось дней: '+days(x[1]);
+  html+='<li class="'+cls+'"><i>'+(past?'♥':'♡')+'</i>'+x[0]+'<small>'+fmt(x[1])+'<br>'+note+'</small></li>';
+});
+$('ms').innerHTML=html;
+
+/* игра */
+var score=0,left=0,timer=null,spawner=null;
+function spawn(){
+  var b=document.createElement('button');
+  b.className='h'; b.textContent='♥'; b.setAttribute('aria-label','сердечко');
+  b.style.left=(Math.random()*85+2)+'%';
+  b.onclick=function(e){e.stopPropagation();score++;$('score').textContent='поймано: '+score;b.remove()};
+  b.onanimationend=function(){b.remove()};
+  $('arena').appendChild(b);
+}
+$('play').onclick=function(){
+  clearInterval(timer);clearInterval(spawner);
+  score=0;left=20;$('score').textContent='поймано: 0';$('time').textContent=left;
+  spawner=setInterval(spawn,600);
+  timer=setInterval(function(){
+    left--;$('time').textContent=left;
+    if(left<=0){
+      clearInterval(timer);clearInterval(spawner);
+      $('score').textContent='ты поймала '+score+', а моё сердце давно у тебя';
+      $('time').textContent='';
+    }
+  },1000);
+};
+
+/* что делаем */
+var ideas=['кино под пледом и что-нибудь вкусное','вместе приготовить ужин, который точно не получится','долгая прогулка без цели','собрать плейлист для нас двоих','настольные игры и чай','сходить в кафе и заказать то, что никогда не пробовали','устроить фотосессию дома','нарисовать друг друга и посмеяться','построить крепость из подушек','посмотреть на звёзды']
+$('spin').onclick=function(){
+  var n=0,t=setInterval(function(){
+    $('idea').textContent=pick(ideas);
+    if(++n>10){clearInterval(t)}
+  },90);
+};
+
+/* настроение */
+var moods={'грустно':'иди сюда, я обниму тебя крепко и никуда не отпущу','устала':'ты у меня самая сильная, а сейчас пора отдохнуть и выпить тёплого чаю','счастлива':'тогда и я самый счастливый, расскажи мне всё','скучаю':'я тоже, очень, считаю минуты до встречи'};
+Object.keys(moods).forEach(function(k){
+  var b=document.createElement('button');b.className='ghost';b.textContent=k;
+  b.onclick=function(){$('mood').textContent=moods[k]};
+  $('moods').appendChild(b);
+});
+
+/* комплименты */
+var comps=['у тебя самая красивая улыбка на свете','с тобой любой день становится лучше','ты умная, добрая и очень смешная','мне нравится, как ты щуришься, когда смеёшься','ты делаешь меня лучше','ты невероятно уютная','рядом с тобой я чувствую себя дома'];
+$('comp').onclick=function(){$('cout').textContent=pick(comps)};
+
+/* письмо */
+var text='моя любимая\n\nя долго думал, как сказать тебе, что ты для меня значишь, и решил сделать вот это\n\nспасибо, что ты есть, что ты со мной и что мы вместе с июня\n\nя тебя люблю';
+var typing=null;
+$('open').onclick=function(){
+  clearInterval(typing);$('letter').textContent='';var i=0;
+  typing=setInterval(function(){
+    $('letter').textContent=text.slice(0,++i);
+    if(i>=text.length)clearInterval(typing);
+  },45);
+};
+
+/* сердечки по тапу */
+document.addEventListener('click',function(e){
+  if(e.target.closest('.h'))return;
+  var p=document.createElement('span');
+  p.className='pop';p.textContent='♥';
+  p.style.left=(e.clientX-10)+'px';p.style.top=(e.clientY-14)+'px';
+  document.body.appendChild(p);
+  setTimeout(function(){p.remove()},1000);
+});
+</script>
+</body>
+</html>
